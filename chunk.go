@@ -3,9 +3,11 @@ package main
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"github.com/ShadowJonathan/MOpher/Protocol"
 	"github.com/ShadowJonathan/MOpher/type/bit"
 	"github.com/ShadowJonathan/MOpher/type/direction"
+	"github.com/ShadowJonathan/MOpher/type/nibble"
 	"github.com/ShadowJonathan/MOpher/type/vmath"
 	"github.com/ShadowJonathan/MOpher/world/biome"
 	"math"
@@ -340,6 +342,9 @@ type chunkSection struct {
 	blockMap    []*csBlockInfo
 	revBlockMap map[Block]int
 
+	BlockLight nibble.Array
+	SkyLight   nibble.Array
+
 	BlockEntities map[Position]BlockEntity
 
 	dirty    bool
@@ -353,7 +358,9 @@ type csBlockInfo struct {
 
 var sectionPool = sync.Pool{
 	New: func() interface{} {
-		return &chunkSection{}
+		return &chunkSection{
+			BlockLight: nibble.New(16 * 16 * 16),
+			SkyLight:   nibble.New(16 * 16 * 16)}
 	},
 }
 
@@ -416,6 +423,12 @@ func (cs *chunkSection) setBlock(b Block, x, y, z int) {
 	cs.dirty = true
 }
 func loadChunk(x, z int, data *bytes.Reader, mask int32, sky, isNew bool) {
+	defer func() {
+		err := recover()
+		if err != nil {
+			fmt.Println(err)
+		}
+	}()
 	var c *chunk
 	if isNew {
 		c = &chunk{
@@ -445,7 +458,9 @@ func loadChunk(x, z int, data *bytes.Reader, mask int32, sky, isNew bool) {
 		if err != nil {
 			panic(err)
 		}
-
+		if bitSize == 0 {
+			bitSize = 4
+		}
 		blockMap := map[int]int{}
 		if bitSize <= 8 {
 			count, _ := protocol.ReadVarInt(data)
@@ -453,6 +468,8 @@ func loadChunk(x, z int, data *bytes.Reader, mask int32, sky, isNew bool) {
 				bID, _ := protocol.ReadVarInt(data)
 				blockMap[i] = int(bID)
 			}
+		} else {
+			protocol.ReadVarInt(data)
 		}
 
 		Len, _ := protocol.ReadVarInt(data)
@@ -469,6 +486,15 @@ func loadChunk(x, z int, data *bytes.Reader, mask int32, sky, isNew bool) {
 			block := GetBlockByCombinedID(uint16(bID))
 			pos := Position{X: i & 0xF, Z: (i >> 4) & 0xF, Y: i >> 8}
 			cs.setBlock(block, pos.X, pos.Y, pos.Z)
+		}
+
+		data.Read(cs.BlockLight)
+		if sky {
+			data.Read(cs.SkyLight)
+		} else {
+			for i := range cs.SkyLight {
+				cs.SkyLight[i] = 0x00
+			}
 		}
 
 	}

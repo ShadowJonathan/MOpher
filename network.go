@@ -13,6 +13,8 @@ import (
 	"log"
 	"math"
 	"reflect"
+	"strconv"
+	"strings"
 )
 
 // TODO make values correct here
@@ -67,6 +69,64 @@ func (handler) ServerMessage(msg *protocol.ServerMessage) {
 			switch T.Value.(type) {
 			case *format.TextComponent:
 				text = T.Value.(*format.TextComponent).Text
+			}
+		}
+	}
+	if len(text) > 5 {
+		if text[:3] == "NAV" {
+			var x float64
+			var y float64
+			var z float64
+			var err error
+			if text[4:] == "me" {
+				uuid, ok := nametouuid[author]
+				if !ok {
+					chat("/msg " + author + " I cannot find your position!")
+					return
+				}
+				var found bool
+				for _, e := range Client.entities.entities {
+					switch e.(type) {
+					case *player:
+						p := e.(*player)
+						if p.playerComponent.UUID() == uuid {
+							found = true
+							x, y, z = p.Position()
+							fmt.Println(p.EntityID())
+							x = x - 1
+						}
+					}
+				}
+				if !found {
+					chat("/msg " + author + " I cannot find your position!")
+					return
+				}
+			} else {
+				XYZ := strings.Split(text[4:], ",")
+				X := strings.TrimSpace(XYZ[0])
+				Y := strings.TrimSpace(XYZ[1])
+				Z := strings.TrimSpace(XYZ[2])
+				x, err = strconv.ParseFloat(X, 0)
+				if err != nil {
+					panic(err)
+				}
+				y, err = strconv.ParseFloat(Y, 0)
+				if err != nil {
+					panic(err)
+				}
+				z, err = strconv.ParseFloat(Z, 0)
+				if err != nil {
+					panic(err)
+				}
+			}
+			x = float64(int64(x))
+			z = float64(int64(z))
+			fmt.Println(Client.X, Client.Y, Client.Z)
+			fmt.Println(x, y, z)
+			err = NAV(x, y, z)
+			if err != nil {
+				chat("/msg " + author + " " + err.Error())
+				fmt.Println(x, y, z)
 			}
 		}
 	}
@@ -160,7 +220,7 @@ func Refpitch(raw float32) float64 {
 var loadingChunks = map[chunkPosition][]func(){}
 
 func (handler) ChunkData(c *protocol.ChunkData) {
-	//fmt.Println("Init chunk")
+	//fmt.Println("Init chunk", int32(c.BitMask))
 	pos := chunkPosition{int(c.ChunkX), int(c.ChunkZ)}
 	loadingChunks[pos] = nil
 
@@ -220,16 +280,16 @@ func (handler) SpawnPlayer(s *protocol.SpawnPlayer) {
 	e := newPlayer()
 	if p, ok := e.(PositionComponent); ok {
 		p.SetPosition(
-			float64(s.X)/32,
-			float64(s.Y)/32,
-			float64(s.Z)/32,
+			float64(s.X),
+			float64(s.Y),
+			float64(s.Z),
 		)
 	}
 	if p, ok := e.(TargetPositionComponent); ok {
 		p.SetTargetPosition(
-			float64(s.X)/32,
-			float64(s.Y)/32,
-			float64(s.Z)/32,
+			float64(s.X),
+			float64(s.Y),
+			float64(s.Z),
 		)
 	}
 	if r, ok := e.(RotationComponent); ok {
@@ -253,16 +313,16 @@ func (handler) SpawnMob(s *protocol.SpawnMob) {
 	e := et()
 	if p, ok := e.(PositionComponent); ok {
 		p.SetPosition(
-			float64(s.X)/32,
-			float64(s.Y)/32,
-			float64(s.Z)/32,
+			float64(s.X),
+			float64(s.Y),
+			float64(s.Z),
 		)
 	}
 	if p, ok := e.(TargetPositionComponent); ok {
 		p.SetTargetPosition(
-			float64(s.X)/32,
-			float64(s.Y)/32,
-			float64(s.Z)/32,
+			float64(s.X),
+			float64(s.Y),
+			float64(s.Z),
 		)
 	}
 	if r, ok := e.(RotationComponent); ok {
@@ -286,16 +346,16 @@ func (handler) EntityTeleport(t *protocol.EntityTeleport) {
 	}
 	if p, ok := e.(PositionComponent); ok {
 		p.SetPosition(
-			float64(t.X)/32,
-			float64(t.Y)/32,
-			float64(t.Z)/32,
+			float64(t.X),
+			float64(t.Y),
+			float64(t.Z),
 		)
 	}
 	if p, ok := e.(TargetPositionComponent); ok {
 		p.SetTargetPosition(
-			float64(t.X)/32,
-			float64(t.Y)/32,
-			float64(t.Z)/32,
+			float64(t.X),
+			float64(t.Y),
+			float64(t.Z),
 		)
 	}
 	if r, ok := e.(RotationComponent); ok {
@@ -311,18 +371,20 @@ func (handler) EntityTeleport(t *protocol.EntityTeleport) {
 func (handler) EntityMove(m *protocol.EntityMove) {
 	e, ok := Client.entities.entities[int(m.EntityID)]
 	if !ok {
+		//fmt.Println("CANNOT FIND ENTITY", m.EntityID)
 		return
 	}
-	dx, dy, dz := float64(m.DeltaX)/32, float64(m.DeltaY)/32, float64(m.DeltaZ)/32
+	dx, dy, dz := float64(m.DeltaX)/(32*128), float64(m.DeltaY)/(32*128), float64(m.DeltaZ)/(32*128)
 	relMove(e, dx, dy, dz)
 }
 
 func (handler) EntityMoveLook(m *protocol.EntityLookAndMove) {
 	e, ok := Client.entities.entities[int(m.EntityID)]
 	if !ok {
+		//fmt.Println("CANNOT FIND ENTITY", m.EntityID)
 		return
 	}
-	dx, dy, dz := float64(m.DeltaX)/32, float64(m.DeltaY)/32, float64(m.DeltaZ)/32
+	dx, dy, dz := float64(m.DeltaX)/(32*128), float64(m.DeltaY)/(32*128), float64(m.DeltaZ)/(32*128)
 	relMove(e, dx, dy, dz)
 	rotateEntity(e, (float64(m.Yaw)/256)*math.Pi*2, (float64(m.Pitch)/256)*math.Pi*2)
 }
@@ -330,6 +392,7 @@ func (handler) EntityMoveLook(m *protocol.EntityLookAndMove) {
 func (handler) EntityLook(l *protocol.EntityLook) {
 	e, ok := Client.entities.entities[int(l.EntityID)]
 	if !ok {
+		//fmt.Println("CANNOT FIND ENTITY", l.EntityID)
 		return
 	}
 	rotateEntity(e, (float64(l.Yaw)/256)*math.Pi*2, (float64(l.Pitch)/256)*math.Pi*2)
@@ -348,6 +411,14 @@ func rotateEntity(e Entity, y, p float64) {
 }
 
 func relMove(e Entity, dx, dy, dz float64) {
+	if p, ok := e.(PositionComponent); ok {
+		x, y, z := p.Position()
+		p.SetPosition(
+			x+dx,
+			y+dy,
+			z+dz,
+		)
+	}
 	if p, ok := e.(TargetPositionComponent); ok {
 		x, y, z := p.TargetPosition()
 		p.SetTargetPosition(
@@ -356,14 +427,6 @@ func relMove(e Entity, dx, dy, dz float64) {
 			z+dz,
 		)
 		return
-	}
-	if p, ok := e.(PositionComponent); ok {
-		x, y, z := p.Position()
-		p.SetPosition(
-			x+dx,
-			y+dy,
-			z+dz,
-		)
 	}
 }
 
@@ -407,8 +470,14 @@ func (handler) WindowItem(p *protocol.WindowSetSlot) {
 	inv.Items[p.Slot] = ItemStackFromProtocol(p.ItemStack)
 }
 
-func (handler) PlaySound(p *protocol.SoundEffect) {
+var nametouuid = map[string]protocol.UUID{}
 
+func (handler) PlayerInfo(pi *protocol.PlayerInfo) {
+	if pi.Action == 0 {
+		for _, p := range pi.Players {
+			nametouuid[p.Name] = p.UUID
+		}
+	}
 }
 
 type NetworkManager struct {

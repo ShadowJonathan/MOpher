@@ -10,7 +10,6 @@ import (
 	"github.com/ShadowJonathan/MOpher/Protocol/mojang"
 	"io/ioutil"
 	"log"
-	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -106,7 +105,7 @@ func main() {
 			} else if xyz == "MOV" {
 				xyz := GetInput("Walk to; X,Y,Z")
 				if iswalking {
-					Killwalker <- true
+					iswalking = !iswalking
 				}
 				XYZ := strings.Split(xyz, ",")
 				var x float64
@@ -140,9 +139,6 @@ func main() {
 				continue
 			} else if xyz == "NAV" {
 				xyz := GetInput("Navigate to; X,Y,Z")
-				if iswalking {
-					Killwalker <- true
-				}
 				XYZ := strings.Split(xyz, ",")
 				var x float64
 				var y float64
@@ -203,6 +199,7 @@ func main() {
 			b := chunkMap.Block(int(x), int(y), int(z))
 			fmt.Println(b.BlockSet().stringify(b))
 		}
+		fmt.Println("CLOSED")
 	}()
 	for {
 		draw()
@@ -217,99 +214,16 @@ func powsq(num int) int {
 	return num * num
 }
 
+func chat(s string) {
+	Client.network.Write(&protocol.ChatMessage{Message: s})
+}
+
 var T = time.NewTicker(time.Second / 20)
 var ST = time.NewTicker(time.Second / 60)
 
 var iswalking bool
 var Killwalker chan bool
 var TPSpam chan bool
-
-const (
-	RadToDeg  = 180 / math.Pi
-	DegToRad  = math.Pi / 180
-	RadToGrad = 200 / math.Pi
-	GradToDeg = math.Pi / 200
-)
-
-func Moveto(x, y, z float64) {
-	iswalking = true
-	speed := 4.317 / 20.0
-	if !(math.Abs(Client.X-x) > 0.01 || math.Abs(Client.Y-y) > 0.01 || math.Abs(Client.Z-z) > 0.01) {
-		fmt.Println("SKIPPED")
-		fmt.Println(math.Abs(Client.X-x), math.Abs(Client.Y-y), math.Abs(Client.Z-z))
-	}
-	startdx := (Client.X - x)
-	startdz := -(Client.Z - z)
-	propyaw := math.Atan2(startdx, startdz) / DegToRad
-LOOP:
-	for {
-		slope := float64(Client.X-x) / float64(Client.Z-z)
-
-		angle := (math.Atan(slope)) * (180 / math.Pi)
-		// -x = 90
-		// x = -90
-		// z = angle == 0 && (GLOBALZ - z) < -maxz
-		// -z = angle == 0 && (GLOBALZ - z) > maxz
-		/*
-		   dx = x-x0
-		   dy = y-y0
-		   dz = z-z0
-		   r = sqrt( dx*dx + dy*dy + dz*dz )
-		   yaw = -atan2(dx,dz)/PI*180
-		   if yaw < 0 then
-		       yaw = 360 - yaw
-		   pitch = -arcsin(dy/r)/PI*180
-		*/
-
-		// cos = z
-		// sin = x
-		maxx := speed * math.Sin(angle*DegToRad)
-		maxz := speed * math.Cos(angle*DegToRad)
-		var propdx float64
-		var propdz float64
-
-		if (Client.X - x) > maxx {
-			propdx = maxx
-		} else if (Client.X - x) < -maxx {
-			propdx = maxx
-		} else {
-			propdx = -(x - Client.X)
-		}
-
-		if (Client.Z - z) > maxz {
-			propdz = maxz
-		} else if (Client.Z - z) < -maxz {
-			propdz = -maxz
-		} else {
-			propdz = -(z - Client.Z)
-		}
-
-		if propdx == 0 && propdz == 0 {
-			break LOOP
-		}
-
-		select {
-		case <-T.C:
-			Client.network.Write(&protocol.PlayerPositionLook{
-				X:        Client.X - propdx,
-				Y:        Client.Y,
-				Z:        Client.Z - propdz,
-				Yaw:      float32(propyaw),
-				Pitch:    0,
-				OnGround: Client.OnGround,
-			})
-			Client.Yaw = -propyaw * DegToRad
-			Client.X = Client.X - propdx
-			Client.Z = Client.Z - propdz
-			if propdx < 0.001 && propdx > 0.001 && propdz < 0.001 && propdz > -0.001 {
-				break LOOP
-			}
-		default:
-
-		}
-
-	}
-}
 
 func GetInput(s string) string {
 	reader := bufio.NewReader(os.Stdin)

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/ShadowJonathan/MOpher/Protocol"
 	"github.com/beefsack/go-astar"
+	"math"
 	"runtime/debug"
 	"strconv"
 	"strings"
@@ -27,15 +28,16 @@ func NAV(x, y, z float64) (err error) {
 			fmt.Println("PANICKED", err, "\n", string(s))
 		}
 	}()
-
+	xyz := fmt.Sprint(x, y, z)
 	fmt.Println("Calling walkable....")
-	err = CheckWalkable(x, y, z)
+	err = CheckWalkable(x, y, z, false)
 	if err != nil {
 		return
 	}
 	globalX, globalY, globalZ = int(x), int(y), int(z)
 	var World = Tiles{}
 	var newtile = new(Tile)
+	World.init()
 	newtile = &Tile{TS: World, X: int(x), Y: int(y), Z: int(z)}
 	World.SetTile(newtile, int(x), int(y), int(z))
 
@@ -47,32 +49,302 @@ func NAV(x, y, z float64) (err error) {
 	if found {
 		fmt.Println("C", int(Client.X), int(Client.Y), int(Client.Z))
 		fmt.Println("G", int(x), int(y), int(z))
-		pathLocs := map[string]bool{}
+		pathLocs := map[string]info{}
+		if len(path) == 1 {
+			fmt.Println("Already at destination")
+			return errors.New("Already at destination " + xyz)
+		}
 		for _, p := range path {
 			pT := p.(*Tile)
-			pathLocs[fmt.Sprintf("%d,%d,%d", pT.X, pT.Y, pT.Z)] = true
-			/*x := strconv.FormatInt(int64(pT.X), 10)
-			y := strconv.FormatInt(int64(pT.Y), 10)
-			z := strconv.FormatInt(int64(pT.Z), 10)
-			Client.network.Write(&protocol.ChatMessage{Message: "/setblock " + x + " " + y + " " + z + " minecraft:redstone_torch"})*/
+			pathLocs[fmt.Sprintf("%d,%d,%d", pT.X, pT.Y, pT.Z)] = info{
+				pT.IDS,
+				pT.special,
+				pT.axis,
+				pT.orient}
 		}
 		Path := FindPath(int(Client.X), int(Client.Y), int(Client.Z), globalX, globalY, globalZ, pathLocs)
-		Path.Print()
+		//Path.Print()
 		Navigate(Path.P)
 	} else {
 		fmt.Println("No path found")
+		return errors.New("No path found " + xyz)
 	}
 	return nil
 }
 
+const (
+	RadToDeg  = 180 / math.Pi
+	DegToRad  = math.Pi / 180
+	RadToGrad = 200 / math.Pi
+	GradToDeg = math.Pi / 200
+)
+
+// Liniar, constant movement, assumes no obstacles and tolerates no obstacles
+func Moveto(x, y, z float64) {
+	iswalking = true
+	speed := 4.317 / 17.5
+	if !(math.Abs(Client.X-x) > 0.01 || math.Abs(Client.Y-y) > 0.01 || math.Abs(Client.Z-z) > 0.01) {
+		fmt.Println("SKIPPED")
+		fmt.Println(math.Abs(Client.X-x), math.Abs(Client.Y-y), math.Abs(Client.Z-z))
+	}
+	startdx := Client.X - x
+	startdz := -(Client.Z - z)
+	propyaw := math.Atan2(startdx, startdz) / DegToRad
+LOOP:
+	for {
+		slope := float64(Client.X-x) / float64(Client.Z-z)
+
+		angle := (math.Atan(slope)) * (180 / math.Pi)
+
+		maxx := speed * math.Abs(math.Sin(angle*DegToRad))
+		maxz := speed * math.Abs(math.Cos(angle*DegToRad))
+		var propdx float64
+		var propdz float64
+
+		// -x = 90
+		// x = -90
+		// z = angle == 0 && (GLOBALZ - z) < -maxz
+		// -z = angle == 0 && (GLOBALZ - z) > maxz
+		/*
+		   dx = x-x0
+		   dy = y-y0
+		   dz = z-z0
+		   r = sqrt( dx*dx + dy*dy + dz*dz )
+		   yaw = -atan2(dx,dz)/PI*180
+		   if yaw < 0 then
+		       yaw = 360 - yaw
+		   pitch = -arcsin(dy/r)/PI*180
+		*/
+
+		// cos = z
+		// sin = x
+
+		if maxz < 0.0001 && maxz > -0.0001 {
+			maxz = 0
+		}
+
+		positivex := x > Client.X
+		positivez := z > Client.Z
+
+		if positivex && (x-Client.X) != 0 {
+			maxx = -maxx
+		}
+		if positivez && (z-Client.Z) != 0 {
+			maxz = -maxz
+		}
+
+		if math.Abs(Client.X-x) > math.Abs(maxx) {
+			propdx = maxx
+		} else {
+			propdx = Client.X - x
+		}
+
+		if math.Abs(Client.Z-z) > math.Abs(maxz) {
+			propdz = maxz
+		} else {
+			propdz = Client.Z - z
+		}
+
+		if propdx == 0 && propdz == 0 {
+			break LOOP
+		}
+
+		select {
+		case <-T.C:
+			Client.network.Write(&protocol.PlayerPositionLook{
+				X:        Client.X + propdx,
+				Y:        Client.Y,
+				Z:        Client.Z + propdz,
+				Yaw:      float32(propyaw),
+				Pitch:    0,
+				OnGround: Client.OnGround,
+			})
+			Client.Yaw = -propyaw * DegToRad
+			Client.X = Client.X - propdx
+			Client.Z = Client.Z - propdz
+			if propdx < 0.001 && propdx > -0.001 && propdz < 0.001 && propdz > -0.001 {
+				break LOOP
+			}
+		default:
+
+		}
+
+	}
+}
+
+func MoveSpecial(p *Path) {
+
+	switch p.orient {
+	case up:
+		Jumpto(p)
+	case down:
+		Flallto(p)
+	}
+}
+
+var SLOW = time.NewTicker(time.Second / 20)
+
+func Jumpto(p *Path) {
+	iswalking = true
+	var i int
+	for i < 7 {
+		origyaw := -Client.Yaw * (180 / math.Pi)
+		var dx = 0.0
+		var dy = 0.0
+		var dz = 0.0
+		rc := Jumpframes[i]
+		switch p.axis {
+		case Xaxis:
+			dx = rc.Rel
+			dy = rc.Y
+		case Zaxis:
+			dz = rc.Rel
+			dy = rc.Y
+		case NZaxis:
+			dz = -rc.Rel
+			dy = rc.Y
+		case NXaxis:
+			dx = -rc.Rel
+			dy = rc.Y
+		}
+		propyaw := 0.0
+		if i == 0 {
+			propyaw = origyaw
+		} else {
+			startdx := -dx
+			startdz := dz
+			propyaw = math.Atan2(startdx, startdz) / DegToRad
+		}
+
+		select {
+		case <-SLOW.C:
+			Client.network.Write(&protocol.PlayerPositionLook{
+				X:        Client.X + dx,
+				Y:        Client.Y + dy,
+				Z:        Client.Z + dz,
+				Yaw:      float32(propyaw),
+				Pitch:    0,
+				OnGround: Client.OnGround,
+			})
+			Client.Yaw = -propyaw * DegToRad
+			Client.X = Client.X + dx
+			Client.Z = Client.Z + dz
+			Client.Y = Client.Y + dy
+			i++
+		default:
+		}
+	}
+	iswalking = false
+}
+
+func Flallto(p *Path) {
+	iswalking = true
+	var i int
+	for i < 6 {
+		origyaw := -Client.Yaw * (180 / math.Pi)
+		var dx = 0.0
+		var dy = 0.0
+		var dz = 0.0
+		rc := FallFrames[i]
+		switch p.axis {
+		case Xaxis:
+			dx = rc.Rel
+			dy = rc.Y
+		case Zaxis:
+			dz = rc.Rel
+			dy = rc.Y
+		case NZaxis:
+			dz = -rc.Rel
+			dy = rc.Y
+		case NXaxis:
+			dx = -rc.Rel
+			dy = rc.Y
+		}
+		propyaw := 0.0
+		if i == 0 {
+			propyaw = origyaw
+		} else {
+			startdx := -dx
+			startdz := dz
+			propyaw = math.Atan2(startdx, startdz) / DegToRad
+		}
+
+		select {
+		case <-SLOW.C:
+			Client.network.Write(&protocol.PlayerPositionLook{
+				X:        Client.X + dx,
+				Y:        Client.Y + dy,
+				Z:        Client.Z + dz,
+				Yaw:      float32(propyaw),
+				Pitch:    0,
+				OnGround: Client.OnGround,
+			})
+			Client.Yaw = -propyaw * DegToRad
+			Client.X = Client.X + dx
+			Client.Z = Client.Z + dz
+			Client.Y = Client.Y + dy
+			i++
+		default:
+		}
+	}
+	iswalking = false
+}
+
+type RelCoord struct {
+	Rel float64
+	Y   float64
+}
+
+var FallFrames = map[int]RelCoord{
+	0: {0, 0},
+	1: {0.4, 0},
+	2: {0.2, 0},
+	3: {0.2, -0.2},
+	4: {0.1, -0.4},
+	5: {0.1, -0.4},
+}
+
+/*
+var FallFrames = map[int]RelCoord{
+	0: {0, 0},
+	1: {0.4, 0},
+	2: {0.6, 0},
+	3: {0.8, -0.1},
+	4: {0.9, -0.3},
+	5: {1, -0.5},
+}
+*/
+
+var Jumpframes = map[int]RelCoord{
+	0: {0, 0},
+	1: {0.05, 0.6},
+	2: {0.10, 0.45},
+	3: {0.15, 0.15},
+	4: {0.3, -0.1},
+	5: {0.15, -0.1},
+	6: {0.25, 0},
+}
+
+/*
+var Jumpframes = map[int]RelCoord{
+	0: {0, 0},
+	1: {0.05, 0.6},
+	2: {0.15, 1.05},
+	3: {0.3, 1.2},
+	4: {0.6, 1.1},
+	5: {0.75, 1},
+	6: {1, 1},
+}
+*/
+
 func Navigate(path *Path) {
-	Show(path)
-	time.Sleep(5 * time.Second)
-	RemoveShow(path)
+	//go Show(path)
+	//time.Sleep(5 * time.Second)
 	Move(path)
 }
 
 func Show(path *Path) {
+	//time.Sleep(50 * time.Millisecond)
 	x := strconv.FormatInt(int64(path.X), 10)
 	y := strconv.FormatInt(int64(path.Y), 10)
 	z := strconv.FormatInt(int64(path.Z), 10)
@@ -83,29 +355,42 @@ func Show(path *Path) {
 }
 
 func RemoveShow(path *Path) {
+	//time.Sleep(100 * time.Millisecond)
 	x := strconv.FormatInt(int64(path.X), 10)
 	y := strconv.FormatInt(int64(path.Y), 10)
 	z := strconv.FormatInt(int64(path.Z), 10)
 	Client.network.Write(&protocol.ChatMessage{Message: "/setblock " + x + " " + y + " " + z + " minecraft:air"})
-	if path.P != nil {
-		RemoveShow(path.P)
-	}
 }
 
 func Move(path *Path) {
-	fmt.Println("Moving to", float64(path.X)+0.5, float64(path.Y), float64(path.Z)+0.5)
-	Moveto(float64(path.X)+0.5, float64(path.Y), float64(path.Z)+0.5)
+	//go RemoveShow(path)
+	if !path.special {
+		Moveto(float64(path.X)+0.5, float64(path.Y), float64(path.Z)+0.5)
+	} else {
+		MoveSpecial(path)
+	}
 	if path.P != nil {
 		Move(path.P)
 	}
 }
 
+type info struct {
+	IDS     []int
+	special bool
+	axis    int
+	orient  int
+}
+
 type Path struct {
 	X, Y, Z int
 	P       *Path
+	IDS     []int
+	special bool
+	axis    int
+	orient  int
 }
 
-func FindPath(bX, bY, bZ, eX, eY, eZ int, path map[string]bool) *Path {
+func FindPath(bX, bY, bZ, eX, eY, eZ int, path map[string]info) *Path {
 	defer func() {
 		err := recover()
 		if err != nil {
@@ -119,20 +404,38 @@ func FindPath(bX, bY, bZ, eX, eY, eZ int, path map[string]bool) *Path {
 	return P
 }
 
-func (p *Path) NextNode(s map[string]bool, eX, eY, eZ int) {
+func (p *Path) NextNode(s map[string]info, eX, eY, eZ int) {
 	var place string
 	var found bool
 
 	var seenX int64
 	var seenY int64
 	var seenZ int64
+	var info info
 
-	for s := range s {
+	if len(s) == 0 {
+		return
+	}
+
+	/*x := strconv.FormatInt(int64(p.X), 10)
+	y := strconv.FormatInt(int64(p.Y), 10)
+	z := strconv.FormatInt(int64(p.Z), 10)
+	Client.network.Write(&protocol.ChatMessage{Message: "/setblock " + x + " " + y + " " + z + " minecraft:redstone_torch"})*/
+
+	//time.Sleep(25 * time.Millisecond)
+
+	for s, i := range s {
 		I := strings.Split(s, ",")
 		seenX, _ = strconv.ParseInt(I[0], 10, 0)
 		seenY, _ = strconv.ParseInt(I[1], 10, 0)
 		seenZ, _ = strconv.ParseInt(I[2], 10, 0)
-		if (int(seenX) == p.X+1 && int(seenZ) == p.Z) || (int(seenX) == p.X-1 && int(seenZ) == p.Z) || (int(seenX) == p.X && int(seenZ) == p.Z+1) || (int(seenX) == p.X && int(seenZ) == p.Z-1) {
+		if (int(seenX) == p.X+1 && int(seenZ) == p.Z && int(seenY) == p.Y) || (int(seenX) == p.X-1 && int(seenZ) == p.Z && int(seenY) == p.Y) || (int(seenX) == p.X && int(seenZ) == p.Z+1 && int(seenY) == p.Y) || (int(seenX) == p.X && int(seenZ) == p.Z-1 && int(seenY) == p.Y) {
+			i.special = false
+			/*(x := strconv.FormatInt(int64(seenX), 10)
+			y := strconv.FormatInt(int64(seenY), 10)
+			z := strconv.FormatInt(int64(seenZ), 10)
+			Client.network.Write(&protocol.ChatMessage{Message: "/setblock " + x + " " + y + " " + z + " minecraft:torch"})*/
+			info = i
 			place = s
 			found = true
 			break
@@ -140,6 +443,95 @@ func (p *Path) NextNode(s map[string]bool, eX, eY, eZ int) {
 	}
 
 	if !found {
+		for s, i := range s {
+			I := strings.Split(s, ",")
+			seenX, _ = strconv.ParseInt(I[0], 10, 0)
+			seenY, _ = strconv.ParseInt(I[1], 10, 0)
+			seenZ, _ = strconv.ParseInt(I[2], 10, 0)
+
+			if (int(seenX) == p.X+1 && int(seenZ) == p.Z && int(seenY) == p.Y+1) ||
+				(int(seenX) == p.X-1 && int(seenZ) == p.Z && int(seenY) == p.Y+1) ||
+				(int(seenX) == p.X && int(seenZ) == p.Z+1 && int(seenY) == p.Y+1) ||
+				(int(seenX) == p.X && int(seenZ) == p.Z-1 && int(seenY) == p.Y+1) ||
+
+				(int(seenX) == p.X+1 && int(seenZ) == p.Z && int(seenY) == p.Y-1) ||
+				(int(seenX) == p.X-1 && int(seenZ) == p.Z && int(seenY) == p.Y-1) ||
+				(int(seenX) == p.X && int(seenZ) == p.Z+1 && int(seenY) == p.Y-1) ||
+				(int(seenX) == p.X && int(seenZ) == p.Z-1 && int(seenY) == p.Y-1) {
+				if int(seenX) == p.X+1 && int(seenZ) == p.Z && int(seenY) == p.Y+1 {
+					i.special = true
+					i.axis = Xaxis
+					i.orient = up
+				} else if int(seenX) == p.X-1 && int(seenZ) == p.Z && int(seenY) == p.Y+1 {
+					i.special = true
+					i.axis = NXaxis
+					i.orient = up
+				} else if int(seenX) == p.X && int(seenZ) == p.Z+1 && int(seenY) == p.Y+1 {
+					i.special = true
+					i.axis = Zaxis
+					i.orient = up
+				} else if int(seenX) == p.X && int(seenZ) == p.Z-1 && int(seenY) == p.Y+1 {
+					i.special = true
+					i.axis = NZaxis
+					i.orient = up
+				} else if int(seenX) == p.X+1 && int(seenZ) == p.Z && int(seenY) == p.Y-1 {
+					i.special = true
+					i.axis = Xaxis
+					i.orient = down
+				} else if int(seenX) == p.X-1 && int(seenZ) == p.Z && int(seenY) == p.Y-1 {
+					i.special = true
+					i.axis = NXaxis
+					i.orient = down
+				} else if int(seenX) == p.X && int(seenZ) == p.Z+1 && int(seenY) == p.Y-1 {
+					i.special = true
+					i.axis = Zaxis
+					i.orient = down
+				} else if int(seenX) == p.X && int(seenZ) == p.Z-1 && int(seenY) == p.Y-1 {
+					i.special = true
+					i.axis = NZaxis
+					i.orient = down
+				} else {
+					i.special = false
+				}
+				/*x := strconv.FormatInt(int64(seenX), 10)
+				y := strconv.FormatInt(int64(seenY), 10)
+				z := strconv.FormatInt(int64(seenZ), 10)
+				Client.network.Write(&protocol.ChatMessage{Message: "/setblock " + x + " " + y + " " + z + " minecraft:torch"})*/
+				info = i
+				place = s
+				found = true
+				break
+			}
+		}
+	}
+
+	if !found {
+		for s, i := range s {
+			I := strings.Split(s, ",")
+			seenX, _ = strconv.ParseInt(I[0], 10, 0)
+			seenY, _ = strconv.ParseInt(I[1], 10, 0)
+			seenZ, _ = strconv.ParseInt(I[2], 10, 0)
+
+			if (int(seenX) == p.X+1 && int(seenZ) == p.Z+1 && int(seenY) == p.Y) ||
+				(int(seenX) == p.X-1 && int(seenZ) == p.Z-1 && int(seenY) == p.Y) ||
+				(int(seenX) == p.X-1 && int(seenZ) == p.Z+1 && int(seenY) == p.Y) ||
+				(int(seenX) == p.X+1 && int(seenZ) == p.Z-1 && int(seenY) == p.Y) {
+				i.special = false
+
+				/*x := strconv.FormatInt(int64(seenX), 10)
+				y := strconv.FormatInt(int64(seenY), 10)
+				z := strconv.FormatInt(int64(seenZ), 10)
+				Client.network.Write(&protocol.ChatMessage{Message: "/setblock " + x + " " + y + " " + z + " minecraft:torch"})*/
+				info = i
+				place = s
+				found = true
+				break
+			}
+		}
+	}
+
+	if !found {
+		fmt.Println(p.IDS)
 		panic(s)
 	}
 
@@ -148,8 +540,9 @@ func (p *Path) NextNode(s map[string]bool, eX, eY, eZ int) {
 	FoundZ := int(seenZ)
 
 	delete(s, place)
-	p.P = &Path{X: int(FoundX), Y: int(FoundY), Z: int(FoundZ)}
+	p.P = &Path{X: int(FoundX), Y: int(FoundY), Z: int(FoundZ), IDS: info.IDS, special: info.special, axis: info.axis, orient: info.orient}
 	if p.P.X == eX && p.P.Y == eY && p.P.Z == eZ {
+		fmt.Println(p.P.X, eX, p.P.Y, eY, p.P.Z, eZ)
 		return
 	} else {
 		p.P.NextNode(s, eX, eY, eZ)
@@ -177,10 +570,10 @@ func (p *Path) Print() {
 */
 
 //points and checks the block your FEET want to be in
-func CheckWalkable(x, y, z float64) error {
-	if chunkMap.Block(int(x), int(y+1), int(z)).BlockSet() == Blocks.Air {
-		if chunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.Air {
-			if ASP.solidwhole(chunkMap.Block(int(x), int(y-1), int(z)).BlockSet()) {
+func CheckWalkable(x, y, z float64, toleratenoblocktowalkon bool) error {
+	if chunkMap.Block(int(x), int(y+1), int(z)).BlockSet() == Blocks.Air || chunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.Torch || chunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.RedstoneTorch || chunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.TallGrass || chunkMap.Block(int(x), int(y), int(z)).BlockSet().ID == Blocks.SnowLayer.ID {
+		if chunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.Air || chunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.Torch || chunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.RedstoneTorch || chunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.TallGrass || chunkMap.Block(int(x), int(y), int(z)).BlockSet().ID == Blocks.SnowLayer.ID {
+			if ASP.solidwhole(chunkMap.Block(int(x), int(y-1), int(z)).BlockSet()) || toleratenoblocktowalkon {
 				return nil
 			} else {
 				return CHECK_ERR_BELOW_NON_SOLID
@@ -343,9 +736,37 @@ func (w Tiles) SetTile(t *Tile, x, y, z int) {
 	t.TS = w
 }
 
+func (w Tiles) init() {
+	IdS = 0
+}
+
+var IdS int
+
+func (w Tiles) NEWID() int {
+	N := IdS + 1
+	IdS++
+	return N
+}
+
+const (
+	Xaxis int = iota
+	Zaxis
+	NXaxis
+	NZaxis
+)
+
+const (
+	up int = iota
+	down
+)
+
 type Tile struct {
 	X, Y, Z int
 	TS      Tiles
+	IDS     []int
+	special bool
+	axis    int
+	orient  int
 }
 
 func (t *Tile) PathNeighbors() []astar.Pather {
@@ -368,26 +789,110 @@ func (t *Tile) PathNeighbors() []astar.Pather {
 		dz = -dz
 	}
 
-	err = CheckWalkable(float64(x+1), float64(y), float64(z))
+	// NEXT TO
+	err = CheckWalkable(float64(x+1), float64(y), float64(z), false)
 	if err == nil {
 		n := t.Get(x+1, y, z)
 		neighbors = append(neighbors, n)
 	}
-	err = CheckWalkable(float64(x), float64(y), float64(z+1))
+	err = CheckWalkable(float64(x), float64(y), float64(z+1), false)
 	if err == nil {
 		n := t.Get(x, y, z+1)
 		neighbors = append(neighbors, n)
 	}
-	err = CheckWalkable(float64(x-1), float64(y), float64(z))
+	err = CheckWalkable(float64(x-1), float64(y), float64(z), false)
 	if err == nil {
 		n := t.Get(x-1, y, z)
 		neighbors = append(neighbors, n)
 	}
-	err = CheckWalkable(float64(x), float64(y), float64(z-1))
+	err = CheckWalkable(float64(x), float64(y), float64(z-1), false)
 	if err == nil {
 		n := t.Get(x, y, z-1)
 		neighbors = append(neighbors, n)
 	}
+
+	// DIAG
+	err1 := CheckWalkable(float64(x-1), float64(y), float64(z), true)
+	err2 := CheckWalkable(float64(x), float64(y), float64(z+1), true)
+	err3 := CheckWalkable(float64(x-1), float64(y), float64(z+1), false)
+	if err1 == nil && err2 == nil && err3 == nil {
+		n := t.Get(x-1, y, z+1)
+		neighbors = append(neighbors, n)
+	}
+	err1 = CheckWalkable(float64(x+1), float64(y), float64(z), true)
+	err2 = CheckWalkable(float64(x), float64(y), float64(z+1), true)
+	err3 = CheckWalkable(float64(x+1), float64(y), float64(z+1), false)
+	if err1 == nil && err2 == nil && err3 == nil {
+		n := t.Get(x+1, y, z+1)
+		neighbors = append(neighbors, n)
+	}
+	err1 = CheckWalkable(float64(x-1), float64(y), float64(z), true)
+	err2 = CheckWalkable(float64(x), float64(y), float64(z-1), true)
+	err3 = CheckWalkable(float64(x-1), float64(y), float64(z-1), false)
+	if err1 == nil && err2 == nil && err3 == nil {
+		n := t.Get(x-1, y, z-1)
+		neighbors = append(neighbors, n)
+	}
+	err1 = CheckWalkable(float64(x+1), float64(y), float64(z), true)
+	err2 = CheckWalkable(float64(x), float64(y), float64(z-1), true)
+	err3 = CheckWalkable(float64(x+1), float64(y), float64(z-1), false)
+	if err1 == nil && err2 == nil && err3 == nil {
+		n := t.Get(x+1, y, z-1)
+		neighbors = append(neighbors, n)
+	}
+
+	// UP NEXT
+	err1 = CheckWalkable(float64(x), float64(y+1), float64(z), true)
+	err2 = CheckWalkable(float64(x+1), float64(y+1), float64(z), false)
+	if err1 == nil && err2 == nil {
+		n := t.Get(x+1, y+1, z)
+		neighbors = append(neighbors, n)
+	}
+	err1 = CheckWalkable(float64(x), float64(y+1), float64(z), true)
+	err2 = CheckWalkable(float64(x-1), float64(y+1), float64(z), false)
+	if err1 == nil && err2 == nil {
+		n := t.Get(x-1, y+1, z)
+		neighbors = append(neighbors, n)
+	}
+	err1 = CheckWalkable(float64(x), float64(y+1), float64(z), true)
+	err2 = CheckWalkable(float64(x), float64(y+1), float64(z+1), false)
+	if err1 == nil && err2 == nil {
+		n := t.Get(x, y+1, z+1)
+		neighbors = append(neighbors, n)
+	}
+	err1 = CheckWalkable(float64(x), float64(y+1), float64(z), true)
+	err2 = CheckWalkable(float64(x), float64(y+1), float64(z-1), false)
+	if err1 == nil && err2 == nil {
+		n := t.Get(x, y+1, z-1)
+		neighbors = append(neighbors, n)
+	}
+
+	// DOWN NEXT
+	err1 = CheckWalkable(float64(x+1), float64(y), float64(z), true)
+	err2 = CheckWalkable(float64(x+1), float64(y-1), float64(z), false)
+	if err1 == nil && err2 == nil {
+		n := t.Get(x+1, y-1, z)
+		neighbors = append(neighbors, n)
+	}
+	err1 = CheckWalkable(float64(x-x), float64(y), float64(z), true)
+	err2 = CheckWalkable(float64(x-1), float64(y-1), float64(z), false)
+	if err1 == nil && err2 == nil {
+		n := t.Get(x-1, y-1, z)
+		neighbors = append(neighbors, n)
+	}
+	err1 = CheckWalkable(float64(x), float64(y), float64(z+1), true)
+	err2 = CheckWalkable(float64(x), float64(y-1), float64(z+1), false)
+	if err1 == nil && err2 == nil {
+		n := t.Get(x, y-1, z+1)
+		neighbors = append(neighbors, n)
+	}
+	err1 = CheckWalkable(float64(x), float64(y), float64(z-1), true)
+	err2 = CheckWalkable(float64(x), float64(y-1), float64(z-1), false)
+	if err1 == nil && err2 == nil {
+		n := t.Get(x, y-1, z-1)
+		neighbors = append(neighbors, n)
+	}
+
 	return neighbors
 }
 

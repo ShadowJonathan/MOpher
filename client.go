@@ -143,7 +143,7 @@ func (c *ClientState) tick() {
 		onGround = true
 	}
 
-	if !onGround {
+	if !onGround && !iswalking {
 		dy := c.Y - float64(int64(c.Y))
 		if dy < 0.25 && dy != 0  {
 			c.Y = float64(int64(c.Y))

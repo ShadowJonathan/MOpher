@@ -1,0 +1,4 @@
+MOpher.exe
+*.prof
+*.json
+.idea/**
