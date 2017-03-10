@@ -16,14 +16,14 @@ package entitysys
 
 import "testing"
 
-type nameable struct {
+type Nameable struct {
 	name string
 }
 
-func (n *nameable) Name() string        { return n.name }
-func (n *nameable) SetName(name string) { n.name = name }
+func (n *Nameable) Name() string        { return n.name }
+func (n *Nameable) SetName(name string) { n.name = name }
 
-type Nameable interface {
+type NameAble interface {
 	Name() string
 	SetName(string)
 }
@@ -42,13 +42,13 @@ type Countable interface {
 
 func TestBasic(t *testing.T) {
 	c := NewContainer()
-	tSys := func(n Nameable) {
+	tSys := func(n NameAble) {
 		n.SetName("test_" + n.Name())
 	}
 	c.AddSystem(Tick, tSys)
 
 	type testEntity struct {
-		nameable
+		Nameable
 	}
 
 	t1 := &testEntity{}
@@ -72,16 +72,16 @@ func TestBasic(t *testing.T) {
 }
 func TestDifferent(t *testing.T) {
 	c := NewContainer()
-	tSys := func(n Nameable) {
+	tSys := func(n NameAble) {
 		n.SetName("test_" + n.Name())
 	}
 	c.AddSystem(Tick, tSys)
 
 	type testEntity struct {
-		nameable
+		Nameable
 	}
 	type countEntity struct {
-		nameable
+		Nameable
 		countable
 	}
 
@@ -114,16 +114,16 @@ func TestDifferent(t *testing.T) {
 
 func TestNot(t *testing.T) {
 	c := NewContainer()
-	tSys := func(n Nameable) {
+	tSys := func(n NameAble) {
 		n.SetName("test_" + n.Name())
 	}
 	c.AddSystem(Tick, tSys, Not(Type((*Countable)(nil))))
 
 	type testEntity struct {
-		nameable
+		Nameable
 	}
 	type countEntity struct {
-		nameable
+		Nameable
 		countable
 	}
 
@@ -156,7 +156,7 @@ func TestNot(t *testing.T) {
 
 func TestMultiple(t *testing.T) {
 	c := NewContainer()
-	tSys := func(n Nameable) {
+	tSys := func(n NameAble) {
 		n.SetName("test_" + n.Name())
 	}
 	c.AddSystem(Tick, tSys)
@@ -166,10 +166,10 @@ func TestMultiple(t *testing.T) {
 	c.AddSystem(Tick, tSys2)
 
 	type testEntity struct {
-		nameable
+		Nameable
 	}
 	type countEntity struct {
-		nameable
+		Nameable
 		countable
 	}
 
@@ -206,17 +206,17 @@ func TestMultiple(t *testing.T) {
 
 func TestDuel(t *testing.T) {
 	c := NewContainer()
-	tSys := func(n Nameable, c Countable) {
+	tSys := func(n NameAble, c Countable) {
 		n.SetName("test_" + n.Name())
 		c.IncCounter()
 	}
 	c.AddSystem(Tick, tSys)
 
 	type testEntity struct {
-		nameable
+		Nameable
 	}
 	type countEntity struct {
-		nameable
+		Nameable
 		countable
 	}
 
@@ -253,13 +253,13 @@ func TestDuel(t *testing.T) {
 
 func TestAdd(t *testing.T) {
 	c := NewContainer()
-	tSys := func(n Nameable) {
+	tSys := func(n NameAble) {
 		n.SetName("add_" + n.Name())
 	}
 	c.AddSystem(Add, tSys)
 
 	type testEntity struct {
-		nameable
+		Nameable
 	}
 	t1 := &testEntity{}
 	t1.name = "bob"
@@ -281,13 +281,13 @@ func TestAdd(t *testing.T) {
 
 func TestRemove(t *testing.T) {
 	c := NewContainer()
-	tSys := func(n Nameable) {
+	tSys := func(n NameAble) {
 		n.SetName("remove_" + n.Name())
 	}
 	c.AddSystem(Remove, tSys)
 
 	type testEntity struct {
-		nameable
+		Nameable
 	}
 	t1 := &testEntity{}
 	t1.name = "bob"
@@ -323,17 +323,17 @@ func TestRemove(t *testing.T) {
 
 func TestRaw(t *testing.T) {
 	c := NewContainer()
-	tSys := func(n *nameable) {
+	tSys := func(n *Nameable) {
 		n.SetName("remove_" + n.Name())
 	}
 	c.AddSystem(Remove, tSys)
 
-	type testEntity struct {
-		nameable
+	type TestEntity struct {
+		Nameable
 	}
-	t1 := &testEntity{}
+	t1 := &TestEntity{}
 	t1.name = "bob"
-	t2 := &testEntity{}
+	t2 := &TestEntity{}
 	t2.name = "steven"
 
 	c.AddEntity(t1)
