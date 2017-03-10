@@ -10,12 +10,12 @@ var GLOBALX float64
 var GLOBALY float64
 var GLOBALZ float64
 
-func TestTESTNAV(t *testing.T) {
+/*func TestTESTNAV(t *testing.T) {
 	GLOBALX, GLOBALY, GLOBALZ = 201, 4, 200
 	MT(200, 4, 201)
 
 	//TODO POSX AND POZ
-}
+}*/
 
 func MT(x, y, z float64) {
 	iswalking = true
