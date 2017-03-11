@@ -1,8 +1,9 @@
 package main
 
-import ("time"
-"math/rand")
-
+import (
+	"math/rand"
+	"time"
+)
 
 var fakeGenDistance = 7
 
@@ -98,4 +99,3 @@ func fakeGen() {
 		}
 	}()
 }
-

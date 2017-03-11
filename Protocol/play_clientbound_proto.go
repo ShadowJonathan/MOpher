@@ -142,29 +142,41 @@ func (s *SpawnObject) read(rr io.Reader) (err error) {
 
 func (s *SpawnExperienceOrb) id() int { return 1 }
 func (s *SpawnExperienceOrb) write(ww io.Writer) (err error) {
-	var tmp [4]byte
+	var tmp [8]byte
 	if err = WriteVarInt(ww, s.EntityID); err != nil {
 		return
 	}
-	tmp[0] = byte(s.X >> 24)
-	tmp[1] = byte(s.X >> 16)
-	tmp[2] = byte(s.X >> 8)
-	tmp[3] = byte(s.X >> 0)
-	if _, err = ww.Write(tmp[:4]); err != nil {
+	tmp[0] = byte(s.X >> 56)
+	tmp[1] = byte(s.X >> 48)
+	tmp[2] = byte(s.X >> 40)
+	tmp[3] = byte(s.X >> 32)
+	tmp[4] = byte(s.X >> 24)
+	tmp[5] = byte(s.X >> 16)
+	tmp[6] = byte(s.X >> 8)
+	tmp[7] = byte(s.X >> 0)
+	if _, err = ww.Write(tmp[:8]); err != nil {
 		return
 	}
-	tmp[0] = byte(s.Y >> 24)
-	tmp[1] = byte(s.Y >> 16)
-	tmp[2] = byte(s.Y >> 8)
-	tmp[3] = byte(s.Y >> 0)
-	if _, err = ww.Write(tmp[:4]); err != nil {
+	tmp[0] = byte(s.Y >> 56)
+	tmp[1] = byte(s.Y >> 48)
+	tmp[2] = byte(s.Y >> 40)
+	tmp[3] = byte(s.Y >> 32)
+	tmp[4] = byte(s.Y >> 24)
+	tmp[5] = byte(s.Y >> 16)
+	tmp[6] = byte(s.Y >> 8)
+	tmp[7] = byte(s.Y >> 0)
+	if _, err = ww.Write(tmp[:8]); err != nil {
 		return
 	}
-	tmp[0] = byte(s.Z >> 24)
-	tmp[1] = byte(s.Z >> 16)
-	tmp[2] = byte(s.Z >> 8)
-	tmp[3] = byte(s.Z >> 0)
-	if _, err = ww.Write(tmp[:4]); err != nil {
+	tmp[0] = byte(s.Z >> 56)
+	tmp[1] = byte(s.Z >> 48)
+	tmp[2] = byte(s.Z >> 40)
+	tmp[3] = byte(s.Z >> 32)
+	tmp[4] = byte(s.Z >> 24)
+	tmp[5] = byte(s.Z >> 16)
+	tmp[6] = byte(s.Z >> 8)
+	tmp[7] = byte(s.Z >> 0)
+	if _, err = ww.Write(tmp[:8]); err != nil {
 		return
 	}
 	tmp[0] = byte(s.Count >> 8)
@@ -175,22 +187,22 @@ func (s *SpawnExperienceOrb) write(ww io.Writer) (err error) {
 	return
 }
 func (s *SpawnExperienceOrb) read(rr io.Reader) (err error) {
-	var tmp [4]byte
+	var tmp [8]byte
 	if s.EntityID, err = ReadVarInt(rr); err != nil {
 		return
 	}
-	if _, err = rr.Read(tmp[:4]); err != nil {
+	if _, err = rr.Read(tmp[:8]); err != nil {
 		return
 	}
-	s.X = int32((uint32(tmp[3]) << 0) | (uint32(tmp[2]) << 8) | (uint32(tmp[1]) << 16) | (uint32(tmp[0]) << 24))
-	if _, err = rr.Read(tmp[:4]); err != nil {
+	s.X = int64((uint64(tmp[7]) << 0) | (uint64(tmp[6]) << 8) | (uint64(tmp[5]) << 16) | (uint64(tmp[4]) << 24) | (uint64(tmp[3]) << 32) | (uint64(tmp[2]) << 40) | (uint64(tmp[1]) << 48) | (uint64(tmp[0]) << 56))
+	if _, err = rr.Read(tmp[:8]); err != nil {
 		return
 	}
-	s.Y = int32((uint32(tmp[3]) << 0) | (uint32(tmp[2]) << 8) | (uint32(tmp[1]) << 16) | (uint32(tmp[0]) << 24))
-	if _, err = rr.Read(tmp[:4]); err != nil {
+	s.Y = int64((uint64(tmp[7]) << 0) | (uint64(tmp[6]) << 8) | (uint64(tmp[5]) << 16) | (uint64(tmp[4]) << 24) | (uint64(tmp[3]) << 32) | (uint64(tmp[2]) << 40) | (uint64(tmp[1]) << 48) | (uint64(tmp[0]) << 56))
+	if _, err = rr.Read(tmp[:8]); err != nil {
 		return
 	}
-	s.Z = int32((uint32(tmp[3]) << 0) | (uint32(tmp[2]) << 8) | (uint32(tmp[1]) << 16) | (uint32(tmp[0]) << 24))
+	s.Z = int64((uint64(tmp[7]) << 0) | (uint64(tmp[6]) << 8) | (uint64(tmp[5]) << 16) | (uint64(tmp[4]) << 24) | (uint64(tmp[3]) << 32) | (uint64(tmp[2]) << 40) | (uint64(tmp[1]) << 48) | (uint64(tmp[0]) << 56))
 	if _, err = rr.Read(tmp[:2]); err != nil {
 		return
 	}

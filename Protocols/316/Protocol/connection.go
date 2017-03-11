@@ -264,7 +264,7 @@ func MakeByte(b byte) string {
 	bs := strconv.FormatUint(uint64(uint8(b)), 2)
 	if len(bs) < 8 {
 		l := len(bs)
-		for i:=0;i<8-l;i++ {
+		for i := 0; i < 8-l; i++ {
 			bs = "0" + bs
 		}
 	}

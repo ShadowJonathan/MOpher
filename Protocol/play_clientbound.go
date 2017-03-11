@@ -28,7 +28,7 @@ type SpawnObject struct {
 // This is a Minecraft packet
 type SpawnExperienceOrb struct {
 	EntityID VarInt
-	X, Y, Z  int32
+	X, Y, Z  int64
 	Count    int16
 }
 

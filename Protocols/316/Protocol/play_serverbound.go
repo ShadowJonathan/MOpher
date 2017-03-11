@@ -151,7 +151,7 @@ type Player struct {
 //
 // This is a Minecraft packet
 type VehicleDrive struct {
-	X, Y, Z int64
+	X, Y, Z    int64
 	Yaw, Pitch float32
 }
 

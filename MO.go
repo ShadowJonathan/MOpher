@@ -176,6 +176,21 @@ func main() {
 					fmt.Println(err)
 				}
 				continue
+			} else if xyz == "FACE" {
+				fmt.Println(Client.targetBlock())
+				continue
+			} else if xyz == "INV" {
+				pi := Client.playerInventory
+				for p, i := range pi.Items {
+					if i != nil {
+						fmt.Println(p)
+						fmt.Println(i.rawID)
+					}
+				}
+				continue
+			} else if xyz == "RESPAWN" {
+				Client.network.Write(&protocol.ClientStatus{ActionID: 0})
+				continue
 			}
 			XYZ := strings.Split(xyz, ",")
 			if len(XYZ) != 3 {

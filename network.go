@@ -93,7 +93,7 @@ func (handler) ServerMessage(msg *protocol.ServerMessage) {
 							found = true
 							x, y, z = p.Position()
 							fmt.Println(p.EntityID())
-							x = x - 1
+							x = x
 						}
 					}
 				}

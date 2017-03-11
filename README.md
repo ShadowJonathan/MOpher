@@ -1,6 +1,7 @@
 # MOpher API, a golang API for minecraft
 
-### Current protocol: 316 (minecraft 16w50a/1.11.1/1.112)
+### Current protocol:
+**316 (minecraft 16w50a/1.11.1/1.112)**
 
 [![Build Status](https://travis-ci.org/ShadowJonathan/MOpher.svg?branch=master)](https://travis-ci.org/ShadowJonathan/MOpher) [![Go Report Card](https://goreportcard.com/badge/github.com/ShadowJonathan/MOpher)](https://goreportcard.com/report/github.com/ShadowJonathan/MOpher)
 

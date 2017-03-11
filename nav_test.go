@@ -58,13 +58,13 @@ LOOP:
 			maxz = -maxz
 		}
 
-		if math.Abs(GLOBALX - x) > math.Abs(maxx) {
+		if math.Abs(GLOBALX-x) > math.Abs(maxx) {
 			propdx = maxx
 		} else {
 			propdx = x - GLOBALX
 		}
 
-		if math.Abs(GLOBALZ - z) > math.Abs(maxz) {
+		if math.Abs(GLOBALZ-z) > math.Abs(maxz) {
 			propdz = maxz
 		} else {
 			propdz = z - GLOBALZ
@@ -127,4 +127,17 @@ func ang(x, z float64) (maxx float64, maxz float64, angle float64) {
 	}
 
 	return
+}
+
+func TestLOOKAT(t *testing.T) {
+	newClient()
+	Client.X, Client.Y, Client.Z = 200.5, 4, 200.5
+	yaw, pitch := Client.lookat(201.5, 4.5, 201.5)
+	if yaw != -45 {
+		fmt.Println(yaw)
+		t.FailNow()
+	} else if pitch < 0 {
+		fmt.Println(pitch)
+		t.FailNow()
+	}
 }

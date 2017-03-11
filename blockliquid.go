@@ -52,7 +52,6 @@ func (l *blockLiquid) toData() int {
 	return l.Level
 }
 
-
 func (l *blockLiquid) averageLiquidLevel(bs *blocksSnapshot, x, y, z int) int {
 	level := 0
 	for xx := -1; xx <= 0; xx++ {

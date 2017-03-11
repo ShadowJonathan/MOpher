@@ -19,7 +19,6 @@ import (
 )
 
 type signComponent struct {
-
 	lines    [4]format.AnyComponent
 	position Position
 
@@ -31,7 +30,6 @@ type signComponent struct {
 type SignComponent interface {
 	Update(lines [4]format.AnyComponent)
 }
-
 
 func (s *signComponent) Update(lines [4]format.AnyComponent) {
 	s.lines = lines

@@ -79,6 +79,17 @@ const (
 	GradToDeg = math.Pi / 200
 )
 
+func (c *ClientState) lookat(x, y, z float64) (yaw, pitch float64) {
+	dx := c.X - x
+	rx := x - c.X
+	ry := y - c.Y - playerHeight
+	rz := z - c.Z
+	dz := -(c.Z - z)
+	yaw = math.Atan2(dx, dz) / DegToRad
+	pitch = -math.Asin(ry/math.Sqrt(rx*rx+ry*ry+rz*rz)) / DegToRad
+	return
+}
+
 // Liniar, constant movement, assumes no obstacles and tolerates no obstacles
 func Moveto(x, y, z float64) {
 	iswalking = true

@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/ShadowJonathan/MOpher/Protocol"
+	"github.com/ShadowJonathan/MOpher/type/direction"
 	"github.com/ShadowJonathan/MOpher/type/vmath"
 	"github.com/go-gl/mathgl/mgl32"
 	"math"
@@ -145,9 +146,9 @@ func (c *ClientState) tick() {
 
 	if !onGround && !iswalking {
 		dy := c.Y - float64(int64(c.Y))
-		if dy < 0.25 && dy != 0  {
+		if dy < 0.25 && dy != 0 {
 			c.Y = float64(int64(c.Y))
-		} else if dy > 0.5 || dy == 0{
+		} else if dy > 0.5 || dy == 0 {
 			c.Y = c.Y - 0.5
 		} else {
 			c.Y = c.Y - dy
@@ -285,4 +286,144 @@ handle:
 			break handle
 		}
 	}
+}
+
+const (
+	playerHeight = 1.62
+)
+
+func (c *ClientState) viewVector() mgl32.Vec3 {
+	return mgl32.Vec3{
+		float32(math.Cos(c.Yaw-math.Pi/2) * -math.Cos(c.Pitch)),
+		float32(math.Sin(c.Pitch)),
+		float32(-math.Sin(c.Yaw-math.Pi/2) * -math.Cos(c.Pitch)),
+	}
+}
+
+func (c *ClientState) targetBlock() (pos Position, block Block, face direction.Type, cursor mgl32.Vec3) {
+	s := mgl32.Vec3{float32(Client.X), float32(Client.Y + playerHeight), float32(Client.Z)}
+	d := c.viewVector()
+	fmt.Println(s, d)
+	face = direction.Invalid
+
+	block = Blocks.Air.Base
+	bounds := vmath.NewAABB(0, 0, 0, 1, 1, 1)
+	traceRay(
+		4,
+		s, d,
+		func(bx, by, bz int) bool {
+			ents := chunkMap.EntitiesIn(bounds.Shift(float32(bx), float32(by), float32(bz)))
+			for _, ee := range ents {
+				if ee == c.entity {
+					continue
+				}
+				ex, ey, ez := ee.(PositionComponent).Position()
+				bo := ee.(SizeComponent).Bounds().Shift(float32(ex), float32(ey), float32(ez))
+				if _, ok := bo.IntersectsLine(s, d); ok {
+					return false
+				}
+			}
+			b := chunkMap.Block(bx, by, bz)
+			if _, ok := b.(*blockLiquid); !b.Is(Blocks.Air) && !ok {
+				bb := b.CollisionBounds()
+				for _, bound := range bb {
+					bound = bound.Shift(float32(bx), float32(by), float32(bz))
+					if at, ok := bound.IntersectsLine(s, d); ok {
+						pos = Position{bx, by, bz}
+						block = b
+						face = findFace(bound, at)
+						cursor = at.Sub(mgl32.Vec3{float32(bx), float32(by), float32(bz)})
+						return false
+					}
+				}
+			}
+			return true
+		},
+	)
+	return
+}
+
+func traceRay(max float32, s, d mgl32.Vec3, cb func(x, y, z int) bool) {
+	type gen struct {
+		count   int
+		base, d float32
+	}
+	newGen := func(start, d float32) *gen {
+		g := &gen{}
+		if d > 0 {
+			g.base = (float32(math.Ceil(float64(start))) - start) / d
+		} else if d < 0 {
+			d = float32(math.Abs(float64(d)))
+			g.base = (start - float32(math.Floor(float64(start)))) / d
+		}
+		g.d = d
+		return g
+	}
+	next := func(g *gen) float32 {
+		g.count++
+		if g.d == 0 {
+			return float32(math.Inf(1))
+		}
+		return g.base + float32(g.count-1)/g.d
+	}
+
+	aGen := newGen(s.X(), d.X())
+	bGen := newGen(s.Y(), d.Y())
+	cGen := newGen(s.Z(), d.Z())
+	nextNA := next(aGen)
+	nextNB := next(bGen)
+	nextNC := next(cGen)
+
+	x, y, z := int(math.Floor(float64(s.X()))), int(math.Floor(float64(s.Y()))), int(math.Floor(float64(s.Z())))
+	fmt.Println(x, y, z)
+	for {
+		if !cb(x, y, z) {
+			return
+		}
+		nextN := float32(0.0)
+		fmt.Println(nextNA, nextNB, nextNC)
+		fmt.Println(nextN)
+		if nextNA <= nextNB {
+			if nextNA <= nextNC {
+				nextN = nextNA
+				nextNA = next(aGen)
+				x += int(math.Copysign(1, float64(d.X())))
+			} else {
+				nextN = nextNC
+				nextNC = next(cGen)
+				z += int(math.Copysign(1, float64(d.Z())))
+			}
+		} else {
+			if nextNB <= nextNC {
+				nextN = nextNB
+				nextNB = next(bGen)
+				y += int(math.Copysign(1, float64(d.Y())))
+			} else {
+				nextN = nextNC
+				nextNC = next(cGen)
+				z += int(math.Copysign(1, float64(d.Z())))
+			}
+		}
+		if nextN > max {
+			break
+		}
+	}
+}
+
+func findFace(bound vmath.AABB, at mgl32.Vec3) direction.Type {
+	switch {
+	case bound.Min.X() == at.X():
+		return direction.West
+	case bound.Max.X() == at.X():
+		return direction.East
+	case bound.Min.Y() == at.Y():
+		return direction.Down
+	case bound.Max.Y() == at.Y():
+		return direction.Up
+	case bound.Min.Z() == at.Z():
+		return direction.North
+	case bound.Max.Z() == at.Z():
+		return direction.South
+	}
+	return direction.Up
 }

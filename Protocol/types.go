@@ -13,7 +13,6 @@ type Serializable interface {
 	Deserialize(r io.Reader) error
 }
 
-
 // State defined which state the protocol is in.
 type State int
 
