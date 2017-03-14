@@ -20,6 +20,144 @@ var globalX int
 var globalY int
 var globalZ int
 
+func NAVtoNearest(x, y, z float64) (err error, ye bool, X, Y, Z float64) {
+	var rx int
+	var rz int
+	for i := 0; i < 4; i++ {
+		if i == 0 {
+			rx,rz = -1,0
+		} else if i == 1 {
+			rx,rz = 1,0
+		} else if i == 2 {
+			rx,rz = 0,-1
+		} else if i == 3 {
+			rx,rz = 0,-1
+		}
+			err = CheckWalkable(x+float64(rx), y, z+float64(rz), false)
+			if err == nil {
+				err = check(x+float64(rx), y, z+float64(rz))
+				if err == nil {
+					ye = true
+					X, Y, Z = x+float64(rx), y, z+float64(rz)
+					return
+				}
+			}
+
+	}
+	rx = -2
+	for rz = -2; rz <= 2; rz++ {
+		err = CheckWalkable(x+float64(rx), y, z+float64(rz), false)
+		if err == nil {
+			err = check(x+float64(rx), y, z+float64(rz))
+			if err == nil {
+				ye = true
+				X, Y, Z = x+float64(rx), y, z+float64(rz)
+				return
+			}
+		}
+	}
+	rx = 2
+	for rz = -2; rz <= 2; rz++ {
+		err = CheckWalkable(x+float64(rx), y, z+float64(rz), false)
+		if err == nil {
+			err = check(x+float64(rx), y, z+float64(rz))
+			if err == nil {
+				ye = true
+				X, Y, Z = x+float64(rx), y, z+float64(rz)
+				return
+			}
+		}
+	}
+	rz = -2
+	for rx = -2; rx <= 2; rx++ {
+		err = CheckWalkable(x+float64(rx), y, z+float64(rz), false)
+		if err == nil {
+			err = check(x+float64(rx), y, z+float64(rz))
+			if err == nil {
+				ye = true
+				X, Y, Z = x+float64(rx), y, z+float64(rz)
+				return
+			}
+		}
+	}
+	rz = 2
+	for rx = -2; rx <= 2; rx++ {
+		err = CheckWalkable(x+float64(rx), y, z+float64(rz), false)
+		if err == nil {
+			err = check(x+float64(rx), y, z+float64(rz))
+			if err == nil {
+				ye = true
+				X, Y, Z = x+float64(rx), y, z+float64(rz)
+				return
+			}
+		}
+	}
+	var ry int = -1
+	for i := 0; i < 4; i++ {
+		if i == 0 {
+			rx,rz = -1,0
+		} else if i == 1 {
+			rx,rz = 1,0
+		} else if i == 2 {
+			rx,rz = 0,-1
+		} else if i == 3 {
+			rx,rz = 0,-1
+		}
+		err = CheckWalkable(x+float64(rx), y+float64(ry), z+float64(rz), false)
+		if err == nil {
+			err = check(x+float64(rx), y+float64(ry), z+float64(rz))
+			if err == nil {
+				ye = true
+				X, Y, Z = x+float64(rx), y+float64(ry), z+float64(rz)
+				return
+			}
+		}
+
+	}
+	ry = 1
+	for i := 0; i < 4; i++ {
+		if i == 0 {
+			rx,rz = -1,0
+		} else if i == 1 {
+			rx,rz = 1,0
+		} else if i == 2 {
+			rx,rz = 0,-1
+		} else if i == 3 {
+			rx,rz = 0,-1
+		}
+		err = CheckWalkable(x+float64(rx), y+float64(ry), z+float64(rz), false)
+		if err == nil {
+			err = check(x+float64(rx), y+float64(ry), z+float64(rz))
+			if err == nil {
+				ye = true
+				X, Y, Z = x+float64(rx), y+float64(ry), z+float64(rz)
+				return
+			}
+		}
+
+	}
+	ye = false
+	err = errors.New("NOT FOUND")
+	return
+}
+
+func check(x, y, z float64) (err error) {
+	var World = Tiles{}
+	var newtile = new(Tile)
+	World.init()
+	newtile = &Tile{TS: World, X: int(x), Y: int(y), Z: int(z)}
+	World.SetTile(newtile, int(x), int(y), int(z))
+
+	newtile = &Tile{TS: World, X: int(Client.X), Y: int(Client.Y), Z: int(Client.Z)}
+	World.SetTile(newtile, int(Client.X), int(Client.Y), int(Client.Z))
+	var ye bool
+	_, _, ye = astar.Path(World[int(Client.X)][int(Client.Y)][int(Client.Z)], World[int(x)][int(y)][int(z)])
+	if !ye {
+		err = errors.New("NOT FOUND")
+	}
+	return
+}
+
 func NAV(x, y, z float64) (err error) {
 	defer func() {
 		err := recover()
