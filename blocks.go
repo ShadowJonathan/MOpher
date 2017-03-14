@@ -388,8 +388,8 @@ var Hardness = map[int]float64{
 var minpick = map[int]int{
 	0:   -1,
 	1:   wood,
-	2:   anything,
-	3:   anything,
+	2:   anyshovel,
+	3:   anyshovel,
 	4:   wood,
 	5:   anyaxe,
 	6:   anything,

@@ -161,6 +161,17 @@ func (handler) TimeUpdate(p *protocol.TimeUpdate) {
 	}
 }
 
+func (handler) Confirm(c *protocol.ConfirmTransaction) {
+	if !c.Accepted {
+		fmt.Println("CONFLICT")
+		Client.network.Write(&protocol.ConfirmTransactionServerbound{
+			ID:           c.ID,
+			ActionNumber: c.ActionNumber,
+			Accepted:     c.Accepted,
+		})
+	}
+}
+
 func (handler) Disconnect(d *protocol.Disconnect) {
 	disconnectReason := d.Reason
 	fmt.Printf("Disconnect: %s", disconnectReason)

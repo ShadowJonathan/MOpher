@@ -184,7 +184,7 @@ func main() {
 				for p, i := range pi.Items {
 					if i != nil {
 						fmt.Println(p)
-						fmt.Println(i.rawID)
+						fmt.Println(i.rawID,i.Type.Name())
 					}
 				}
 				continue
@@ -278,7 +278,6 @@ func main() {
 				for ay := y2; ay >= y; ay-- {
 					for az := z; az <= z2; az++ {
 						for ax := x; ax <= x2; ax++ {
-							fmt.Println("STARTED NEW")
 							Dig(int(ax), int(ay), int(az), make(chan error, 2), make(chan bool, 2))
 						}
 					}

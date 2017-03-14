@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ShadowJonathan/MOpher/Protocol"
+	"runtime/debug"
 )
 
 //dig this function will send two nil errors through the error chan, one when starting, and one when finished, a random bool can be thrown in the cancel channel, to completely stop the function and stop digging.
@@ -12,7 +13,7 @@ func Dig(x, y, z int, ec chan error, cancel chan bool) {
 	defer func() {
 		err := recover()
 		if err != nil {
-			fmt.Println("RECOVERED", err)
+			fmt.Println("RECOVERED", err, "\n"+string(debug.Stack()))
 		}
 	}()
 	b := chunkMap.Block(x, y, z)
@@ -46,13 +47,23 @@ func Dig(x, y, z int, ec chan error, cancel chan bool) {
 				} else if required == diamond && (Thepick(i.rawID) == diamond) {
 					found = true
 					iID = p
+				} else if required == anyshovel && Isshovel(i.rawID) {
+					found = true
+					iID = p
+				} else if required == anyaxe && Isaxe(i.rawID) {
+					found = true
+					iID = p
 				}
 			}
 		}
-		if !found {
-			fmt.Println(notool, required)
+		if !found && required != anything {
+			if required != -1 {
+				fmt.Println(notool, required)
+			}
 			ec <- notool
 			return
+		} else if !found && required == anything {
+			IdS = invPlayerHotbarOffset
 		}
 	}
 	Client.network.Write(&protocol.ClickWindow{
@@ -63,6 +74,9 @@ func Dig(x, y, z int, ec chan error, cancel chan bool) {
 		Mode:         2,
 		ClickedItem:  ItemStackToProtocol(Client.playerInventory.Items[iID]),
 	})
+	if Client.playerInventory.Items[iID] != nil {
+		fmt.Println("SELECTED", Client.playerInventory.Items[iID].Type.Name())
+	}
 	err, _, fx, fy, fz := NAVtoNearest(float64(x), float64(y), float64(z))
 	if err != nil {
 		fmt.Println(err)
@@ -95,6 +109,7 @@ func dig(x, y, z, ID int, cancel chan bool, anything bool) error {
 	Client.Yaw = -NewY * DegToRad
 	Client.Pitch = Refpitch(float32(NewP))
 	pos, _, dir, _ := Client.targetBlock()
+	<-T.C
 	hold := Client.playerInventory.Items[Client.currentHotbarSlot+36]
 	var t = Typeof(hold.rawID)
 	var mod float64
@@ -124,8 +139,8 @@ func dig(x, y, z, ID int, cancel chan bool, anything bool) error {
 		return errors.New("Unbreakable")
 	}
 
-	var time = Hardness[ID] * mod * 20 + 1
-	fmt.Println("Time needed:",time)
+	var time = Hardness[ID]*mod*20 + 1
+	fmt.Println("Time needed:", time, Hardness[ID], mod, t, hold.Type.Name(),hold.rawID)
 
 	Client.network.Write(&protocol.PlayerDigging{
 		Status:   0,
@@ -146,7 +161,7 @@ DIG:
 			return nil
 		case <-T.C:
 			time = time - 1
-			if time < 0 {
+			if time < 0.25 {
 				fmt.Println("FINISHED DIGGING")
 				break DIG
 			}
@@ -195,7 +210,7 @@ func Isshovel(u int16) bool {
 }
 
 func Typeof(u int16) int {
-	if u == 296 || u == 270 || u == 271 || u == 278 {
+	if u == 298 || u == 270 || u == 271 || u == 269 {
 		return wood
 	} else if u == 274 || u == 272 || u == 273 || u == 275 {
 		return stone
@@ -206,7 +221,7 @@ func Typeof(u int16) int {
 	} else if u == 278 || u == 276 || u == 277 || u == 279 {
 		return diamond
 	} else {
-		return 0
+		return anything
 	}
 }
 
