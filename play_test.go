@@ -1,6 +1,6 @@
 package main
 
-import (
+/*import (
 	"fmt"
 	"testing"
 )
@@ -14,3 +14,4 @@ func TestBlocks(t *testing.T) {
 		fmt.Println(i, b.String(), b.Hardness())
 	}
 }
+*/
