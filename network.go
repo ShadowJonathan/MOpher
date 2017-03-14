@@ -93,7 +93,6 @@ func (handler) ServerMessage(msg *protocol.ServerMessage) {
 							found = true
 							x, y, z = p.Position()
 							fmt.Println(p.EntityID())
-							x = x
 						}
 					}
 				}
@@ -210,7 +209,7 @@ func (handler) Teleport(t *protocol.TeleportPlayer) {
 }
 
 func RawPitch(ref float64) float32 {
-	return float32((ref - math.Pi) / (math.Pi / 180))
+	return float32((ref - math.Pi) / DegToRad)
 }
 
 func Refpitch(raw float32) float64 {

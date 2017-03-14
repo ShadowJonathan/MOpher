@@ -303,7 +303,6 @@ func (c *ClientState) viewVector() mgl32.Vec3 {
 func (c *ClientState) targetBlock() (pos Position, block Block, face direction.Type, cursor mgl32.Vec3) {
 	s := mgl32.Vec3{float32(Client.X), float32(Client.Y + playerHeight), float32(Client.Z)}
 	d := c.viewVector()
-	fmt.Println(s, d)
 	face = direction.Invalid
 
 	block = Blocks.Air.Base
@@ -375,14 +374,11 @@ func traceRay(max float32, s, d mgl32.Vec3, cb func(x, y, z int) bool) {
 	nextNC := next(cGen)
 
 	x, y, z := int(math.Floor(float64(s.X()))), int(math.Floor(float64(s.Y()))), int(math.Floor(float64(s.Z())))
-	fmt.Println(x, y, z)
 	for {
 		if !cb(x, y, z) {
 			return
 		}
 		nextN := float32(0.0)
-		fmt.Println(nextNA, nextNB, nextNC)
-		fmt.Println(nextN)
 		if nextNA <= nextNB {
 			if nextNA <= nextNC {
 				nextN = nextNA
