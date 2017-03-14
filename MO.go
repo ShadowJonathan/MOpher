@@ -263,11 +263,22 @@ func main() {
 					panic(err)
 				}
 
+				if y > y2 {
+					y2,y = y,y2
+				}
+				if x > x2 {
+					x,x2 = x2,x
+				}
+				if z > z2 {
+					z,z2 = z2,z
+				}
+
 				fmt.Println(Client.X, Client.Y, Client.Z)
 				fmt.Println(x, y, z,x2,y2,z2)
 				for ay := y2; ay >= y; ay-- {
-					for ax := x; ax <= x2; ax++ {
-						for az := z; az <= z2; az++ {
+					for az := z; az <= z2; az++ {
+						for ax := x; ax <= x2; ax++ {
+							fmt.Println("STARTED NEW")
 							Dig(int(ax), int(ay), int(az), make(chan error, 2), make(chan bool, 2))
 						}
 					}

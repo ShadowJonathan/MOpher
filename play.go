@@ -50,7 +50,7 @@ func Dig(x, y, z int, ec chan error, cancel chan bool) {
 			}
 		}
 		if !found {
-			fmt.Println(notool,required)
+			fmt.Println(notool, required)
 			ec <- notool
 			return
 		}
@@ -72,13 +72,13 @@ func Dig(x, y, z int, ec chan error, cancel chan bool) {
 			fmt.Println(err)
 		}
 	}
-	err = dig(x, y, z, b.BlockSet().ID, cancel)
+	err = dig(x, y, z, b.BlockSet().ID, cancel, required == anything)
 	if err != nil {
 		fmt.Println(err)
 	}
 }
 
-func dig(x, y, z, ID int, cancel chan bool) error {
+func dig(x, y, z, ID int, cancel chan bool, anything bool) error {
 	var NewP float64
 	var NewY float64
 	NewY, NewP = Client.lookat(float64(x)+0.5, float64(y)+0.5, float64(z)+0.5)
@@ -94,36 +94,38 @@ func dig(x, y, z, ID int, cancel chan bool) error {
 	})
 	Client.Yaw = -NewY * DegToRad
 	Client.Pitch = Refpitch(float32(NewP))
-	<-T.C
-	pos, b, dir, _ := Client.targetBlock()
-	if b.BlockSet().ID != ID {
-		fmt.Println(b.BlockSet().ID, ID, pos)
-		panic(pos)
-	}
+	pos, _, dir, _ := Client.targetBlock()
 	hold := Client.playerInventory.Items[Client.currentHotbarSlot+36]
 	var t = thetype(hold.rawID)
 	var mod float64
+
 	if t == 0 {
 		mod = 1.0
-	} else if t == wood {
+	} else if t == wood && !anything {
+		fmt.Println("Used wood")
 		mod = 0.75
-	} else if t == stone {
+	} else if t == stone && !anything {
+		fmt.Println("Used stone")
 		mod = 0.4
-	} else if t == iron {
+	} else if t == iron && !anything {
+		fmt.Println("Used iron")
 		mod = 0.25
-	} else if t == diamond {
+	} else if t == diamond && !anything {
+		fmt.Println("Used diamond")
 		mod = 0.2
-	} else if t == gold {
+	} else if t == gold && !anything {
+		fmt.Println("Used gold")
 		mod = 0.125
+	} else {
+		mod = 1.0
 	}
 
 	if Hardness[ID] == -1 {
 		return errors.New("Unbreakable")
 	}
 
-	var time = Hardness[ID] * mod * 20
-
-	var mustdig = true
+	var time = Hardness[ID] * mod * 20 + 1
+	fmt.Println("Time needed:",time)
 
 	Client.network.Write(&protocol.PlayerDigging{
 		Status:   0,
@@ -132,7 +134,7 @@ func dig(x, y, z, ID int, cancel chan bool) error {
 	})
 
 DIG:
-	for mustdig {
+	for {
 		select {
 		case <-cancel:
 			Client.network.Write(&protocol.PlayerDigging{
@@ -140,10 +142,12 @@ DIG:
 				Location: protocol.NewPosition(pos.X, pos.Y, pos.Z),
 				Face:     byte(dir),
 			})
+			fmt.Println("CANCELLED")
 			return nil
 		case <-T.C:
 			time = time - 1
 			if time < 0 {
+				fmt.Println("FINISHED DIGGING")
 				break DIG
 			}
 		}
