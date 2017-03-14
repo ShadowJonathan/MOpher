@@ -24,13 +24,13 @@ func Dig(x, y, z int, autotool bool, ec chan error, cancel chan bool) {
 		pi := Client.playerInventory
 		for p, i := range pi.Items {
 			if i != nil {
-				if required == wood && ispick(i.rawID) {
+				if required == wood && Ispick(i.rawID) {
 					iID = p
-				} else if required == stone && (thepick(i.rawID) == stone || thepick(i.rawID) == iron || thepick(i.rawID) == diamond) {
+				} else if required == stone && (Thepick(i.rawID) == stone || Thepick(i.rawID) == iron || Thepick(i.rawID) == diamond) {
 					iID = p
-				} else if required == iron && (thepick(i.rawID) == iron || thepick(i.rawID) == diamond) {
+				} else if required == iron && (Thepick(i.rawID) == iron || Thepick(i.rawID) == diamond) {
 					iID = p
-				} else if required == diamond && (thepick(i.rawID) == diamond) {
+				} else if required == diamond && (Thepick(i.rawID) == diamond) {
 					iID = p
 				} else {
 					ec <- notool
@@ -39,24 +39,23 @@ func Dig(x, y, z int, autotool bool, ec chan error, cancel chan bool) {
 			}
 		}
 	}
-	fmt.Println(iID)
 }
 
 var notool = errors.New("I dont have a tool to break this")
 
-func issword(u int16) bool {
+func Issword(u int16) bool {
 	return u == 267 || u == 268 || u == 272 || u == 276 || u == 283
 }
 
-func isaxe(u int16) bool {
+func Isaxe(u int16) bool {
 	return u == 258 || u == 271 || u == 275 || u == 279 || u == 286
 }
 
-func ispick(u int16) bool {
+func Ispick(u int16) bool {
 	return u == 257 || u == 270 || u == 274 || u == 278 || u == 285
 }
 
-func thepick(u int16) int {
+func Thepick(u int16) int {
 	if u == 270 {
 		return wood
 	} else if u == 274 {
@@ -72,8 +71,29 @@ func thepick(u int16) int {
 	}
 }
 
-func isshover(u int16) bool {
+func Isshovel(u int16) bool {
 	return u == 256 || u == 269 || u == 273 || u == 277 || u == 284
+}
+
+func Typeof(u int16) int {
+	if u == 296 || u == 270 || u == 271 || u == 278 {
+		return wood
+	} else if u == 274 || u == 272 || u == 273 || u == 275 {
+		return stone
+	} else if u == 257 || u == 256 || u == 258 || u == 267 {
+		return iron
+	} else if u == 283 || u == 284 || u == 285 || u == 286 {
+		return gold
+	} else if u == 278 || u == 276 || u == 277 || u == 279 {
+		return diamond
+	} else {
+		return 0
+	}
+}
+
+//swaps an item from one slot to another
+func Swap(from, to int) {
+
 }
 
 var (

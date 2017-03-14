@@ -184,7 +184,6 @@ LOOP:
 }
 
 func MoveSpecial(p *Path) {
-
 	switch p.orient {
 	case up:
 		Jumpto(p)
