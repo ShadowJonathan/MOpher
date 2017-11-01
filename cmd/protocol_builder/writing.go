@@ -33,6 +33,7 @@ type writing struct {
 func (w *writing) writeStruct(spec *ast.StructType, name string) {
 	var lastCondition conditions
 	for _, field := range spec.Fields.List {
+		//fmt.Println(field)
 		tag := reflect.StructTag("")
 		if field.Tag != nil {
 			tag = reflect.StructTag(field.Tag.Value[1 : len(field.Tag.Value)-1])
@@ -102,7 +103,7 @@ func (w *writing) writeNamed(t, name string, tag reflect.StructTag) {
 			tmp2 := w.tmp()
 			writeString := "WriteString"
 			if notProtocol {
-				writeString = "protocol.WriteString"
+				writeString = "lib.WriteString"
 			}
 			fmt.Fprintf(&w.buf, `var %[1]s []byte
 				if %[1]s, err = json.Marshal(&%[2]s); err != nil { return }
@@ -123,16 +124,16 @@ func (w *writing) writeNamed(t, name string, tag reflect.StructTag) {
 	funcName := ""
 
 	switch t {
-	case "VarInt":
+	case "VarInt", "lib.VarInt":
 		funcName = "WriteVarInt"
-	case "VarLong":
+	case "VarLong", "lib.VarLong":
 		funcName = "WriteVarLong"
 	case "string":
 		funcName = "WriteString"
 	case "bool":
 		funcName = "WriteBool"
-	case "Metadata":
-		funcName = "writeMetadata"
+	case "Metadata", "lib.Metadata":
+		funcName = "WriteMetadata"
 	case "nbt.Compound":
 		funcName = "WriteNBT"
 	case "int8", "uint8", "byte":
@@ -158,7 +159,7 @@ func (w *writing) writeNamed(t, name string, tag reflect.StructTag) {
 		fmt.Fprintf(&w.buf, "%s := math.Float64bits(%s)\n", name, orig)
 		t = "uint64"
 		fallthrough
-	case "int64", "uint64", "Position":
+	case "int64", "uint64", "Position", "lib.Position":
 		w.scratch(8)
 		generateNumberWrite(&w.buf, name, t, 8, t[0] != 'i')
 	default:
@@ -166,8 +167,8 @@ func (w *writing) writeNamed(t, name string, tag reflect.StructTag) {
 	}
 	if len(funcName) != 0 {
 		if notProtocol {
-			funcName = "protocol." + funcName
-			imports["github.com/ShadowJonathan/MOpher/protocol"] = struct{}{}
+			funcName = "lib." + funcName
+			imports["../../lib"] = struct{}{}
 		}
 		fmt.Fprintf(&w.buf, "if err = %s(ww, %s); err != nil { return  }\n", funcName, name)
 	}

@@ -1,0 +1,1 @@
+go build && mopher.exe

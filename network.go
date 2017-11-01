@@ -1,18 +1,20 @@
 package main
 
 import (
+	"./Protocol"
+	"./Protocol/lib"
+	"./Protocol/mojang"
+	"./format"
+	"./type/vmath"
 	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/ShadowJonathan/MOpher/Protocol"
-	"github.com/ShadowJonathan/MOpher/Protocol/mojang"
-	"github.com/ShadowJonathan/MOpher/format"
-	"github.com/ShadowJonathan/MOpher/type/vmath"
 	"github.com/go-gl/mathgl/mgl32"
 	"log"
 	"math"
 	"reflect"
+	"runtime/debug"
 	"strconv"
 	"strings"
 )
@@ -30,7 +32,7 @@ func init() {
 func (h handler) Init() {
 	v := reflect.ValueOf(h)
 
-	packet := reflect.TypeOf((*protocol.Packet)(nil)).Elem()
+	packet := reflect.TypeOf((*lib.MetaPacket)(nil)).Elem()
 
 	for i := 0; i < v.NumMethod(); i++ {
 		m := v.Method(i)
@@ -49,13 +51,15 @@ func (h handler) Handle(packet interface{}) {
 	m, ok := h[reflect.TypeOf(packet)]
 	if ok {
 		m.Call([]reflect.Value{reflect.ValueOf(packet)})
+	} else {
+		LS("Could not process packet type", reflect.TypeOf(packet))
 	}
 }
 
 func (handler) ServerMessage(msg *protocol.ServerMessage) {
 	data, err := json.Marshal(msg)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("ServerMessage", err)
 	} else {
 		fmt.Println(string(data))
 	}
@@ -92,7 +96,7 @@ func (handler) ServerMessage(msg *protocol.ServerMessage) {
 						if p.playerComponent.UUID() == uuid {
 							found = true
 							x, y, z = p.Position()
-							fmt.Println(p.EntityID())
+							fmt.Println(p.EntityID(), "->", x, y, z)
 						}
 					}
 				}
@@ -118,8 +122,7 @@ func (handler) ServerMessage(msg *protocol.ServerMessage) {
 					panic(err)
 				}
 			}
-			x = float64(int64(x))
-			z = float64(int64(z))
+			y = float64(int64(y))
 			fmt.Println(Client.X, Client.Y, Client.Z)
 			fmt.Println(x, y, z)
 			err = NAV(x, y, z)
@@ -129,7 +132,8 @@ func (handler) ServerMessage(msg *protocol.ServerMessage) {
 			}
 		}
 	}
-	fmt.Printf("MSG(%d):<%s> %s", msg.Type, author, text)
+
+	fmt.Printf("MSG(%d):<%s> %s\n", msg.Type, author, text)
 }
 
 func (handler) JoinGame(j *protocol.JoinGame) {
@@ -169,6 +173,11 @@ func (handler) Confirm(c *protocol.ConfirmTransaction) {
 			ActionNumber: c.ActionNumber,
 			Accepted:     c.Accepted,
 		})
+	} else {
+		LS(c.ActionNumber, "CONFIRMED")
+		if a, ok := actions[c.ActionNumber]; ok {
+			a()
+		}
 	}
 }
 
@@ -228,9 +237,10 @@ func Refpitch(raw float32) float64 {
 }
 
 var loadingChunks = map[chunkPosition][]func(){}
+var lc int
 
 func (handler) ChunkData(c *protocol.ChunkData) {
-	//fmt.Println("Init chunk", int32(c.BitMask))
+	lc++
 	pos := chunkPosition{int(c.ChunkX), int(c.ChunkZ)}
 	loadingChunks[pos] = nil
 
@@ -239,19 +249,23 @@ func (handler) ChunkData(c *protocol.ChunkData) {
 		go loadChunk(pos.X, pos.Z, data, int32(c.BitMask), Client.WorldType == wtOverworld, true)
 	} else {
 		loadChunk(pos.X, pos.Z, data, int32(c.BitMask), Client.WorldType == wtOverworld, false)
+		LS("END LOAD CHUNK", pos)
 	}
+	lc--
 }
 
 func (handler) ChunkUnload(p *protocol.ChunkUnload) {
 	pos := chunkPosition{int(p.X), int(p.Z)}
+	chunkSync.Lock()
 	c, ok := chunkMap[pos]
 	if ok {
 		c.free()
 		delete(chunkMap, pos)
 	}
+	chunkSync.Unlock()
 }
 
-func protocolPosToChunkPos(p protocol.Position) chunkPosition {
+func protocolPosToChunkPos(p lib.Position) chunkPosition {
 	return chunkPosition{p.X() >> 4, p.Z() >> 4}
 }
 
@@ -274,7 +288,9 @@ func (handler) SetBlockBatch(b *protocol.MultiBlockChange) {
 		return
 	}
 
+	chunkSync.Lock()
 	chunk := chunkMap[cp]
+	chunkSync.Unlock()
 	if chunk == nil {
 		return
 	}
@@ -313,6 +329,66 @@ func (handler) SpawnPlayer(s *protocol.SpawnPlayer) {
 	e.(PlayerComponent).SetUUID(s.UUID)
 	e.(NetworkComponent).SetEntityID(int(s.EntityID))
 	Client.entities.add(int(s.EntityID), e)
+}
+
+type item struct {
+	networkComponent
+	positionComponent
+	metadataComponent
+}
+
+func (i *item) String() string {
+	var stack = ItemStackFromProtocol(i.Data()[6].(lib.ItemStack))
+	return strings.TrimSpace(fmt.Sprintln(stack.Type.Name(), "x"+strconv.Itoa(stack.Count), "@", i.X, i.Y, i.Z))
+}
+
+func (i *item) JSON() string {
+	type itemJson struct {
+		Type    string
+		Amount  int
+		X, Y, Z float64
+	}
+	var stack = ItemStackFromProtocol(i.Data()[6].(lib.ItemStack))
+	b, err := json.Marshal(itemJson{
+		stack.Type.Name(),
+		stack.Count,
+		i.X,
+		i.Y,
+		i.Z,
+	})
+	if err != nil {
+		panic(err)
+	} else {
+		return string(b)
+	}
+}
+
+func (handler) SpawnObject(o *protocol.SpawnObject) {
+	if o.Type == 2 {
+		i := &item{}
+		i.NetworkID = 1
+		i.X = o.X
+		i.Y = o.Y
+		i.Z = o.Z
+		i.SetEntityID(int(o.EntityID))
+
+		Client.entities.add(i.EntityID(), i)
+	}
+
+	LS("GOT SPAWN OBJECT", o.Type, o.EntityID)
+}
+
+func (handler) EntityMetadata(o *protocol.EntityMetadata) {
+	e, ok := Client.entities.entities[int(o.EntityID)]
+	if !ok {
+		return
+	}
+	md, ok := e.(MetadataComponent)
+	if !ok {
+		LS("GOT ENTITYMETADATA FOR", o.EntityID, "BUT ENTITY HAS NO METADATA COMPONENT")
+		return
+	}
+	md.SetData(o.Metadata)
 }
 
 func (handler) SpawnMob(s *protocol.SpawnMob) {
@@ -378,6 +454,16 @@ func (handler) EntityTeleport(t *protocol.EntityTeleport) {
 	}
 }
 
+func (handler) EntityHeadLook(m *protocol.EntityHeadLook) {
+	e, ok := Client.entities.entities[int(m.EntityID)]
+	if !ok {
+		//fmt.Println("CANNOT FIND ENTITY", m.EntityID)
+		return
+	}
+	_, p := getEntityRotation(e)
+	rotateEntity(e, (float64(m.HeadYaw)/256)*math.Pi*2, p)
+}
+
 func (handler) EntityMove(m *protocol.EntityMove) {
 	e, ok := Client.entities.entities[int(m.EntityID)]
 	if !ok {
@@ -418,6 +504,20 @@ func rotateEntity(e Entity, y, p float64) {
 		r.SetYaw(y)
 		r.SetPitch(p)
 	}
+}
+
+func getEntityRotation(e Entity) (yaw, pitch float64) {
+	if r, ok := e.(TargetRotationComponent); ok {
+		yaw = r.TargetYaw()
+		pitch = r.TargetPitch()
+		return
+	}
+	if r, ok := e.(RotationComponent); ok {
+		yaw = r.Yaw()
+		pitch = r.Pitch()
+		return
+	}
+	return
 }
 
 func relMove(e Entity, dx, dy, dz float64) {
@@ -477,10 +577,14 @@ func (handler) WindowItem(p *protocol.WindowSetSlot) {
 	if p.Slot >= int16(len(inv.Items)) {
 		return
 	}
-	inv.Items[p.Slot] = ItemStackFromProtocol(p.ItemStack)
+	if p.Slot == -1 {
+		Client.playerCursor = ItemStackFromProtocol(p.ItemStack)
+	} else {
+		inv.Items[p.Slot] = ItemStackFromProtocol(p.ItemStack)
+	}
 }
 
-var nametouuid = map[string]protocol.UUID{}
+var nametouuid = map[string]lib.UUID{}
 
 func (handler) PlayerInfo(pi *protocol.PlayerInfo) {
 	if pi.Action == 0 {
@@ -492,15 +596,15 @@ func (handler) PlayerInfo(pi *protocol.PlayerInfo) {
 
 type NetworkManager struct {
 	conn      *protocol.Conn
-	writeChan chan protocol.Packet
-	readChan  chan protocol.Packet
+	writeChan chan lib.MetaPacket
+	readChan  chan lib.MetaPacket
 	errorChan chan error
 	closeChan chan struct{}
 }
 
 func (n *NetworkManager) init() {
-	n.writeChan = make(chan protocol.Packet, 200)
-	n.readChan = make(chan protocol.Packet, 200)
+	n.writeChan = make(chan lib.MetaPacket, 200)
+	n.readChan = make(chan lib.MetaPacket, 200)
 	n.errorChan = make(chan error, 1)
 	n.closeChan = make(chan struct{}, 1)
 }
@@ -511,30 +615,52 @@ func (n *NetworkManager) Connect(profile mojang.Profile, server string) {
 		var err error
 		n.conn, err = protocol.Dial(server)
 		if err != nil {
+			panic(err)
+		}
+		ok, err, version, Protocol := n.conn.ResolveConnectable()
+		if !ok {
+			log.Fatal("Cannot connect to this server:", err)
+		}
+
+		n.conn, err = protocol.Dial(server)
+
+		n.conn.ProtocolVersion = version
+		n.conn.CP = Protocol
+
+		if err != nil {
 			n.SignalClose(err)
 			return
 		}
 		if logLevel > 0 {
-			n.conn.Logger = func(read bool, packet protocol.Packet) {
+			n.conn.Logger = func(read bool, packet lib.MetaPacket, id int, state lib.State) {
 				if !read && logLevel < 2 {
 					return
 				}
+				P, _ := n.conn.CP.Back(packet)
 				if logLevel < 3 {
-					switch packet.(type) {
-					case *protocol.ChunkData:
+					switch P.(type) {
+					case *protocol.ChunkData, *protocol.EntityMove, *protocol.EntityLookAndMove, *protocol.EntityHeadLook, *protocol.ChunkUnload:
 						return
 					}
+				}
+				name := strings.TrimPrefix(reflect.TypeOf(P).String(), "*protocol.")
+				if read {
+					log.Printf("N I<-[%s]:%d %s\n", state.String(), id, name)
+				} else {
+					log.Printf("N O->[%s]:%d %s\n", state.String(), id, name)
 				}
 			}
 		}
 		fmt.Println("Dialed")
+
 		err, ls := n.conn.LoginToServer(profile)
 		if err != nil {
 			n.SignalClose(err)
 			return
 		}
+
 		if ls != nil {
-			n.conn.State = protocol.Play
+			n.conn.State = lib.Play
 		} else {
 
 		preLogin:
@@ -548,7 +674,7 @@ func (n *NetworkManager) Connect(profile mojang.Profile, server string) {
 				case *protocol.SetInitialCompression:
 					n.conn.SetCompression(int(packet.Threshold))
 				case *protocol.LoginSuccess:
-					n.conn.State = protocol.Play
+					n.conn.State = lib.Play
 					break preLogin
 				case *protocol.LoginDisconnect:
 					n.SignalClose(errors.New(packet.Reason.String()))
@@ -568,6 +694,7 @@ func (n *NetworkManager) Connect(profile mojang.Profile, server string) {
 				return
 			}
 			if first {
+				lua_onload()
 				go n.writeHandler()
 				first = false
 			}
@@ -596,7 +723,9 @@ func (n *NetworkManager) writeHandler() {
 
 func (n *NetworkManager) SignalClose(err error) {
 	// Try to save the error if one isn't already there
-	log.Fatalf("ERROR: %s", err)
+	if err != nil {
+		log.Fatalf("ERROR: %s\n%s", err, debug.Stack())
+	}
 	n.errorChan <- err
 }
 
@@ -604,11 +733,16 @@ func (n *NetworkManager) Error() <-chan error {
 	return n.errorChan
 }
 
-func (n *NetworkManager) Read() <-chan protocol.Packet {
+func (n *NetworkManager) Read() <-chan lib.MetaPacket {
 	return n.readChan
 }
 
-func (n *NetworkManager) Write(packet protocol.Packet) {
+func (n *NetworkManager) Write(p interface{}) {
+	packet, err := n.conn.CP.Translate(p)
+	if err != nil {
+		fmt.Println("ERROR TRANSLATING PACKET", p, "TYPE", reflect.TypeOf(p), "BECAUSE:", err)
+		return
+	}
 	select {
 	case n.writeChan <- packet:
 	case <-n.closeChan:

@@ -7,7 +7,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/ShadowJonathan/MOpher/Protocol/mojang"
+	"./lib"
+	"./mojang"
 )
 
 // BUG(Think) LoginToServer doesn't support offline mode. Call it a feature?
@@ -17,22 +18,22 @@ import (
 // This stops before LoginSuccess (or any other preceding packets).
 func (c *Conn) LoginToServer(profile mojang.Profile) (err error, success *LoginSuccess) {
 	err = c.WritePacket(&Handshake{
-		ProtocolVersion: SupportedProtocolVersion,
+		ProtocolVersion: lib.VarInt(c.ProtocolVersion),
 		Host:            c.host,
 		Port:            c.port,
-		Next:            VarInt(Login - 1),
+		Next:            lib.VarInt(lib.Login - 1),
 	})
 	if err != nil {
 		return
 	}
-	c.State = Login
+	c.State = lib.Login
 	if err = c.WritePacket(&LoginStart{
 		Username: profile.Username,
 	}); err != nil {
 		return
 	}
 
-	var packet Packet
+	var packet lib.MetaPacket
 	if packet, err = c.ReadPacket(); err != nil {
 		return
 	}
@@ -85,16 +86,16 @@ func (c *Conn) LoginToServer(profile mojang.Profile) (err error, success *LoginS
 
 var OFFLINE_ERR = errors.New("server is in offline mode which is currently unsupported")
 
-func checkLoginPacket(c *Conn, p Packet) (*EncryptionRequest, error, *LoginSuccess) {
+func checkLoginPacket(c *Conn, p lib.MetaPacket) (*EncryptionRequest, error, *LoginSuccess) {
 	switch p := p.(type) {
 	case *EncryptionRequest:
 		return p, nil, nil
 	case *LoginDisconnect:
-		return nil, errors.New(p.Reason.String()), nil
+		return nil, errors.New(fmt.Sprintf("DISCONNECT: %s", p.Reason)), nil
 	case *LoginSuccess:
 		return nil, OFFLINE_ERR, p
 	case *SetInitialCompression:
-		fmt.Println("Handled compression inside checkloginpacket")
+		fmt.Println("Handled compression inside checkloginpacket:", int(p.Threshold))
 		c.SetCompression(int(p.Threshold))
 		p2, err := c.ReadPacket()
 		if err != nil {

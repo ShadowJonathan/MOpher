@@ -1,20 +1,20 @@
 package main
 
 import (
+	"./Protocol/lib"
+	"./type/bit"
+	"./type/direction"
+	"./type/nibble"
+	"./type/vmath"
+	"./world/biome"
 	"bytes"
 	"encoding/binary"
-	"fmt"
-	"github.com/ShadowJonathan/MOpher/Protocol"
-	"github.com/ShadowJonathan/MOpher/type/bit"
-	"github.com/ShadowJonathan/MOpher/type/direction"
-	"github.com/ShadowJonathan/MOpher/type/nibble"
-	"github.com/ShadowJonathan/MOpher/type/vmath"
-	"github.com/ShadowJonathan/MOpher/world/biome"
 	"math"
 	"sort"
 	"sync"
 )
 
+var chunkSync = new(sync.Mutex)
 var chunkMap world = map[chunkPosition]*chunk{}
 
 type world map[chunkPosition]*chunk
@@ -22,7 +22,9 @@ type world map[chunkPosition]*chunk
 func (w world) BlockEntity(x, y, z int) BlockEntity {
 	cx := x >> 4
 	cz := z >> 4
+	chunkSync.Lock()
 	chunk := w[chunkPosition{cx, cz}]
+	chunkSync.Unlock()
 	if chunk == nil {
 		return nil
 	}
@@ -36,7 +38,9 @@ func (w world) BlockEntity(x, y, z int) BlockEntity {
 func (w world) Block(x, y, z int) Block {
 	cx := x >> 4
 	cz := z >> 4
+	chunkSync.Lock()
 	chunk := w[chunkPosition{cx, cz}]
+	chunkSync.Unlock()
 	if chunk == nil {
 		return Blocks.Bedrock.Base
 	}
@@ -46,7 +50,9 @@ func (w world) Block(x, y, z int) Block {
 func (w world) SetBlock(b Block, x, y, z int) {
 	cx := x >> 4
 	cz := z >> 4
+	chunkSync.Lock()
 	chunk := w[chunkPosition{cx, cz}]
+	chunkSync.Unlock()
 	if chunk == nil {
 		return
 	}
@@ -60,7 +66,9 @@ func (w world) SetBlock(b Block, x, y, z int) {
 func (w world) HighestBlockAt(x, z int) int {
 	cx := x >> 4
 	cz := z >> 4
+	chunkSync.Lock()
 	chunk := w[chunkPosition{cx, cz}]
+	chunkSync.Unlock()
 	if chunk == nil {
 		return 0
 	}
@@ -70,7 +78,9 @@ func (w world) HighestBlockAt(x, z int) int {
 func (w world) dirty(x, y, z int) {
 	cx := x >> 4
 	cz := z >> 4
+	chunkSync.Lock()
 	chunk := w[chunkPosition{cx, cz}]
+	chunkSync.Unlock()
 	if chunk == nil || y < 0 || y > 255 {
 		return
 	}
@@ -104,7 +114,9 @@ func (w world) EntitiesIn(bounds vmath.AABB) (out []Entity) {
 
 	for x := lcx; x <= hcx; x++ {
 		for z := lcz; z <= hcz; z++ {
+			chunkSync.Lock()
 			c := w[chunkPosition{x, z}]
+			chunkSync.Unlock()
 			if c == nil {
 				continue
 			}
@@ -237,7 +249,9 @@ itQueue:
 		exLight, l, x, y, z = state.exLight, state.l, state.x, state.y, state.z
 		// Handle neighbor chunks
 		if x < 0 || x > 15 || z < 0 || z > 15 {
+			chunkSync.Lock()
 			ch := chunkMap[chunkPosition{c.X + (x >> 4), c.Z + (z >> 4)}]
+			chunkSync.Unlock()
 			if ch == nil {
 				continue itQueue
 			}
@@ -301,7 +315,9 @@ itQueue:
 func (c *chunk) relLight(x, y, z int, f getLight, sky bool) byte {
 	ch := c
 	if x < 0 || x > 15 || z < 0 || z > 15 {
+		chunkSync.Lock()
 		ch = chunkMap[chunkPosition{c.X + (x >> 4), c.Z + (z >> 4)}]
+		chunkSync.Unlock()
 		x &= 0xF
 		z &= 0xF
 	}
@@ -390,7 +406,7 @@ func (cs *chunkSection) block(x, y, z int) Block {
 func (cs *chunkSection) setBlock(b Block, x, y, z int) {
 	old := cs.block(x, y, z)
 	if old == b {
-		return
+		//LS("TRIED TO REPLACE OLD BLOCK AT", x, y, z, b, old)
 	}
 	// Remove the old block
 	idx := cs.revBlockMap[old]
@@ -423,12 +439,12 @@ func (cs *chunkSection) setBlock(b Block, x, y, z int) {
 	cs.dirty = true
 }
 func loadChunk(x, z int, data *bytes.Reader, mask int32, sky, isNew bool) {
-	defer func() {
+	/*defer func() {
 		err := recover()
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("loadChunk",err)
 		}
-	}()
+	}()*/
 	var c *chunk
 	if isNew {
 		c = &chunk{
@@ -437,9 +453,9 @@ func loadChunk(x, z int, data *bytes.Reader, mask int32, sky, isNew bool) {
 			},
 		}
 	} else {
-		c = chunkMap[chunkPosition{
-			X: x, Z: z,
-		}]
+		chunkSync.Lock()
+		c = chunkMap[chunkPosition{X: x, Z: z}]
+		chunkSync.Unlock()
 		if c == nil {
 			return
 		}
@@ -463,16 +479,16 @@ func loadChunk(x, z int, data *bytes.Reader, mask int32, sky, isNew bool) {
 		}
 		blockMap := map[int]int{}
 		if bitSize <= 8 {
-			count, _ := protocol.ReadVarInt(data)
+			count, _ := lib.ReadVarInt(data)
 			for i := 0; i < int(count); i++ {
-				bID, _ := protocol.ReadVarInt(data)
+				bID, _ := lib.ReadVarInt(data)
 				blockMap[i] = int(bID)
 			}
 		} else {
-			protocol.ReadVarInt(data)
+			lib.ReadVarInt(data)
 		}
 
-		Len, _ := protocol.ReadVarInt(data)
+		Len, _ := lib.ReadVarInt(data)
 		bits := make([]uint64, Len)
 		binary.Read(data, binary.BigEndian, &bits)
 
@@ -507,8 +523,9 @@ func loadChunk(x, z int, data *bytes.Reader, mask int32, sky, isNew bool) {
 }
 
 func (c *chunk) postLoad() {
-
+	chunkSync.Lock()
 	chunkMap[c.chunkPosition] = c
+	chunkSync.Unlock()
 	for _, section := range c.Sections {
 		if section == nil {
 			continue
@@ -535,7 +552,9 @@ func (c *chunk) postLoad() {
 	self := c
 	for xx := -1; xx <= 1; xx++ {
 		for zz := -1; zz <= 1; zz++ {
+			chunkSync.Lock()
 			c := chunkMap[chunkPosition{c.X + xx, c.Z + zz}]
+			chunkSync.Unlock()
 			if c != nil && c != self {
 				for _, section := range c.Sections {
 					if section == nil {
@@ -595,10 +614,12 @@ func (c *chunk) postLoad() {
 func sortedChunks() []*chunk {
 	out := make([]*chunk, len(chunkMap))
 	i := 0
+	chunkSync.Lock()
 	for _, c := range chunkMap {
 		out[i] = c
 		i++
 	}
+	chunkSync.Unlock()
 	sort.Sort(chunkSorter(out))
 	return out
 }

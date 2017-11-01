@@ -1,10 +1,11 @@
-//go:generate protocol_builder $GOFILE Play clientbound
+//go:/generate protocol_builder $GOFILE Play clientbound
 
 package protocol
 
 import (
-	"github.com/ShadowJonathan/MOpher/encoding/nbt"
-	"github.com/ShadowJonathan/MOpher/format"
+	"../encoding/nbt"
+	"../format"
+	"./lib"
 )
 
 // SpawnObject is used to spawn an object or vehicle into the world when it
@@ -12,10 +13,10 @@ import (
 //
 // This is a Minecraft packet
 type SpawnObject struct {
-	EntityID                        VarInt
-	UUID                            UUID `as:"raw"`
+	EntityID                        lib.VarInt
+	UUID                            lib.UUID `as:"raw"`
 	Type                            byte
-	X, Y, Z                         int64
+	X, Y, Z                         float64
 	Pitch, Yaw                      int8
 	Data                            int32
 	VelocityX, VelocityY, VelocityZ int16
@@ -27,7 +28,7 @@ type SpawnObject struct {
 //
 // This is a Minecraft packet
 type SpawnExperienceOrb struct {
-	EntityID VarInt
+	EntityID lib.VarInt
 	X, Y, Z  int64
 	Count    int16
 }
@@ -37,7 +38,7 @@ type SpawnExperienceOrb struct {
 //
 // This is a Minecraft packet
 type SpawnGlobalEntity struct {
-	EntityID VarInt
+	EntityID lib.VarInt
 	Type     byte
 	X, Y, Z  int64
 }
@@ -47,14 +48,14 @@ type SpawnGlobalEntity struct {
 //
 // This is a Minecraft packet
 type SpawnMob struct {
-	EntityID                        VarInt
-	UUID                            UUID `as:"raw"`
+	EntityID                        lib.VarInt
+	UUID                            lib.UUID `as:"raw"`
 	Type                            byte
 	X, Y, Z                         int64
 	Yaw, Pitch                      int8
 	HeadPitch                       int8
 	VelocityX, VelocityY, VelocityZ int16
-	Metadata                        Metadata
+	Metadata                        lib.Metadata
 }
 
 // SpawnPainting spawns a painting into the world when it is in range of
@@ -62,10 +63,10 @@ type SpawnMob struct {
 //
 // This is a Minecraft packet
 type SpawnPainting struct {
-	EntityID  VarInt
-	UUID      UUID `as:"raw"`
+	EntityID  lib.VarInt
+	UUID      lib.UUID `as:"raw"`
 	Title     string
-	Location  Position
+	Location  lib.Position
 	Direction byte
 }
 
@@ -75,18 +76,18 @@ type SpawnPainting struct {
 //
 // This is a Minecraft packet
 type SpawnPlayer struct {
-	EntityID   VarInt
-	UUID       UUID `as:"raw"`
+	EntityID   lib.VarInt
+	UUID       lib.UUID `as:"raw"`
 	X, Y, Z    float64
 	Yaw, Pitch int8
-	Metadata   Metadata
+	Metadata   lib.Metadata
 }
 
 // Animation is sent by the server to play an animation on a specific entity.
 //
 // This is a Minecraft packet
 type Animation struct {
-	EntityID    VarInt
+	EntityID    lib.VarInt
 	AnimationID byte
 }
 
@@ -100,7 +101,7 @@ type Statistics struct {
 // Statistic is used by Statistics
 type Statistic struct {
 	Name  string
-	Value VarInt
+	Value lib.VarInt
 }
 
 // BlockBreakAnimation is used to create and update the block breaking
@@ -108,8 +109,8 @@ type Statistic struct {
 //
 // This is a Minecraft packet
 type BlockBreakAnimation struct {
-	EntityID VarInt
-	Location Position
+	EntityID lib.VarInt
+	Location lib.Position
 	Stage    int8
 }
 
@@ -118,7 +119,7 @@ type BlockBreakAnimation struct {
 //
 // This is a Minecraft packet
 type UpdateBlockEntity struct {
-	Location Position
+	Location lib.Position
 	Action   byte
 	NBT      *nbt.Compound
 }
@@ -127,18 +128,18 @@ type UpdateBlockEntity struct {
 //
 // This is a Minecraft packet
 type BlockAction struct {
-	Location  Position
+	Location  lib.Position
 	Byte1     byte
 	Byte2     byte
-	BlockType VarInt
+	BlockType lib.VarInt
 }
 
 // BlockChange is used to update a single block on the client.
 //
 // This is a Minecraft packet
 type BlockChange struct {
-	Location Position
-	BlockID  VarInt
+	Location lib.Position
+	BlockID  lib.VarInt
 }
 
 // BossBar displays and/or changes a boss bar that is displayed on the
@@ -147,12 +148,12 @@ type BlockChange struct {
 //
 // This is a Minecraft packet
 type BossBar struct {
-	UUID   UUID `as:"raw"`
-	Action VarInt
+	UUID   lib.UUID            `as:"raw"`
+	Action lib.VarInt
 	Title  format.AnyComponent `as:"json" if:".Action == 0 .Action == 3"`
 	Health float32             `if:".Action == 0 .Action == 2"`
-	Color  VarInt              `if:".Action == 0 .Action == 4"`
-	Style  VarInt              `if:".Action == 0 .Action == 4"`
+	Color  lib.VarInt          `if:".Action == 0 .Action == 4"`
+	Style  lib.VarInt          `if:".Action == 0 .Action == 4"`
 	Flags  byte                `if:".Action == 0 .Action == 5"`
 }
 
@@ -170,7 +171,7 @@ type ServerDifficulty struct {
 //
 // This is a Minecraft packet
 type TabCompleteReply struct {
-	Count   VarInt
+	Count   lib.VarInt
 	Matches []string `length:"VarInt"`
 }
 
@@ -197,7 +198,7 @@ type MultiBlockChange struct {
 type BlockChangeRecord struct {
 	XZ      byte
 	Y       byte
-	BlockID VarInt
+	BlockID lib.VarInt
 }
 
 // ConfirmTransaction notifies the client whether a transaction was successful
@@ -228,7 +229,7 @@ type WindowOpen struct {
 	Type      string
 	Title     format.AnyComponent `as:"json"`
 	SlotCount byte
-	EntityID  int32 `if:".Type == \"EntityHorse\""`
+	EntityID  int32               `if:".Type == \"EntityHorse\""`
 }
 
 // WindowItems sets every item in a window.
@@ -236,7 +237,7 @@ type WindowOpen struct {
 // This is a Minecraft packet
 type WindowItems struct {
 	ID    byte
-	Items []ItemStack `length:"int16" as:"raw"`
+	Items []lib.ItemStack `length:"int16" as:"raw"`
 }
 
 // WindowProperty changes the value of a property of a window. Properties
@@ -255,15 +256,15 @@ type WindowProperty struct {
 type WindowSetSlot struct {
 	ID        byte
 	Slot      int16
-	ItemStack ItemStack `as:"raw"`
+	ItemStack lib.ItemStack `as:"raw"`
 }
 
 // SetCooldown disables a set item (by id) for the set number of ticks
 //
 // This is a Minecraft packet
 type SetCooldown struct {
-	ItemID VarInt
-	Ticks  VarInt
+	ItemID lib.VarInt
+	Ticks  lib.VarInt
 }
 
 // PluginMessageClientbound is used for custom messages between the client
@@ -276,19 +277,17 @@ type PluginMessageClientbound struct {
 	Data    []byte `length:"remaining"`
 }
 
-// TODO PLACE 25:0x19
 // SoundEffect plays the named sound at the target location.
 //
 // This is a Minecraft packet
 type SoundEffect struct {
 	Name      string
-	Catargory VarInt
+	Catargory lib.VarInt
 	X, Y, Z   int32
 	Volume    float32
 	Pitch     float32
 }
 
-// TODO PLACE 26:0x1a
 // Disconnect causes the client to disconnect displaying the passed reason.
 //
 // This is a Minecraft packet
@@ -296,7 +295,6 @@ type Disconnect struct {
 	Reason format.AnyComponent `as:"json"`
 }
 
-// TODO PLACE 27:0x1b
 // EntityAction causes an entity to preform an action based on the passed
 // id.
 //
@@ -306,7 +304,6 @@ type EntityAction struct {
 	ActionID byte
 }
 
-// TODO PLACE 28:0x1c
 // Explosion is sent when an explosion is triggered (tnt, creeper etc).
 // This plays the effect and removes the effected blocks.
 //
@@ -323,7 +320,6 @@ type ExplosionRecord struct {
 	X, Y, Z int8
 }
 
-// TODO PLACE 29:0x1d
 // ChunkUnload tells the client to unload the chunk at the specified
 // position.
 //
@@ -333,7 +329,6 @@ type ChunkUnload struct {
 	Z int32
 }
 
-// TODO PLACE 30:0x1e
 // ChangeGameState is used to modify the game's state like gamemode or
 // weather.
 //
@@ -343,7 +338,6 @@ type ChangeGameState struct {
 	Value  float32
 }
 
-// TODO PLACE 31:0x1f
 // KeepAliveClientbound is sent by a server to check if the
 // client is still responding and keep the connection open.
 // The client should reply with the KeepAliveServerbound
@@ -351,10 +345,9 @@ type ChangeGameState struct {
 //
 // This is a Minecraft packet
 type KeepAliveClientbound struct {
-	ID VarInt
+	ID lib.VarInt
 }
 
-// TODO PLACE 32:0x20
 // ChunkData sends or updates a single chunk on the client. If New is set
 // then biome data should be sent too.
 //
@@ -362,7 +355,7 @@ type KeepAliveClientbound struct {
 type ChunkData struct {
 	ChunkX, ChunkZ int32
 	New            bool
-	BitMask        VarInt
+	BitMask        lib.VarInt
 	Data           []byte        `length:"VarInt" nolimit:"true"`
 	BlockEntities  []BlockEntity `length:"VarInt"`
 }
@@ -371,7 +364,6 @@ type BlockEntity struct {
 	NBT *nbt.Compound
 }
 
-// TODO PLACE 33:0x21
 // Effect plays a sound effect or particle at the target location with the
 // volume (of sounds) being relative to the player's position unless
 // DisableRelative is set to true.
@@ -379,12 +371,11 @@ type BlockEntity struct {
 // This is a Minecraft packet
 type Effect struct {
 	EffectID        int32
-	Location        Position
+	Location        lib.Position
 	Data            int32
 	DisableRelative bool
 }
 
-// TODO PLACE 34:0x22
 // Particle spawns particles at the target location with the various
 // modifiers. Data's length depends on the particle ID.
 //
@@ -396,7 +387,7 @@ type Particle struct {
 	OffsetX, OffsetY, OffsetZ float32
 	PData                     float32
 	Count                     int32
-	Data                      []VarInt `length:"@particleDataLength"`
+	Data                      []lib.VarInt `length:"@particleDataLength"`
 }
 
 func particleDataLength(p *Particle) int {
@@ -409,7 +400,6 @@ func particleDataLength(p *Particle) int {
 	return 0
 }
 
-// TODO PLACE 35:0x23
 // JoinGame is sent after completing the login process. This
 // sets the initial state for the client.
 //
@@ -432,20 +422,19 @@ type JoinGame struct {
 	ReducedDebugInfo bool
 }
 
-// TODO PLACE 36:0x24
 // Maps updates a single map's contents
 //
 // This is a Minecraft packet
 type Maps struct {
-	ItemDamage       VarInt
+	ItemDamage       lib.VarInt
 	Scale            int8
 	TrackingPosition bool
 	Icons            []MapIcon `length:"VarInt"`
 	Columns          byte
-	Rows             byte   `if:".Columns>0"`
-	X                byte   `if:".Columns>0"`
-	Z                byte   `if:".Columns>0"`
-	Data             []byte `if:".Columns>0" length:"VarInt"`
+	Rows             byte      `if:".Columns>0"`
+	X                byte      `if:".Columns>0"`
+	Z                byte      `if:".Columns>0"`
+	Data             []byte    `if:".Columns>0" length:"VarInt"`
 }
 
 // MapIcon is used by Maps
@@ -454,11 +443,18 @@ type MapIcon struct {
 	X, Z          int8
 }
 
+// Entity does nothing. It is a result of subclassing used in Minecraft.
+//
+// This is a Minecraft packet
+type Entity struct {
+	EntityID lib.VarInt
+}
+
 // EntityMove moves the entity with the id by the offsets provided.
 //
 // This is a Minecraft packet
 type EntityMove struct {
-	EntityID               VarInt
+	EntityID               lib.VarInt
 	DeltaX, DeltaY, DeltaZ int16
 	OnGround               bool
 }
@@ -467,7 +463,7 @@ type EntityMove struct {
 //
 // This is a Minecraft packet
 type EntityLookAndMove struct {
-	EntityID               VarInt
+	EntityID               lib.VarInt
 	DeltaX, DeltaY, DeltaZ int16
 	Yaw, Pitch             int8
 	OnGround               bool
@@ -477,17 +473,9 @@ type EntityLookAndMove struct {
 //
 // This is a Minecraft packet
 type EntityLook struct {
-	EntityID   VarInt
+	EntityID   lib.VarInt
 	Yaw, Pitch int8
 	OnGround   bool
-}
-
-// TODO 0x27
-// Entity does nothing. It is a result of subclassing used in Minecraft.
-//
-// This is a Minecraft packet
-type Entity struct {
-	EntityID VarInt
 }
 
 // Entity does nothing. It is a result of subclassing used in Minecraft.
@@ -504,7 +492,7 @@ type VehicleMove struct {
 //
 // This is a Minecraft packet
 type SignEditorOpen struct {
-	Location Position
+	Location lib.Position
 }
 
 // PlayerAbilities is used to modify the players current abilities. Flying,
@@ -522,9 +510,9 @@ type PlayerAbilities struct {
 //
 // This is a Minecraft packet
 type CombatEvent struct {
-	Event    VarInt
-	Duration VarInt              `if:".Event == 1"`
-	PlayerID VarInt              `if:".Event == 2"`
+	Event    lib.VarInt
+	Duration lib.VarInt          `if:".Event == 1"`
+	PlayerID lib.VarInt          `if:".Event == 2"`
 	EntityID int32               `if:".Event == 1 .Event == 2"`
 	Message  format.AnyComponent `as:"json" if:".Event == 2"`
 }
@@ -534,17 +522,17 @@ type CombatEvent struct {
 //
 // This is a Minecraft packet
 type PlayerInfo struct {
-	Action  VarInt
+	Action  lib.VarInt
 	Players []PlayerDetail `length:"VarInt"`
 }
 
 // PlayerDetail is used by PlayerInfo
 type PlayerDetail struct {
-	UUID        UUID                `as:"raw"`
+	UUID        lib.UUID            `as:"raw"`
 	Name        string              `if:"..Action==0"`
 	Properties  []PlayerProperty    `length:"VarInt" if:"..Action==0"`
-	GameMode    VarInt              `if:"..Action==0 ..Action == 1"`
-	Ping        VarInt              `if:"..Action==0 ..Action == 2"`
+	GameMode    lib.VarInt          `if:"..Action==0 ..Action == 1"`
+	Ping        lib.VarInt          `if:"..Action==0 ..Action == 2"`
 	HasDisplay  bool                `if:"..Action==0 ..Action == 3"`
 	DisplayName format.AnyComponent `as:"json" if:".HasDisplay==true"`
 }
@@ -566,29 +554,40 @@ type TeleportPlayer struct {
 	X, Y, Z    float64
 	Yaw, Pitch float32
 	Flags      byte
-	TPID       VarInt
+	TPID       lib.VarInt
 }
 
 // EntityUsedBed is sent by the server when a player goes to bed.
 //
 // This is a Minecraft packet
 type EntityUsedBed struct {
-	EntityID VarInt
-	Location Position
+	EntityID lib.VarInt
+	Location lib.Position
+}
+
+// EntityDestroy destroys the entities with the ids in the provided slice.
+//
+// This is a Minecraft packet
+type UnlockReceipes struct {
+	Action             lib.VarInt
+	CraftingBookOpen   bool
+	FilteringCraftable bool
+	ReceipeIDs         []lib.VarInt `length:"VarInt"`
+	AllReceipeIDs      []lib.VarInt `length:"VarInt" if:".Action == 0"`
 }
 
 // EntityDestroy destroys the entities with the ids in the provided slice.
 //
 // This is a Minecraft packet
 type EntityDestroy struct {
-	EntityIDs []VarInt `length:"VarInt"`
+	EntityIDs []lib.VarInt `length:"VarInt"`
 }
 
 // EntityRemoveEffect removes an effect from an entity.
 //
 // This is a Minecraft packet
 type EntityRemoveEffect struct {
-	EntityID VarInt
+	EntityID lib.VarInt
 	EffectID int8
 }
 
@@ -616,22 +615,29 @@ type Respawn struct {
 //
 // This is a Minecraft packet
 type EntityHeadLook struct {
-	EntityID VarInt
+	EntityID lib.VarInt
 	HeadYaw  int8
+}
+
+//
+// This is a Minecraft packet
+type SelectAdvancementTab struct {
+	HasID      bool
+	Identifier string `if:".HasID == true"`
 }
 
 // WorldBorder configures the world's border.
 //
 // This is a Minecraft packet
 type WorldBorder struct {
-	Action         VarInt
-	OldRadius      float64 `if:".Action == 3 .Action == 1"`
-	NewRadius      float64 `if:".Action == 3 .Action == 1 .Action == 0"`
-	Speed          VarLong `if:".Action == 3 .Action == 1"`
-	X, Z           float64 `if:".Action == 3 .Action == 2"`
-	PortalBoundary VarInt  `if:".Action == 3"`
-	WarningTime    VarInt  `if:".Action == 3 .Action == 4"`
-	WarningBlocks  VarInt  `if:".Action == 3 .Action == 5"`
+	Action         lib.VarInt
+	OldRadius      float64     `if:".Action == 3 .Action == 1"`
+	NewRadius      float64     `if:".Action == 3 .Action == 1 .Action == 0"`
+	Speed          lib.VarLong `if:".Action == 3 .Action == 1"`
+	X, Z           float64     `if:".Action == 3 .Action == 2"`
+	PortalBoundary lib.VarInt  `if:".Action == 3"`
+	WarningTime    lib.VarInt  `if:".Action == 3 .Action == 4"`
+	WarningBlocks  lib.VarInt  `if:".Action == 3 .Action == 5"`
 }
 
 // Camera causes the client to spectate the entity with the passed id.
@@ -639,7 +645,7 @@ type WorldBorder struct {
 //
 // This is a Minecraft packet
 type Camera struct {
-	TargetID VarInt
+	TargetID lib.VarInt
 }
 
 // SetCurrentHotbarSlot changes the player's currently selected hotbar item.
@@ -661,8 +667,8 @@ type ScoreboardDisplay struct {
 //
 // This is a Minecraft packet
 type EntityMetadata struct {
-	EntityID VarInt
-	Metadata Metadata
+	EntityID lib.VarInt
+	Metadata lib.Metadata
 }
 
 // EntityAttach attaches to entities together, either by mounting or leashing.
@@ -680,7 +686,7 @@ type EntityAttach struct {
 //
 // This is a Minecraft packet
 type EntityVelocity struct {
-	EntityID                        VarInt
+	EntityID                        lib.VarInt
 	VelocityX, VelocityY, VelocityZ int16
 }
 
@@ -690,9 +696,9 @@ type EntityVelocity struct {
 //
 // This is a Minecraft packet
 type EntityEquipment struct {
-	EntityID VarInt
-	Slot     VarInt
-	Item     ItemStack `as:"raw"`
+	EntityID lib.VarInt
+	Slot     lib.VarInt
+	Item     lib.ItemStack `as:"raw"`
 }
 
 // SetExperience updates the experience bar on the client.
@@ -700,8 +706,8 @@ type EntityEquipment struct {
 // This is a Minecraft packet
 type SetExperience struct {
 	ExperienceBar   float32
-	Level           VarInt
-	TotalExperience VarInt
+	Level           lib.VarInt
+	TotalExperience lib.VarInt
 }
 
 // UpdateHealth is sent by the server to update the player's health and food.
@@ -709,7 +715,7 @@ type SetExperience struct {
 // This is a Minecraft packet
 type UpdateHealth struct {
 	Health         float32
-	Food           VarInt
+	Food           lib.VarInt
 	FoodSaturation float32
 }
 
@@ -727,8 +733,8 @@ type ScoreboardObjective struct {
 //
 // This is a Minecraft packet
 type Passengers struct {
-	ID         VarInt
-	Passengers []VarInt `length:"VarInt"`
+	ID         lib.VarInt
+	Passengers []lib.VarInt `length:"VarInt"`
 }
 
 // Teams creates and updates teams
@@ -755,7 +761,7 @@ type UpdateScore struct {
 	Name       string
 	Action     byte
 	ObjectName string
-	Value      VarInt `if:".Action != 1"`
+	Value      lib.VarInt `if:".Action != 1"`
 }
 
 // SpawnPosition is sent to change the player's current spawn point. Currently
@@ -763,7 +769,7 @@ type UpdateScore struct {
 //
 // This is a Minecraft packet
 type SpawnPosition struct {
-	Location Position
+	Location lib.Position
 }
 
 // TimeUpdate is sent to sync the world's time to the client, the client
@@ -781,7 +787,7 @@ type TimeUpdate struct {
 //
 // This is a Minecraft packet
 type Title struct {
-	Action   VarInt
+	Action   lib.VarInt
 	Title    format.AnyComponent `as:"json" if:".Action == 0"`
 	SubTitle format.AnyComponent `as:"json" if:".Action == 1"`
 	FadeIn   int32               `if:".Action == 2"`
@@ -793,11 +799,11 @@ type Title struct {
 //
 // This is a Minecraft packet
 type HardSoundEffect struct {
-	ID      VarInt
-	Cat     VarInt
+	ID      lib.VarInt
+	Cat     lib.VarInt
 	X, Y, Z int32
 	Vol     float32
-	pitch   float32
+	Pitch   float32
 }
 
 // PlayerListHeaderFooter updates the header/footer of the player list.
@@ -813,9 +819,9 @@ type PlayerListHeaderFooter struct {
 //
 // This is a Minecraft packet
 type CollectItem struct {
-	CollectedEntityID VarInt
-	CollectorEntityID VarInt
-	PickUpCount       VarInt
+	CollectedEntityID lib.VarInt
+	CollectorEntityID lib.VarInt
+	PickUpCount       lib.VarInt
 }
 
 // EntityTeleport teleports the entity to the target location. This is
@@ -823,17 +829,80 @@ type CollectItem struct {
 //
 // This is a Minecraft packet
 type EntityTeleport struct {
-	EntityID   VarInt
+	EntityID   lib.VarInt
 	X, Y, Z    float64
 	Yaw, Pitch int8
 	OnGround   bool
+}
+
+//
+// This is a Minecraft packet
+type Advancements struct {
+	Clear                         bool
+	AdvancementMapping            []AdvancementMappingItem `length:"VarInt"`
+	RemovedAdvancementIdentifiers []string                 `length:"VarInt"`
+}
+
+// Used by Advancements
+type AdvancementMappingItem struct {
+	Key   string
+	Value Advancement
+}
+
+// Used by AdvancementMappingItem
+type Advancement struct {
+	HasParent    bool
+	ParentID     string                    `if:".HasParent == true"`
+	HasDisplay   bool
+	DisplayData  AdvancementDisplay        `if:".HasDisplay == true"`
+	Criteria     []string                  `length:"VarInt"`
+	Requirements []AdvancementRequirements `length:"VarInt"`
+}
+
+// Used by Advancement
+type AdvancementDisplay struct {
+	Title             format.AnyComponent `as:"json"`
+	Description       format.AnyComponent `as:"json"`
+	Icon              lib.ItemStack       `as:"raw"`
+	FrameType         lib.VarInt
+	Flags             int32
+	BackgroundTexture string              `if:".Flags & 1"`
+	X, Y              float32
+}
+
+// Used by Advancement
+type AdvancementRequirements struct {
+	Requirement []string `length:"VarInt"`
+}
+
+// Used by Advancements
+type ProgressMappingItem struct {
+	Key   string
+	Value AdvancementProgress
+}
+
+// Used by ProgressMappingItem
+type AdvancementProgress struct {
+	Criteria []ProgressCriteria `length:"VarInt"`
+}
+
+// Used by AdvancementProgress
+type ProgressCriteria struct {
+	Identifier string
+	Progress   CriterionProgress
+}
+
+// Used by ProgressCriteria
+type CriterionProgress struct {
+	Archieved bool
+	Date      int64 `if:".Archieved == true"`
 }
 
 // EntityProperties updates the properties for an entity.
 //
 // This is a Minecraft packet
 type EntityProperties struct {
-	EntityID   VarInt
+	EntityID   lib.VarInt
 	Properties []EntityProperty `length:"int32"`
 }
 
@@ -848,7 +917,7 @@ type EntityProperty struct {
 // PropertyModifier is a modifier on a property.
 // Used by EntityProperty.
 type PropertyModifier struct {
-	UUID      UUID `as:"raw"`
+	UUID      lib.UUID `as:"raw"`
 	Amount    float64
 	Operation int8
 }
@@ -857,9 +926,9 @@ type PropertyModifier struct {
 //
 // This is a Minecraft packet
 type EntityEffect struct {
-	EntityID      VarInt
+	EntityID      lib.VarInt
 	EffectID      int8
 	Amplifier     int8
-	Duration      VarInt
+	Duration      lib.VarInt
 	HideParticles bool
 }

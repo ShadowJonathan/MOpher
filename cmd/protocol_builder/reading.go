@@ -109,8 +109,12 @@ func (r *reading) readType(e ast.Expr, name string, tag reflect.StructTag) {
 			 `, lenVar, lenVar)
 
 		// Allocate the slice
-
-		fmt.Fprintf(&r.buf, "%s = make([]%s, %s)\n", name, e.Elt, lenVar)
+		//fmt.Println(e.Elt, reflect.TypeOf(e.Elt))
+		if s, ok := e.Elt.(*ast.SelectorExpr); ok {
+			fmt.Fprintf(&r.buf, "%s = make([]%s.%s, %s)\n", name, s.X, s.Sel, lenVar)
+		} else {
+			fmt.Fprintf(&r.buf, "%s = make([]%s, %s)\n", name, e.Elt, lenVar)
+		}
 		if i, ok := e.Elt.(*ast.Ident); ok && (i.Name == "byte" || i.Name == "uint8") {
 			fmt.Fprintf(&r.buf, "if _, err = rr.Read(%s); err != nil { return }\n", name)
 		} else {
@@ -133,7 +137,7 @@ func (r *reading) readNamed(t, name string, tag reflect.StructTag) {
 			tmp1 := r.tmp()
 			readString := "ReadString"
 			if notProtocol {
-				readString = "protocol.ReadString"
+				readString = "lib.ReadString"
 			}
 			fmt.Fprintf(&r.buf, `var %[1]s string 
 			if %[1]s, err = %[3]s(rr); err != nil { return err }
@@ -155,16 +159,16 @@ func (r *reading) readNamed(t, name string, tag reflect.StructTag) {
 	origT := t
 
 	switch t {
-	case "VarInt":
+	case "VarInt", "lib.VarInt":
 		funcName = "ReadVarInt"
-	case "VarLong":
+	case "VarLong", "lib.VarLong":
 		funcName = "ReadVarLong"
 	case "string":
 		funcName = "ReadString"
 	case "bool":
 		funcName = "ReadBool"
-	case "Metadata":
-		funcName = "readMetadata"
+	case "Metadata", "lib.Metadata":
+		funcName = "ReadMetadata"
 	case "nbt.Compound":
 		funcName = "ReadNBT"
 	case "int8", "uint8", "byte":
@@ -191,7 +195,7 @@ func (r *reading) readNamed(t, name string, tag reflect.StructTag) {
 		t = "uint64"
 		fmt.Fprintf(&r.buf, "var %s uint64\n", name)
 		fallthrough
-	case "int64", "uint64", "Position":
+	case "int64", "uint64", "Position", "lib.Position":
 		r.scratch(8)
 		generateNumberRead(&r.buf, name, t, 8, t[0] != 'i')
 		if origT == "float64" {
@@ -202,8 +206,8 @@ func (r *reading) readNamed(t, name string, tag reflect.StructTag) {
 	}
 	if len(funcName) != 0 {
 		if notProtocol {
-			funcName = "protocol." + funcName
-			imports["github.com/ShadowJonathan/MOpher/protocol"] = struct{}{}
+			funcName = "lib." + funcName
+			imports["../../lib"] = struct{}{}
 		}
 		fmt.Fprintf(&r.buf, "if %s, err = %s(rr); err != nil { return  }\n", name, funcName)
 	}

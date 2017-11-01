@@ -1,4 +1,4 @@
-//go:generate protocol_builder $GOFILE Login serverbound
+//go:/generate protocol_builder $GOFILE Login serverbound
 
 package protocol
 

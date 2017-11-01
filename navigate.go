@@ -1,9 +1,9 @@
 package main
 
 import (
+	"./Protocol"
 	"errors"
 	"fmt"
-	"github.com/ShadowJonathan/MOpher/Protocol"
 	"github.com/beefsack/go-astar"
 	"math"
 	"runtime/debug"
@@ -21,94 +21,93 @@ var globalY int
 var globalZ int
 
 func NAVtoNearest(x, y, z float64) (err error, ye bool, X, Y, Z float64) {
-	var rx int
-	var rz int
+	var rx float64
+	var rz float64
 	for i := 0; i < 4; i++ {
 		if i == 0 {
-			rx,rz = -1,0
+			rx, rz = -1, 0
 		} else if i == 1 {
-			rx,rz = 1,0
+			rx, rz = 1, 0
 		} else if i == 2 {
-			rx,rz = 0,-1
+			rx, rz = 0, -1
 		} else if i == 3 {
-			rx,rz = 0,-1
+			rx, rz = 0, -1
 		}
-			err = CheckWalkable(x+float64(rx), y, z+float64(rz), false)
+		err = CheckWalkable(x+rx, y, z+rz, false)
+		if err == nil {
+			err = check(x+rx, y, z+rz)
 			if err == nil {
-				err = check(x+float64(rx), y, z+float64(rz))
-				if err == nil {
-					ye = true
-					X, Y, Z = x+float64(rx), y, z+float64(rz)
-					return
-				}
+				ye = true
+				X, Y, Z = x+rx, y, z+rz
+				return
 			}
-
+		}
 	}
 	rx = -2
 	for rz = -2; rz <= 2; rz++ {
-		err = CheckWalkable(x+float64(rx), y, z+float64(rz), false)
+		err = CheckWalkable(x+rx, y, z+rz, false)
 		if err == nil {
-			err = check(x+float64(rx), y, z+float64(rz))
+			err = check(x+rx, y, z+rz)
 			if err == nil {
 				ye = true
-				X, Y, Z = x+float64(rx), y, z+float64(rz)
+				X, Y, Z = x+rx, y, z+rz
 				return
 			}
 		}
 	}
 	rx = 2
 	for rz = -2; rz <= 2; rz++ {
-		err = CheckWalkable(x+float64(rx), y, z+float64(rz), false)
+		err = CheckWalkable(x+rx, y, z+rz, false)
 		if err == nil {
-			err = check(x+float64(rx), y, z+float64(rz))
+			err = check(x+rx, y, z+rz)
 			if err == nil {
 				ye = true
-				X, Y, Z = x+float64(rx), y, z+float64(rz)
+				X, Y, Z = x+rx, y, z+rz
 				return
 			}
 		}
 	}
 	rz = -2
 	for rx = -2; rx <= 2; rx++ {
-		err = CheckWalkable(x+float64(rx), y, z+float64(rz), false)
+		err = CheckWalkable(x+rx, y, z+rz, false)
 		if err == nil {
-			err = check(x+float64(rx), y, z+float64(rz))
+			err = check(x+rx, y, z+rz)
 			if err == nil {
 				ye = true
-				X, Y, Z = x+float64(rx), y, z+float64(rz)
+				X, Y, Z = x+rx, y, z+rz
 				return
 			}
 		}
 	}
 	rz = 2
 	for rx = -2; rx <= 2; rx++ {
-		err = CheckWalkable(x+float64(rx), y, z+float64(rz), false)
+		err = CheckWalkable(x+rx, y, z+rz, false)
 		if err == nil {
-			err = check(x+float64(rx), y, z+float64(rz))
+			err = check(x+rx, y, z+rz)
 			if err == nil {
 				ye = true
-				X, Y, Z = x+float64(rx), y, z+float64(rz)
+				X, Y, Z = x+rx, y, z+rz
 				return
 			}
 		}
 	}
-	var ry int = -1
+	var ry float64 = -1
 	for i := 0; i < 4; i++ {
 		if i == 0 {
-			rx,rz = -1,0
+			rx, rz = -1, 0
 		} else if i == 1 {
-			rx,rz = 1,0
+			rx, rz = 1, 0
 		} else if i == 2 {
-			rx,rz = 0,-1
+			rx, rz = 0, -1
 		} else if i == 3 {
-			rx,rz = 0,-1
+			rx, rz = 0, -1
 		}
-		err = CheckWalkable(x+float64(rx), y+float64(ry), z+float64(rz), false)
+		err = CheckWalkable(x+rx, y+ry, z+rz, false)
 		if err == nil {
-			err = check(x+float64(rx), y+float64(ry), z+float64(rz))
+			err = check(x+rx, y+ry, z+rz)
 			if err == nil {
 				ye = true
-				X, Y, Z = x+float64(rx), y+float64(ry), z+float64(rz)
+				X, Y, Z = x+rx, y+ry, z+rz
 				return
 			}
 		}
@@ -117,24 +116,45 @@ func NAVtoNearest(x, y, z float64) (err error, ye bool, X, Y, Z float64) {
 	ry = 1
 	for i := 0; i < 4; i++ {
 		if i == 0 {
-			rx,rz = -1,0
+			rx, rz = -1, 0
 		} else if i == 1 {
-			rx,rz = 1,0
+			rx, rz = 1, 0
 		} else if i == 2 {
-			rx,rz = 0,-1
+			rx, rz = 0, -1
 		} else if i == 3 {
-			rx,rz = 0,-1
+			rx, rz = 0, -1
 		}
-		err = CheckWalkable(x+float64(rx), y+float64(ry), z+float64(rz), false)
+		err = CheckWalkable(x+rx, y+ry, z+rz, false)
 		if err == nil {
-			err = check(x+float64(rx), y+float64(ry), z+float64(rz))
+			err = check(x+rx, y+ry, z+rz)
 			if err == nil {
 				ye = true
-				X, Y, Z = x+float64(rx), y+float64(ry), z+float64(rz)
+				X, Y, Z = x+rx, y+ry, z+rz
 				return
 			}
 		}
+	}
 
+	ry = -1
+	for i := 0; i < 4; i++ {
+		if i == 0 {
+			rx, rz = -1, 0
+		} else if i == 1 {
+			rx, rz = 1, 0
+		} else if i == 2 {
+			rx, rz = 0, -1
+		} else if i == 3 {
+			rx, rz = 0, -1
+		}
+		err = CheckWalkable(x+rx, y+ry, z+rz, false)
+		if err == nil {
+			err = check(x+rx, y+ry, z+rz)
+			if err == nil {
+				ye = true
+				X, Y, Z = x+rx, y+ry, z+rz
+				return
+			}
+		}
 	}
 	ye = false
 	err = errors.New("NOT FOUND")
@@ -205,6 +225,7 @@ func NAV(x, y, z float64) (err error) {
 		Navigate(Path.P)
 	} else {
 		fmt.Println("No path found")
+		fmt.Println("C", int(Client.X), int(Client.Y), int(Client.Z))
 		return errors.New("No path found " + xyz)
 	}
 	return nil
@@ -224,7 +245,7 @@ func (c *ClientState) lookat(x, y, z float64) (yaw, pitch float64) {
 	rz := z - c.Z
 	dz := -(c.Z - z)
 	yaw = math.Atan2(dx, dz) / DegToRad
-	pitch = -math.Asin(ry/math.Sqrt(rx*rx+ry*ry+rz*rz)) / DegToRad
+	pitch = -math.Asin(ry / math.Sqrt(rx*rx+ry*ry+rz*rz)) / DegToRad
 	return
 }
 
@@ -314,7 +335,6 @@ LOOP:
 			if propdx < 0.001 && propdx > -0.001 && propdz < 0.001 && propdz > -0.001 {
 				break LOOP
 			}
-		default:
 
 		}
 
@@ -690,7 +710,6 @@ func (p *Path) NextNode(s map[string]info, eX, eY, eZ int) {
 	delete(s, place)
 	p.P = &Path{X: int(FoundX), Y: int(FoundY), Z: int(FoundZ), IDS: info.IDS, special: info.special, axis: info.axis, orient: info.orient}
 	if p.P.X == eX && p.P.Y == eY && p.P.Z == eZ {
-		fmt.Println(p.P.X, eX, p.P.Y, eY, p.P.Z, eZ)
 		return
 	} else {
 		p.P.NextNode(s, eX, eY, eZ)
@@ -708,20 +727,30 @@ func (p *Path) Print() {
 (XYZ) - XYZ point in the world
 [XYZ] - XYZ point of the block
 
-(XYZ)-----------+
+(X,Y,Z)---------+ X
 |               |
 |               |
 |     [XYZ]     |
 |               |
 |               |
-+---------------+
++-----(X+1,Y,Z+1)
+
+Z
 */
 
 //points and checks the block your FEET want to be in
-func CheckWalkable(x, y, z float64, toleratenoblocktowalkon bool) error {
-	if chunkMap.Block(int(x), int(y+1), int(z)).BlockSet() == Blocks.Air || chunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.Torch || chunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.RedstoneTorch || chunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.TallGrass || chunkMap.Block(int(x), int(y), int(z)).BlockSet().ID == Blocks.SnowLayer.ID {
-		if chunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.Air || chunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.Torch || chunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.RedstoneTorch || chunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.TallGrass || chunkMap.Block(int(x), int(y), int(z)).BlockSet().ID == Blocks.SnowLayer.ID {
-			if ASP.solidwhole(chunkMap.Block(int(x), int(y-1), int(z)).BlockSet()) || toleratenoblocktowalkon {
+func CheckWalkable(x, y, z float64, TolerateNoBlockToWalkOn bool) error {
+	if chunkMap.Block(int(x), int(y+1), int(z)).BlockSet() == Blocks.Air ||
+		chunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.Torch ||
+		chunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.RedstoneTorch ||
+		chunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.TallGrass ||
+		chunkMap.Block(int(x), int(y), int(z)).BlockSet().ID == Blocks.SnowLayer.ID {
+		if chunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.Air ||
+			chunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.Torch ||
+			chunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.RedstoneTorch ||
+			chunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.TallGrass ||
+			chunkMap.Block(int(x), int(y), int(z)).BlockSet().ID == Blocks.SnowLayer.ID {
+			if ASP.solidwhole(chunkMap.Block(int(x), int(y-1), int(z)).BlockSet()) || TolerateNoBlockToWalkOn {
 				return nil
 			} else {
 				return CHECK_ERR_BELOW_NON_SOLID
@@ -760,7 +789,87 @@ func Nearestsnappoint(x, y float64) Snappoint {
 }
 
 func (a AnvalibleSnapPoints) solidwhole(set *BlockSet) bool {
-	return set == Blocks.Wool || set == Blocks.TNT || set == Blocks.StoneBrick || set == Blocks.Stone || set == Blocks.StainedHardenedClay || set == Blocks.StainedGlass || set == Blocks.Sponge || set == Blocks.SoulSand || set == Blocks.Slime || set == Blocks.Sandstone || set == Blocks.Sand || set == Blocks.RedstoneOre || set == Blocks.RedstoneOreLit || set == Blocks.RedstoneLamp || set == Blocks.RedstoneLampLit || set == Blocks.RedstoneBlock || set == Blocks.RedSandstone || set == Blocks.RedMushroomBlock || set == Blocks.QuartzOre || set == Blocks.QuartzBlock || set == Blocks.PurpurBlock || set == Blocks.PumpkinLit || set == Blocks.Pumpkin || set == Blocks.Prismarine || set == Blocks.Planks || set == Blocks.PackedIce || set == Blocks.Obsidian || set == Blocks.NoteBlock || set == Blocks.Netherrack || set == Blocks.NetherBrick || set == Blocks.Mycelium || set == Blocks.MossyCobblestone || set == Blocks.MobSpawner || set == Blocks.MelonBlock || set == Blocks.Log2 || set == Blocks.Log || set == Blocks.Leaves2 || set == Blocks.Leaves || set == Blocks.LapisOre || set == Blocks.LapisBlock || set == Blocks.Jukebox || set == Blocks.IronOre || set == Blocks.Ice || set == Blocks.Hopper || set == Blocks.HayBlock || set == Blocks.HardenedClay || set == Blocks.Gravel || set == Blocks.GrassPath || set == Blocks.GoldOre || set == Blocks.GoldBlock || set == Blocks.Glowstone || set == Blocks.Glass || set == Blocks.FurnaceLit || set == Blocks.Furnace || set == Blocks.Farmland || set == Blocks.EndStone || set == Blocks.EndPortalFrame || set == Blocks.EndBricks || set == Blocks.EmeraldOre || set == Blocks.EmeraldBlock || set == Blocks.Dropper || set == Blocks.DoubleWoodenSlab || set == Blocks.DoubleStoneSlab2 || set == Blocks.DoubleStoneSlab || set == Blocks.Dispenser || set == Blocks.Dirt || set == Blocks.DiamondOre || set == Blocks.DiamondBlock || set == Blocks.CraftingTable || set == Blocks.CommandBlock || set == Blocks.Cobblestone || set == Blocks.CoalOre || set == Blocks.CoalBlock || set == Blocks.Clay || set == Blocks.BrownMushroomBlock || set == Blocks.BrickBlock || set == Blocks.BookShelf || set == Blocks.Bedrock || set == Blocks.Beacon || set == Blocks.Barrier || set == Blocks.Grass
+	return set == Blocks.Wool ||
+		set == Blocks.TNT ||
+		set == Blocks.StoneBrick ||
+		set == Blocks.Stone ||
+		set == Blocks.StainedHardenedClay ||
+		set == Blocks.StainedGlass ||
+		set == Blocks.Sponge ||
+		set == Blocks.SoulSand ||
+		set == Blocks.Slime ||
+		set == Blocks.Sandstone ||
+		set == Blocks.Sand ||
+		set == Blocks.RedstoneOre ||
+		set == Blocks.RedstoneOreLit ||
+		set == Blocks.RedstoneLamp ||
+		set == Blocks.RedstoneLampLit ||
+		set == Blocks.RedstoneBlock ||
+		set == Blocks.RedSandstone ||
+		set == Blocks.RedMushroomBlock ||
+		set == Blocks.QuartzOre ||
+		set == Blocks.QuartzBlock ||
+		set == Blocks.PurpurBlock ||
+		set == Blocks.PumpkinLit ||
+		set == Blocks.Pumpkin ||
+		set == Blocks.Prismarine ||
+		set == Blocks.Planks ||
+		set == Blocks.PackedIce ||
+		set == Blocks.Obsidian ||
+		set == Blocks.NoteBlock ||
+		set == Blocks.Netherrack ||
+		set == Blocks.NetherBrick ||
+		set == Blocks.Mycelium ||
+		set == Blocks.MossyCobblestone ||
+		set == Blocks.MobSpawner ||
+		set == Blocks.MelonBlock ||
+		set == Blocks.Log2 ||
+		set == Blocks.Log ||
+		set == Blocks.Leaves2 ||
+		set == Blocks.Leaves ||
+		set == Blocks.LapisOre ||
+		set == Blocks.LapisBlock ||
+		set == Blocks.Jukebox ||
+		set == Blocks.IronOre ||
+		set == Blocks.Ice ||
+		set == Blocks.Hopper ||
+		set == Blocks.HayBlock ||
+		set == Blocks.HardenedClay ||
+		set == Blocks.Gravel ||
+		set == Blocks.GrassPath ||
+		set == Blocks.GoldOre ||
+		set == Blocks.GoldBlock ||
+		set == Blocks.Glowstone ||
+		set == Blocks.Glass ||
+		set == Blocks.FurnaceLit ||
+		set == Blocks.Furnace ||
+		set == Blocks.Farmland ||
+		set == Blocks.EndStone ||
+		set == Blocks.EndPortalFrame ||
+		set == Blocks.EndBricks ||
+		set == Blocks.EmeraldOre ||
+		set == Blocks.EmeraldBlock ||
+		set == Blocks.Dropper ||
+		set == Blocks.DoubleWoodenSlab ||
+		set == Blocks.DoubleStoneSlab2 ||
+		set == Blocks.DoubleStoneSlab ||
+		set == Blocks.Dispenser ||
+		set == Blocks.Dirt ||
+		set == Blocks.DiamondOre ||
+		set == Blocks.DiamondBlock ||
+		set == Blocks.CraftingTable ||
+		set == Blocks.CommandBlock ||
+		set == Blocks.Cobblestone ||
+		set == Blocks.CoalOre ||
+		set == Blocks.CoalBlock ||
+		set == Blocks.Clay ||
+		set == Blocks.BrownMushroomBlock ||
+		set == Blocks.BrickBlock ||
+		set == Blocks.BookShelf ||
+		set == Blocks.Bedrock ||
+		set == Blocks.Beacon ||
+		set == Blocks.Barrier ||
+		set == Blocks.Grass
 }
 
 type AnvalibleSnapPoints struct{}
@@ -897,14 +1006,14 @@ func (w Tiles) NEWID() int {
 }
 
 const (
-	Xaxis int = iota
+	Xaxis  = iota
 	Zaxis
 	NXaxis
 	NZaxis
 )
 
 const (
-	up int = iota
+	up   = iota
 	down
 )
 
@@ -1089,7 +1198,7 @@ func (t *Tile) PathEstimatedCost(to astar.Pather) float64 {
 type Snappoint int
 
 const (
-	TopLeft Snappoint = iota
+	TopLeft     Snappoint = iota
 	Top
 	TopRight
 	Left

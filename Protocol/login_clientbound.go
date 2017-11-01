@@ -1,9 +1,10 @@
-//go:generate protocol_builder $GOFILE Login clientbound
+//go:/generate protocol_builder $GOFILE Login clientbound
 
 package protocol
 
 import (
-	"github.com/ShadowJonathan/MOpher/format"
+	"../format"
+	"./lib"
 )
 
 // LoginDisconnect is sent by the server if there was any issues
@@ -25,10 +26,10 @@ type EncryptionRequest struct {
 	// but is still used by the client if provided
 	ServerID string
 	// A RSA Public key serialized in x.509 PRIX format
-	PublicKey []byte `length:"VarInt"`
+	PublicKey []byte `length:"lib.VarInt"`
 	// Token used by the server to verify encryption is working
 	// correctly
-	VerifyToken []byte `length:"VarInt"`
+	VerifyToken []byte `length:"lib.VarInt"`
 }
 
 // LoginSuccess is sent by the server if the player successfully
@@ -48,5 +49,5 @@ type LoginSuccess struct {
 // This is a Minecraft packet
 type SetInitialCompression struct {
 	// Threshold where a packet should be sent compressed
-	Threshold VarInt
+	Threshold lib.VarInt
 }

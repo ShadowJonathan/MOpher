@@ -1,6 +1,10 @@
-//go:generate protocol_builder $GOFILE Handshaking serverbound
+//go:/generate protocol_builder $GOFILE Handshaking serverbound
 
 package protocol
+
+import (
+	"./lib"
+)
 
 // Handshake is the first packet sent in the protocol.
 // Its used for deciding if the request is a client
@@ -21,11 +25,11 @@ package protocol
 // This is a Minecraft packet
 type Handshake struct {
 	// The protocol version of the connecting client
-	ProtocolVersion VarInt
+	ProtocolVersion lib.VarInt
 	// The hostname the client connected to
 	Host string
 	// The port the client connected to
 	Port uint16
 	// The next protocol state the client wants
-	Next VarInt
+	Next lib.VarInt
 }

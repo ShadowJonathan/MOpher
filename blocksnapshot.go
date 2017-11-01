@@ -18,8 +18,8 @@ import (
 	"math"
 	"sync"
 
-	"github.com/ShadowJonathan/MOpher/type/nibble"
-	"github.com/ShadowJonathan/MOpher/world/biome"
+	"./type/nibble"
+	"./world/biome"
 )
 
 type blocksSnapshot struct {
@@ -89,7 +89,9 @@ func (bs *blocksSnapshot) init(x, y, z, w, h, d int) {
 
 	for cx := cx1; cx < cx2; cx++ {
 		for cz := cz1; cz < cz2; cz++ {
+			chunkSync.Lock()
 			chunk := chunkMap[chunkPosition{cx, cz}]
+			chunkSync.Unlock()
 			if chunk == nil {
 				continue
 			}
@@ -128,7 +130,7 @@ func (bs *blocksSnapshot) init(x, y, z, w, h, d int) {
 					for zz := z1; zz < z2; zz++ {
 						for xx := x1; xx < x2; xx++ {
 							ox, oy, oz := xx+(cx<<4), yy+(cy<<4), zz+(cz<<4)
-							var bl Block = Blocks.Air.Base
+							var bl = Blocks.Air.Base
 							if cs != nil {
 								bl = cs.block(xx, yy, zz)
 							}

@@ -1,32 +1,36 @@
 package main
 
 import (
+	"./Protocol"
+	"./Protocol/lib"
 	"errors"
 	"fmt"
-	"github.com/ShadowJonathan/MOpher/Protocol"
 	"runtime/debug"
+	"time"
 )
 
 //dig this function will send two nil errors through the error chan, one when starting, and one when finished, a random bool can be thrown in the cancel channel, to completely stop the function and stop digging.
 // the first error HAS to be received, or buffered, or else the program wont continue
-func Dig(x, y, z int, ec chan error, cancel chan bool) {
+func Dig(x, y, z int, ec chan error, cancel chan bool) bool {
 	defer func() {
 		err := recover()
 		if err != nil {
 			fmt.Println("RECOVERED", err, "\n"+string(debug.Stack()))
+			LS("RECOVERED", err, "\n"+string(debug.Stack()))
 		}
 	}()
-	b := chunkMap.Block(x, y, z)
-	if b.BlockSet().ID != 0 || Hardness[b.BlockSet().ID] != -1 {
 
-	} else if b.BlockSet().ID == 0 {
-		fmt.Println(DEFBLOCKAIR)
+	LS("STARTING DIGGING AT", x, y, z)
+
+	start := time.Now()
+	b := chunkMap.Block(x, y, z)
+	if b.BlockSet().ID == 0 {
 		ec <- DEFBLOCKAIR
-		return
+		return true
 	} else if Hardness[b.BlockSet().ID] == -1 {
-		fmt.Println(NOTMINABLE)
+		LS(NOTMINABLE)
 		ec <- NOTMINABLE
-		return
+		return false
 	}
 	required := minpick[b.BlockSet().ID]
 	var iID int
@@ -57,39 +61,43 @@ func Dig(x, y, z int, ec chan error, cancel chan bool) {
 			}
 		}
 		if !found && required != anything {
-			if required != -1 {
-				fmt.Println(notool, required)
-			}
+			LS(notool, required, b)
 			ec <- notool
-			return
+			return false
 		} else if !found && required == anything {
 			IdS = invPlayerHotbarOffset
 		}
 	}
-	Client.network.Write(&protocol.ClickWindow{
-		ID:           0,
-		Slot:         int16(iID),
-		Button:       0,
-		ActionNumber: 200,
-		Mode:         2,
-		ClickedItem:  ItemStackToProtocol(Client.playerInventory.Items[iID]),
-	})
-	if Client.playerInventory.Items[iID] != nil {
-		fmt.Println("SELECTED", Client.playerInventory.Items[iID].Type.Name())
+
+	II.PickUp(iID, true)
+	if !II.Drop(36, true) {
+		II.Swap(36, true)
+		II.Drop(iID, true)
 	}
+
+	if Client.playerInventory.Items[36] != nil {
+		LS("SELECTED", Client.playerInventory.Items[36].Type.Name())
+	}
+	elapsed := time.Since(start)
+	fmt.Println("SETTING UP COSTED", elapsed)
+	start = time.Now()
 	err, _, fx, fy, fz := NAVtoNearest(float64(x), float64(y), float64(z))
+	elapsed = time.Since(start)
+	fmt.Println("FINDING NEAREST COSTED", elapsed)
 	if err != nil {
-		fmt.Println(err)
+		LS("ERR", err)
 	} else {
 		err = NAV(fx, fy, fz)
 		if err != nil {
-			fmt.Println(err)
+			LS("ERR", err)
 		}
 	}
 	err = dig(x, y, z, b.BlockSet().ID, cancel, required == anything)
 	if err != nil {
-		fmt.Println(err)
+		LS("ERR", err)
+		return false
 	}
+	return true
 }
 
 func dig(x, y, z, ID int, cancel chan bool, anything bool) error {
@@ -111,7 +119,10 @@ func dig(x, y, z, ID int, cancel chan bool, anything bool) error {
 	pos, _, dir, _ := Client.targetBlock()
 	<-T.C
 	hold := Client.playerInventory.Items[Client.currentHotbarSlot+36]
-	var t = Typeof(hold.rawID)
+	var t = 0
+	if hold != nil {
+		t = Typeof(hold.rawID)
+	}
 	var mod float64
 
 	if t == 0 {
@@ -139,12 +150,12 @@ func dig(x, y, z, ID int, cancel chan bool, anything bool) error {
 		return errors.New("Unbreakable")
 	}
 
-	var time = Hardness[ID]*mod*20 + 1
-	fmt.Println("Time needed:", time, Hardness[ID], mod, t, hold.Type.Name(),hold.rawID)
+	var Time = Hardness[ID]*mod*20 + 1
+	fmt.Println("Time needed:", Time, Hardness[ID], mod, t, hold.Type.Name(), hold.rawID)
 
 	Client.network.Write(&protocol.PlayerDigging{
 		Status:   0,
-		Location: protocol.NewPosition(pos.X, pos.Y, pos.Z),
+		Location: lib.NewPosition(pos.X, pos.Y, pos.Z),
 		Face:     byte(dir),
 	})
 
@@ -154,14 +165,14 @@ DIG:
 		case <-cancel:
 			Client.network.Write(&protocol.PlayerDigging{
 				Status:   1,
-				Location: protocol.NewPosition(pos.X, pos.Y, pos.Z),
+				Location: lib.NewPosition(pos.X, pos.Y, pos.Z),
 				Face:     byte(dir),
 			})
 			fmt.Println("CANCELLED")
 			return nil
 		case <-T.C:
-			time = time - 1
-			if time < 0.25 {
+			Time = Time - 1
+			if Time < 0.25 {
 				fmt.Println("FINISHED DIGGING")
 				break DIG
 			}
@@ -169,7 +180,7 @@ DIG:
 	}
 	Client.network.Write(&protocol.PlayerDigging{
 		Status:   2,
-		Location: protocol.NewPosition(pos.X, pos.Y, pos.Z),
+		Location: lib.NewPosition(pos.X, pos.Y, pos.Z),
 		Face:     byte(dir),
 	})
 	return nil
@@ -234,3 +245,7 @@ var (
 	DEFBLOCKAIR = errors.New("Defined block is air")
 	NOTMINABLE  = errors.New("Defined block is not minable")
 )
+
+func pickBestFromInventory() {
+
+}

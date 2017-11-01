@@ -1,0 +1,72 @@
+<html>
+<head>
+
+</head>
+<body>
+<textarea id="console"
+          style="display: inline-block;height: calc(100% - 25px);width: 50%; overflow-y: auto; font-family: 'Lucida Console'"
+          readonly></textarea>
+<textarea id="log"
+          style="display: inline-block;height: calc(100% - 25px);width: 49%; overflow-y: auto; font-family: 'Lucida Console'"
+          readonly></textarea>
+
+<div style="width: 100%">
+    <input type="button" id="btndo" value="Do"
+           onclick="send(document.getElementById('txt').value); document.getElementById('txt').value=''"
+           style="float: right; padding-left: 5px;"
+    />
+    <div style="overflow: auto;">
+        <input type="text" id="txt"
+               onkeyup="if (event.keyCode === 13) { document.getElementById('btndo').click();event.preventDefault ? event.preventDefault() : event.returnValue = false;}"
+               style="width: 100%;
+  box-sizing: border-box;"/>
+    </div>
+</div>
+
+<script>
+    function l(data) {
+        add(data, document.getElementById("log"))
+    }
+
+    function c(data) {
+        add(data, document.getElementById("console"))
+    }
+
+    function add(data, to) {
+        var scrolled = to.scrollTop >= (to.scrollHeight - to.offsetHeight);
+        to.innerHTML = to.innerHTML + "\n" + data;
+        if (scrolled) to.scrollTop = to.scrollHeight;
+    }
+
+    var sock = null;
+    var wsuri = "ws://127.0.0.1:9999/websocket";
+
+    window.onload = function () {
+
+        sock = new WebSocket(wsuri);
+
+        sock.onopen = function () {
+            console.log("connected to " + wsuri);
+        };
+
+        sock.onclose = function (e) {
+            window.close();
+        };
+
+        sock.onmessage = function (e) {
+            var o = JSON.parse(e.data);
+            if (o.exit)
+                window.close();
+            if (o.C)
+                c(o.C);
+            else
+                l(o.L);
+        };
+    };
+
+    function send(msg) {
+        sock.send(msg);
+    }
+</script>
+</body>
+</html>

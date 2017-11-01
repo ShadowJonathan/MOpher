@@ -19,8 +19,8 @@ import (
 	"math"
 	"reflect"
 
-	"github.com/ShadowJonathan/MOpher/type/direction"
-	"github.com/ShadowJonathan/MOpher/type/vmath"
+	"./type/direction"
+	"./type/vmath"
 )
 
 // Stone
@@ -631,7 +631,7 @@ func (b *blockWall) load(tag reflect.StructTag) {
 }
 
 func (b *blockWall) UpdateState(x, y, z int) Block {
-	var block Block = b.Set("up", false)
+	var block = b.Set("up", false)
 	for _, d := range direction.Values {
 		if d == direction.Down {
 			continue

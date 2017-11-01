@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/ShadowJonathan/MOpher/entitysys"
-	"github.com/ShadowJonathan/MOpher/type/vmath"
+	"./entitysys"
+	"./type/vmath"
 )
 
 var entityTypes = map[int]func() Entity{
@@ -102,7 +102,6 @@ type player struct {
 }
 
 func newPlayer() Entity {
-
 	p := &player{}
 	p.bounds = vmath.NewAABB(-0.3, 0, -0.3, 0.6, 2.0, 0.6)
 	return p

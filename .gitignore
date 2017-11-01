@@ -2,3 +2,4 @@ MOpher*
 *.prof
 *.json
 .idea/**
+*.exe

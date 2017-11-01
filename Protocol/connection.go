@@ -3,6 +3,7 @@
 package protocol
 
 import (
+	"./lib"
 	"bytes"
 	"compress/zlib"
 	"crypto/aes"
@@ -27,10 +28,13 @@ type Conn struct {
 	w                    io.Writer
 	net                  net.Conn
 	direction            int
-	State                State
+	State                lib.State
 	compressionThreshold int
 
-	Logger func(read bool, packet Packet)
+	ProtocolVersion int
+	CP              Protocol
+
+	Logger func(read bool, packet lib.MetaPacket, id int, state lib.State)
 
 	host string
 	port uint16
@@ -84,7 +88,7 @@ func Dial(address string) (*Conn, error) {
 			r:                    c,
 			w:                    c,
 			net:                  c,
-			direction:            serverbound,
+			direction:            lib.Serverbound,
 			host:                 host,
 			port:                 uint16(port),
 			compressionThreshold: -1,
@@ -95,17 +99,21 @@ func Dial(address string) (*Conn, error) {
 
 // WritePacket serializes the packet to the underlying
 // connection, optionally encrypting and/or compressing
-func (c *Conn) WritePacket(packet Packet) error {
+func (c *Conn) WritePacket(i interface{}) error {
+	packet, err := c.CP.Translate(i)
+	if err != nil {
+		return err
+	}
 	// 15 second timeout
 	c.net.SetWriteDeadline(time.Now().Add(15 * time.Second))
 
 	buf := &bytes.Buffer{}
 
 	// Contents of the packet (ID + Data)
-	if err := WriteVarInt(buf, VarInt(packet.id())); err != nil {
+	if err := lib.WriteVarInt(buf, lib.VarInt(packet.Id())); err != nil {
 		return err
 	}
-	if err := packet.write(buf); err != nil {
+	if err := packet.Write(buf); err != nil {
 		return err
 	}
 
@@ -133,31 +141,31 @@ func (c *Conn) WritePacket(packet Packet) error {
 
 	// Account for the compression header if enabled
 	if c.compressionThreshold >= 0 {
-		extra = varIntSize(VarInt(uncompessedSize))
+		extra = lib.VarIntSize(lib.VarInt(uncompessedSize))
 	}
 
 	// Write the length prefix followed by the buffer
-	if err := WriteVarInt(c.w, VarInt(buf.Len()+extra)); err != nil {
+	if err := lib.WriteVarInt(c.w, lib.VarInt(buf.Len()+extra)); err != nil {
 		return err
 	}
 
 	// Write the uncompressed packet size
 	if c.compressionThreshold >= 0 {
-		if err := WriteVarInt(c.w, VarInt(uncompessedSize)); err != nil {
+		if err := lib.WriteVarInt(c.w, lib.VarInt(uncompessedSize)); err != nil {
 			return err
 		}
 	}
 
-	_, err := buf.WriteTo(c.w)
+	_, err = buf.WriteTo(c.w)
 	if c.Logger != nil {
-		c.Logger(false, packet)
+		c.Logger(false, packet, packet.Id(), c.State)
 	}
 	return err
 }
 
 // ReadPacket deserializes a packet from the underlying
 // connection, optionally decrypting and/or decompressing
-func (c *Conn) ReadPacket() (Packet, error) {
+func (c *Conn) ReadPacket() (lib.MetaPacket, error) {
 	// 15 second timeout
 	c.net.SetReadDeadline(time.Now().Add(15 * time.Second))
 	return c.readPacket()
@@ -167,9 +175,9 @@ var (
 	errNegativeLength = errors.New("invalid length: negative")
 )
 
-func (c *Conn) readPacket() (Packet, error) {
+func (c *Conn) readPacket() (lib.MetaPacket, error) {
 	// Length prefix
-	size, err := ReadVarInt(c.r)
+	size, err := lib.ReadVarInt(c.r)
 	if err != nil {
 		return nil, err
 	}
@@ -188,7 +196,7 @@ func (c *Conn) readPacket() (Packet, error) {
 	if c.compressionThreshold >= 0 {
 		// With compression enabled an extra length prefix is added
 		// which is the length of the packet when uncompressed.
-		uncompSize, err := ReadVarInt(r)
+		uncompSize, err := lib.ReadVarInt(r)
 		if err != nil {
 			return nil, err
 		}
@@ -219,13 +227,13 @@ func (c *Conn) readPacket() (Packet, error) {
 	}
 
 	// Packet ID
-	id, err := ReadVarInt(r)
+	id, err := lib.ReadVarInt(r)
 	if err != nil {
 		return nil, err
 	}
 	//fmt.Printf("Received packet: %02X;%d\n", id, id)
 	// Direction is swapped as this is coming from the other way
-	packets := packetCreator[c.State][(c.direction+1)&1]
+	packets := c.CP.Packets()[c.State][(c.direction+1)&1]
 	if id < 0 || int(id) >= len(packets) || packets[id] == nil {
 		b, _ := ioutil.ReadAll(r)
 		var bs string
@@ -235,8 +243,9 @@ func (c *Conn) readPacket() (Packet, error) {
 		return nil, fmt.Errorf("Unknown packet %s:%02X\nBytes:\n%s", c.State, id, bs)
 	}
 	packet := packets[id]()
-	if err := packet.read(r); err != nil {
-		return packet, fmt.Errorf("packet(%s:%02X): %s", c.State, id, err)
+	if err := packet.Read(r); err != nil {
+		p, _ := c.CP.Back(packet)
+		return p, fmt.Errorf("packet(%s:%02X): %s", c.State, id, err)
 	}
 	// If we haven't fully read the whole buffer then something went wrong.
 	// Mostly likely our packet definitions are out of date or incorrect
@@ -249,15 +258,17 @@ func (c *Conn) readPacket() (Packet, error) {
 			for i := 0; i < lb; i++ {
 				bs += MakeByte(b[i]) + "\n"
 			}
-			return packet, fmt.Errorf("Didn't finish reading packet %s:%d/0x%02X, have %d bytes left\nLeft bytes:\n%s", c.State, id, id, lb, bs)
+			p, _ := c.CP.Back(packet)
+			return p, fmt.Errorf("didn't finish reading packet %s:%d/0x%02X, have %d bytes left\nLeft bytes:\n%s", c.State, id, id, lb, bs)
 		} else {
-			return packet, fmt.Errorf("Didn't finish reading packet %s:%d/0x%02X, have %d bytes left", c.State, id, id, lb)
+			p, _ := c.CP.Back(packet)
+			return p, fmt.Errorf("didn't finish reading packet %s:%d/0x%02X, have %d bytes left", c.State, id, id, lb)
 		}
 	}
 	if c.Logger != nil {
-		c.Logger(true, packet)
+		c.Logger(true, packet, packet.Id(), c.State)
 	}
-	return packet, nil
+	return c.CP.Back(packet)
 }
 
 func MakeByte(b byte) string {
@@ -302,4 +313,71 @@ func (c *Conn) Close() error {
 		return nil
 	}
 	return c.net.Close()
+}
+
+// RequestStatus starts a status request to the server and
+// returns the results of the request. The connection will
+// be closed after this request.
+func (c *Conn) RequestStatus() (response lib.StatusReply, ping time.Duration, err error) {
+	defer c.Close()
+
+	err = c.WritePacket(&Handshake{
+		ProtocolVersion: 315,
+		Host:            c.host,
+		Port:            c.port,
+		Next:            lib.VarInt(lib.Status - 1),
+	})
+	if err != nil {
+		return
+	}
+	c.State = lib.Status
+	if err = c.WritePacket(&StatusRequest{}); err != nil {
+		return
+	}
+
+	// Get the reply
+	var packet interface{}
+	if packet, err = c.ReadPacket(); err != nil {
+		return
+	}
+
+	resp, ok := packet.(*StatusResponse)
+	if !ok {
+		err = fmt.Errorf("unexpected packet %#v", packet)
+		return
+	}
+	response = resp.Status
+
+	t := time.Now()
+	if err = c.WritePacket(&StatusPing{
+		Time: t.UnixNano(),
+	}); err != nil {
+		return
+	}
+
+	// Get the pong reply
+	packet, err = c.ReadPacket()
+	if err != nil {
+		return
+	}
+
+	_, ok = packet.(*StatusPong)
+	if !ok {
+		err = fmt.Errorf("unexpected packet %#v", packet)
+	}
+	ping = time.Now().Sub(t)
+	return
+}
+
+func (c *Conn) ResolveConnectable() (bool, error, int, Protocol) {
+	c.CP = defaultProtocol()
+
+	response, _, err := c.RequestStatus()
+	if err != nil {
+		panic(err)
+	}
+
+	s, err := SupportedProtocol(response.Version.Protocol)
+
+	return s, err, response.Version.Protocol, protocols[response.Version.Protocol]
 }

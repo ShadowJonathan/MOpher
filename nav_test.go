@@ -14,7 +14,6 @@ var GLOBALZ float64
 	GLOBALX, GLOBALY, GLOBALZ = 201, 4, 200
 	MT(200, 4, 201)
 
-	//TODO POSX AND POZ
 }*/
 
 func MT(x, y, z float64) {

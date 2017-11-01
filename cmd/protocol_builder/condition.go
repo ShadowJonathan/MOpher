@@ -42,7 +42,9 @@ func parseCondition(con string) conditions {
 			con = con[1:]
 			v.structField++
 		}
-		pos := strings.IndexFunc(con, func(r rune) bool { return !unicode.In(r, unicode.Letter, unicode.Digit) })
+		pos := strings.IndexFunc(con, func(r rune) bool {
+			return !unicode.In(r, unicode.Letter, unicode.Digit)
+		})
 		if pos == -1 {
 			panic("invalid condition")
 		}
@@ -52,7 +54,9 @@ func parseCondition(con string) conditions {
 
 		c := condition{l: v}
 
-		pos = strings.IndexFunc(con, func(r rune) bool { return !unicode.IsSymbol(r) && r != '!' })
+		pos = strings.IndexFunc(con, func(r rune) bool {
+			return !unicode.IsSymbol(r) && r != '!' && r != '&'
+		})
 		c.cond = con[:pos]
 		con = con[pos:]
 		con = strings.TrimSpace(con)
@@ -63,12 +67,15 @@ func parseCondition(con string) conditions {
 			con = con[1:]
 		}
 
-		pos = strings.IndexFunc(con, func(r rune) bool { return !unicode.In(r, unicode.Letter, unicode.Digit) && r != '"' })
+		pos = strings.IndexFunc(con, func(r rune) bool {
+			return !unicode.In(r, unicode.Letter, unicode.Digit) && r != '"'
+		})
 		if pos == -1 {
 			pos = len(con)
 		}
 		r.name = con[:pos]
 		c.r = r
+
 		conds = append(conds, c)
 		con = con[pos:]
 		con = strings.TrimSpace(con)
@@ -99,7 +106,12 @@ func (c *condition) print(base string, buf *bytes.Buffer) {
 		}
 		r += "." + c.r.name
 	}
-	fmt.Fprintf(buf, "%s %s %s", l, c.cond, r)
+
+	if c.cond != "&" {
+		fmt.Fprintf(buf, "%s %s %s", l, c.cond, r)
+	} else {
+		fmt.Fprintf(buf, "%s %s %s == %s", l, c.cond, r, r)
+	}
 }
 
 func (c *condition) equals(o *condition) bool {

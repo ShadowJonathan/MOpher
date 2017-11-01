@@ -15,8 +15,8 @@
 package main
 
 import (
-	"github.com/ShadowJonathan/MOpher/encoding/nbt"
-	"github.com/ShadowJonathan/MOpher/type/direction"
+	"./encoding/nbt"
+	"./type/direction"
 )
 
 type skullType int

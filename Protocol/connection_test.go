@@ -61,7 +61,7 @@ func TestCrashers(t *testing.T) {
 			r:                    strings.NewReader(str),
 			w:                    nil,
 			net:                  nil,
-			direction:            serverbound,
+			direction:            Serverbound,
 			State:                Play,
 			compressionThreshold: -1,
 		}

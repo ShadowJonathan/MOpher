@@ -1,11 +1,11 @@
 package main
 
 import (
+	"./Protocol"
+	"./type/direction"
+	"./type/vmath"
 	"encoding/hex"
 	"fmt"
-	"github.com/ShadowJonathan/MOpher/Protocol"
-	"github.com/ShadowJonathan/MOpher/type/direction"
-	"github.com/ShadowJonathan/MOpher/type/vmath"
 	"github.com/go-gl/mathgl/mgl32"
 	"math"
 	"runtime"
@@ -67,6 +67,7 @@ type ClientState struct {
 
 	playerInventory *Inventory
 	activeInventory *Inventory
+	playerCursor    *ItemStack
 
 	currentBreakingBlock    Block
 	currentBreakingPos      Position
@@ -183,7 +184,7 @@ func start() {
 	initBlocks()
 
 	initClient()
-	fakeGen()
+	//fakeGen()
 }
 
 func tick() {
@@ -296,7 +297,7 @@ func (c *ClientState) viewVector() mgl32.Vec3 {
 	return mgl32.Vec3{
 		float32(math.Cos(c.Yaw-math.Pi/2) * -math.Cos(c.Pitch)),
 		float32(math.Sin(c.Pitch)),
-		float32(-math.Sin(c.Yaw-math.Pi/2) * -math.Cos(c.Pitch)),
+		float32(-math.Sin(c.Yaw - math.Pi/2) * -math.Cos(c.Pitch)),
 	}
 }
 

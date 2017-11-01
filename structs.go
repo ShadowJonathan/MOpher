@@ -1,14 +1,15 @@
 package main
 
 import (
+	"./Protocol"
+	"./Protocol/lib"
+	"./encoding/nbt"
+	"./format"
+	"./type/direction"
+	"./type/vmath"
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/ShadowJonathan/MOpher/Protocol"
-	"github.com/ShadowJonathan/MOpher/encoding/nbt"
-	"github.com/ShadowJonathan/MOpher/format"
-	"github.com/ShadowJonathan/MOpher/type/direction"
-	"github.com/ShadowJonathan/MOpher/type/vmath"
 	"github.com/go-gl/mathgl/mgl32"
 	"image"
 	"math"
@@ -16,6 +17,18 @@ import (
 	"strconv"
 	"strings"
 )
+
+type metadataComponent struct {
+	data lib.Metadata
+}
+
+func (m *metadataComponent) SetData(data lib.Metadata) { m.data = data }
+func (m *metadataComponent) Data() lib.Metadata        { return m.data }
+
+type MetadataComponent interface {
+	SetData(data lib.Metadata)
+	Data() lib.Metadata
+}
 
 // Network
 
@@ -139,19 +152,19 @@ type SizeComponent interface {
 // Player
 
 type playerComponent struct {
-	uuid protocol.UUID
+	uuid lib.UUID
 }
 
-func (p *playerComponent) SetUUID(u protocol.UUID) {
+func (p *playerComponent) SetUUID(u lib.UUID) {
 	p.uuid = u
 }
-func (p *playerComponent) UUID() protocol.UUID {
+func (p *playerComponent) UUID() lib.UUID {
 	return p.uuid
 }
 
 type PlayerComponent interface {
-	SetUUID(protocol.UUID)
-	UUID() protocol.UUID
+	SetUUID(lib.UUID)
+	UUID() lib.UUID
 }
 
 // Debug
@@ -171,7 +184,7 @@ type DebugComponent interface {
 type gameMode int
 
 const (
-	gmSurvival gameMode = iota
+	gmSurvival  gameMode = iota
 	gmCreative
 	gmAdventure
 	gmSpecator
@@ -196,7 +209,7 @@ func (g gameMode) NoClip() bool {
 type teleportFlag byte
 
 const (
-	teleportRelX teleportFlag = 1 << iota
+	teleportRelX     teleportFlag = 1 << iota
 	teleportRelY
 	teleportRelZ
 	teleportRelPitch
@@ -279,7 +292,7 @@ type ItemStack struct {
 	rawTag    *nbt.Compound
 }
 
-func ItemStackFromProtocol(p protocol.ItemStack) *ItemStack {
+func ItemStackFromProtocol(p lib.ItemStack) *ItemStack {
 	it := ItemById(int(p.ID))
 	if it == nil {
 		return nil
@@ -297,11 +310,11 @@ func ItemStackFromProtocol(p protocol.ItemStack) *ItemStack {
 	}
 	return i
 }
-func ItemStackToProtocol(i *ItemStack) protocol.ItemStack {
+func ItemStackToProtocol(i *ItemStack) lib.ItemStack {
 	if i == nil {
-		return protocol.ItemStack{ID: -1}
+		return lib.ItemStack{ID: -1}
 	}
-	return protocol.ItemStack{
+	return lib.ItemStack{
 		ID:     i.rawID,
 		Count:  byte(i.Count),
 		Damage: i.rawDamage,
@@ -869,19 +882,10 @@ func (c *ClientState) updateWorldType(wt worldType) {
 type worldType int
 
 const (
-	wtNether worldType = iota - 1
+	wtNether    worldType = iota - 1
 	wtOverworld
 	wtEnd
 )
-
-// UpdateHealth is sent by the server to update the player's health and food.
-//
-// This is a Minecraft packet
-type UpdateHealth struct {
-	Health         float32
-	Food           protocol.VarInt
-	FoodSaturation float32
-}
 
 func initBlocks() {
 	// Flatten the ids

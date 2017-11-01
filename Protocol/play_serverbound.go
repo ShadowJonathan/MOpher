@@ -1,12 +1,39 @@
-//go:generate protocol_builder $GOFILE Play serverbound
+//go:/generate protocol_builder $GOFILE Play serverbound
 
 package protocol
+
+import (
+	"./lib"
+)
 
 // TeleConfirm
 //
 // This is a Minecraft packet
 type TeleConfirm struct {
-	ID VarInt
+	ID lib.VarInt
+}
+
+//
+// This is a Minecraft packet
+type PrepareCraftingGrid struct {
+	WindowID        byte
+	ActionNumber    int16
+	ReturnEntries   []ReturnEntry  `length:"int16"`
+	PreparedEntries []PrepareEntry `length:"int16"`
+}
+
+// Used by PrepareCraftingGrid
+type ReturnEntry struct {
+	Item  lib.ItemStack `as:"raw"`
+	CSlot byte
+	PSlot byte
+}
+
+// Used by PrepareCraftingGrid
+type PrepareEntry struct {
+	Item  lib.ItemStack `as:"raw"`
+	CSlot byte
+	PSlot byte
 }
 
 // TabComplete is sent by the client when the client presses tab in
@@ -16,7 +43,7 @@ type TeleConfirm struct {
 type TabComplete struct {
 	Text      string
 	HasTarget bool
-	Target    Position `if:".HasTarget==true"`
+	Target    lib.Position `if:".HasTarget==true"`
 }
 
 // ChatMessage is sent by the client when it sends a chat message or
@@ -31,7 +58,7 @@ type ChatMessage struct {
 //
 // This is a Minecraft packet
 type ClientStatus struct {
-	ActionID VarInt
+	ActionID lib.VarInt
 }
 
 // ClientSettings is sent by the client to update its current settings.
@@ -43,7 +70,7 @@ type ClientSettings struct {
 	ChatMode           byte
 	ChatColors         bool
 	DisplayedSkinParts byte
-	MainHand           VarInt
+	MainHand           lib.VarInt
 }
 
 // ConfirmTransactionServerbound is a reply to ConfirmTransaction.
@@ -72,7 +99,7 @@ type ClickWindow struct {
 	Button       byte
 	ActionNumber int16
 	Mode         byte
-	ClickedItem  ItemStack `as:"raw"`
+	ClickedItem  lib.ItemStack `as:"raw"`
 }
 
 // CloseWindow is sent when the client closes a window.
@@ -97,12 +124,12 @@ type PluginMessageServerbound struct {
 //
 // This is a Minecraft packet
 type UseEntity struct {
-	TargetID VarInt
-	Type     VarInt
-	TargetX  float32 `if:".Type==2"`
-	TargetY  float32 `if:".Type==2"`
-	TargetZ  float32 `if:".Type==2"`
-	Hand     VarInt  `if:".Type==0 .Type==2"`
+	TargetID lib.VarInt
+	Type     lib.VarInt
+	TargetX  float32    `if:".Type==2"`
+	TargetY  float32    `if:".Type==2"`
+	TargetZ  float32    `if:".Type==2"`
+	Hand     lib.VarInt `if:".Type==0 .Type==2"`
 }
 
 // KeepAliveServerbound is sent by a client as a response to a
@@ -111,7 +138,14 @@ type UseEntity struct {
 //
 // This is a Minecraft packet
 type KeepAliveServerbound struct {
-	ID VarInt
+	ID lib.VarInt
+}
+
+// Player is used to update whether the player is on the ground or not.
+//
+// This is a Minecraft packet
+type Player struct {
+	OnGround bool
 }
 
 // PlayerPosition is used to update the player's position.
@@ -140,13 +174,6 @@ type PlayerLook struct {
 	OnGround   bool
 }
 
-// Player is used to update whether the player is on the ground or not.
-//
-// This is a Minecraft packet
-type Player struct {
-	OnGround bool
-}
-
 // Vehicle Move
 //
 // This is a Minecraft packet
@@ -161,6 +188,16 @@ type VehicleDrive struct {
 type SteerBoat struct {
 	Right, Left bool
 }
+
+/*
+//
+// This is a Minecraft packet
+type CraftReceipeRequest struct {
+	WindowID byte
+	Receipe  VarInt
+	MakeAll  bool
+}
+*/
 
 // ClientAbilities is used to modify the players current abilities.
 // Currently flying is the only one
@@ -178,7 +215,7 @@ type ClientAbilities struct {
 // This is a Minecraft packet
 type PlayerDigging struct {
 	Status   byte
-	Location Position
+	Location lib.Position
 	Face     byte
 }
 
@@ -186,9 +223,9 @@ type PlayerDigging struct {
 //
 // This is a Minecraft packet
 type PlayerAction struct {
-	EntityID  VarInt
-	ActionID  VarInt
-	JumpBoost VarInt
+	EntityID  lib.VarInt
+	ActionID  lib.VarInt
+	JumpBoost lib.VarInt
 }
 
 // SteerVehicle is sent by the client when steers or preforms an action
@@ -201,12 +238,28 @@ type SteerVehicle struct {
 	Flags    byte
 }
 
+//
+// This is a Minecraft packet
+type CraftingBookData struct {
+	Type             lib.VarInt
+	DisplayedReceipe int8 `if:".Type == 0"`
+	CraftingBookOpen bool `if:".Type == 1"`
+	CraftingFilter   bool `if:".Type == 1"`
+}
+
 // ResourcePackStatus informs the server of the client's current progress
 // in activating the requested resource pack
 //
 // This is a Minecraft packet
 type ResourcePackStatus struct {
-	Result VarInt
+	Result lib.VarInt
+}
+
+//
+// This is a Minecraft packet
+type AdvancementTab struct {
+	Action lib.VarInt
+	TabID  string `if:".Action == 0"`
 }
 
 // HeldItemChange is sent when the player changes the currently active
@@ -223,14 +276,14 @@ type HeldItemChange struct {
 // This is a Minecraft packet
 type CreativeInventoryAction struct {
 	Slot        int16
-	ClickedItem ItemStack `as:"raw"`
+	ClickedItem lib.ItemStack `as:"raw"`
 }
 
 // SetSign sets the text on a sign after placing it.
 //
 // This is a Minecraft packet
 type SetSign struct {
-	Location Position
+	Location lib.Position
 	Line1    string
 	Line2    string
 	Line3    string
@@ -242,23 +295,23 @@ type SetSign struct {
 //
 // This is a Minecraft packet
 type ArmSwing struct {
-	Hand VarInt
+	Hand lib.VarInt
 }
 
 // SpectateTeleport is sent by clients in spectator mode to teleport to a player.
 //
 // This is a Minecraft packet
 type SpectateTeleport struct {
-	Target UUID `as:"raw"`
+	Target lib.UUID `as:"raw"`
 }
 
 // PlayerBlockPlacement is sent when the client tries to place a block.
 //
 // This is a Minecraft packet
 type PlayerBlockPlacement struct {
-	Location                  Position
-	Face                      VarInt
-	Hand                      VarInt
+	Location                  lib.Position
+	Face                      lib.VarInt
+	Hand                      lib.VarInt
 	CursorX, CursorY, CursorZ byte
 }
 
@@ -266,5 +319,5 @@ type PlayerBlockPlacement struct {
 //
 // This is a Minecraft packet
 type UseItem struct {
-	Hand VarInt
+	Hand lib.VarInt
 }

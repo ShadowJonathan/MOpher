@@ -123,10 +123,10 @@ func main() {
 		short := string(strings.ToLower(p.name)[0])
 
 		if p.id >= 0 {
-			fmt.Fprintf(&buf, "func (%s *%s) id() int { return %d; }\n", short, p.name, p.id)
+			fmt.Fprintf(&buf, "func (%s *%s) Id() int { return %d; }\n", short, p.name, p.id)
 		}
 
-		fmt.Fprintf(&buf, "func (%s *%s) write(ww io.Writer) (err error) { \n", short, p.name)
+		fmt.Fprintf(&buf, "func (%s *%s) Write(ww io.Writer) (err error) { \n", short, p.name)
 		w := &writing{
 			base: short,
 			out:  &buf,
@@ -135,7 +135,7 @@ func main() {
 		w.flush()
 		buf.WriteString("return; }\n")
 
-		fmt.Fprintf(&buf, "func (%s *%s) read(rr io.Reader) (err error) { \n", short, p.name)
+		fmt.Fprintf(&buf, "func (%s *%s) Read(rr io.Reader) (err error) { \n", short, p.name)
 		r := &reading{
 			base: short,
 			out:  &buf,
@@ -151,7 +151,8 @@ func main() {
 	if protocol != "" && dir != "" {
 		buf.WriteString("func init() {\n")
 		for _, p := range packets {
-			fmt.Fprintf(&buf, "packetCreator[%s][%s][%d] = func () Packet { return &%s{} }\n", protocol, dir, p.id, p.name)
+			imports["../../lib"] = struct{}{}
+			fmt.Fprintf(&buf, "packets[lib.%s][lib.%s][%d] = func () lib.Packet { return &%s{} }\n", protocol, dir, p.id, p.name)
 		}
 		buf.WriteString("}\n")
 	}
@@ -173,7 +174,13 @@ func main() {
 
 	b, err := format.Source(header.Bytes())
 	if err != nil {
-		log.Println(header.String())
+		o, err2 := os.Create(input[:len(input)-len(filepath.Ext(input))] + "_proto_failed.go")
+		if err2 != nil {
+			log.Fatalln(err2)
+		}
+		defer o.Close()
+		o.Write(header.Bytes())
+
 		log.Fatalf("format error: %s", err)
 	}
 

@@ -1,0 +1,82 @@
+<html>
+<head>
+    <script src="jquery.js"></script>
+    <script src="inv.js"></script>
+</head>
+<body>
+<script>
+    var sock = null;
+    var wsuri = "ws://127.0.0.1:9999/inventory";
+
+    window.onload = function () {
+
+        sock = new WebSocket(wsuri);
+
+        sock.onopen = function () {
+            console.log("connected to " + wsuri);
+        };
+
+        sock.onclose = function (e) {
+            window.close();
+        };
+
+        sock.onmessage = function (e) {
+            let data = JSON.parse(e.data);
+            process(data.Inventory, data.Cursor)
+        };
+    };
+</script>
+
+<style>
+    @font-face {
+        font-family: 'minecraft';
+        src: url('./minecraftfont.eot');
+        src: local('minecraftfont'), url('./minecraftfont.woff') format('woff'), url('./minecraftfont.ttf') format('truetype');
+    }
+
+    #view {
+        width: 528px;
+        height: 498px;
+        background-image: url(img/inventory.png);
+
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+
+        margin: auto;
+    }
+
+    .item {
+        font-family: minecraft, monospace;
+        height: 48px;
+        width: 48px;
+        position: absolute;
+        background-repeat: no-repeat;
+        background-size: cover;
+        image-rendering: pixelated;
+    }
+
+    .br {
+        position: absolute;
+        font-size: 24px;
+        bottom: 0;
+        right: 0;
+        color: #fff;
+        text-shadow: 3px 3px #000;
+    }
+
+    .tl {
+        position: absolute;
+        font-size: 10px;
+        top: 0;
+        left: 0;
+        color: #fff;
+        text-shadow: 0 0 2px #000;
+    }
+</style>
+
+<div id="view"></div>
+</body>
+</html>

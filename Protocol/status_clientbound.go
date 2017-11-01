@@ -1,6 +1,10 @@
-//go:generate protocol_builder $GOFILE Status clientbound
+//go:/generate protocol_builder $GOFILE Status clientbound
 
 package protocol
+
+import (
+	"./lib"
+)
 
 // StatusResponse is sent as a reply to a StatusRequest.
 // The Status should contain a json encoded structure with
@@ -26,7 +30,7 @@ package protocol
 //
 // This is a Minecraft packet
 type StatusResponse struct {
-	Status StatusReply `as:"json"`
+	Status lib.StatusReply `as:"json"`
 }
 
 // StatusPong is sent as a reply to a StatusPing.
