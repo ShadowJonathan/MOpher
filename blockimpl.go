@@ -92,6 +92,39 @@ func (b *blockStone) toData() int {
 	return data
 }
 
+// Sand
+
+type sandVariant int
+
+const (
+	sandNormal sandVariant = iota
+	sandRed
+)
+
+func (s sandVariant) String() string {
+	switch s {
+	case sandNormal:
+		return "sand"
+	case sandRed:
+		return "red_sand"
+	}
+	return fmt.Sprintf("sandVariant(%d)", s)
+}
+
+type blockSand struct {
+	BaseBlock
+	Variant sandVariant `state:"variant,0-1"`
+}
+
+func (b *blockSand) ModelName() string {
+	return b.Variant.String()
+}
+
+func (b *blockSand) toData() int {
+	data := int(b.Variant)
+	return data
+}
+
 // Grass
 
 type blockGrass struct {
@@ -378,6 +411,32 @@ func (b *blockDispenser) toData() int {
 	}
 	if b.Triggered {
 		data |= 0x8
+	}
+	return data
+}
+
+// Dispenser
+
+type blockChest struct {
+	BaseBlock
+	Facing    direction.Type `state:"facing,2-5"`
+}
+
+func (b *blockChest) ModelVariant() string {
+	return fmt.Sprintf("facing=%s", b.Facing)
+}
+
+func (b *blockChest) toData() int {
+	data := 0
+	switch b.Facing {
+	case direction.North:
+		data = 2
+	case direction.South:
+		data = 3
+	case direction.West:
+		data = 4
+	case direction.East:
+		data = 5
 	}
 	return data
 }

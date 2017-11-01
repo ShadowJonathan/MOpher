@@ -13,7 +13,7 @@ func Translate_340(i interface{}) (lib.Packet, error) {
 	}
 	switch i := i.(type) {
 	case *Handshake:
-		return &_340.Handshake{ProtocolVersion: i.ProtocolVersion, Host: i.Host, Port: i.Port, Next: i.Next}, nil
+		return &_340.Handshake{Port: i.Port, Next: i.Next, ProtocolVersion: i.ProtocolVersion, Host: i.Host}, nil
 	case *LoginDisconnect:
 		return &_340.LoginDisconnect{Reason: i.Reason}, nil
 	case *EncryptionRequest:
@@ -27,17 +27,17 @@ func Translate_340(i interface{}) (lib.Packet, error) {
 	case *EncryptionResponse:
 		return &_340.EncryptionResponse{SharedSecret: i.SharedSecret, VerifyToken: i.VerifyToken}, nil
 	case *SpawnObject:
-		return &_340.SpawnObject{VelocityX: i.VelocityX, VelocityY: i.VelocityY, EntityID: i.EntityID, UUID: i.UUID, Type: i.Type, Pitch: i.Pitch, Yaw: i.Yaw, Data: i.Data, X: i.X, Y: i.Y, Z: i.Z, VelocityZ: i.VelocityZ}, nil
+		return &_340.SpawnObject{UUID: i.UUID, Type: i.Type, X: i.X, Y: i.Y, VelocityX: i.VelocityX, EntityID: i.EntityID, Z: i.Z, Pitch: i.Pitch, Yaw: i.Yaw, Data: i.Data, VelocityY: i.VelocityY, VelocityZ: i.VelocityZ}, nil
 	case *SpawnExperienceOrb:
 		return &_340.SpawnExperienceOrb{X: i.X, Y: i.Y, Z: i.Z, Count: i.Count, EntityID: i.EntityID}, nil
 	case *SpawnGlobalEntity:
-		return &_340.SpawnGlobalEntity{Y: i.Y, Z: i.Z, EntityID: i.EntityID, Type: i.Type, X: i.X}, nil
+		return &_340.SpawnGlobalEntity{EntityID: i.EntityID, Type: i.Type, X: i.X, Y: i.Y, Z: i.Z}, nil
 	case *SpawnMob:
-		return &_340.SpawnMob{Pitch: i.Pitch, HeadPitch: i.HeadPitch, EntityID: i.EntityID, UUID: i.UUID, Type: i.Type, X: i.X, Y: i.Y, Yaw: i.Yaw, VelocityX: i.VelocityX, VelocityY: i.VelocityY, Z: i.Z, VelocityZ: i.VelocityZ, Metadata: i.Metadata}, nil
+		return &_340.SpawnMob{Z: i.Z, Yaw: i.Yaw, VelocityZ: i.VelocityZ, Metadata: i.Metadata, EntityID: i.EntityID, X: i.X, Y: i.Y, Pitch: i.Pitch, HeadPitch: i.HeadPitch, VelocityX: i.VelocityX, VelocityY: i.VelocityY, UUID: i.UUID, Type: i.Type}, nil
 	case *SpawnPainting:
-		return &_340.SpawnPainting{EntityID: i.EntityID, UUID: i.UUID, Title: i.Title, Location: i.Location, Direction: i.Direction}, nil
+		return &_340.SpawnPainting{Title: i.Title, Location: i.Location, Direction: i.Direction, EntityID: i.EntityID, UUID: i.UUID}, nil
 	case *SpawnPlayer:
-		return &_340.SpawnPlayer{Yaw: i.Yaw, Pitch: i.Pitch, Metadata: i.Metadata, EntityID: i.EntityID, UUID: i.UUID, X: i.X, Y: i.Y, Z: i.Z}, nil
+		return &_340.SpawnPlayer{Metadata: i.Metadata, EntityID: i.EntityID, UUID: i.UUID, X: i.X, Y: i.Y, Z: i.Z, Yaw: i.Yaw, Pitch: i.Pitch}, nil
 	case *Animation:
 		return &_340.Animation{EntityID: i.EntityID, AnimationID: i.AnimationID}, nil
 	case *Statistics:
@@ -50,17 +50,17 @@ func Translate_340(i interface{}) (lib.Packet, error) {
 	case *BlockBreakAnimation:
 		return &_340.BlockBreakAnimation{EntityID: i.EntityID, Location: i.Location, Stage: i.Stage}, nil
 	case *UpdateBlockEntity:
-		return &_340.UpdateBlockEntity{Location: i.Location, Action: i.Action, NBT: i.NBT}, nil
+		return &_340.UpdateBlockEntity{Action: i.Action, NBT: i.NBT, Location: i.Location}, nil
 	case *BlockAction:
 		return &_340.BlockAction{Location: i.Location, Byte1: i.Byte1, Byte2: i.Byte2, BlockType: i.BlockType}, nil
 	case *BlockChange:
 		return &_340.BlockChange{Location: i.Location, BlockID: i.BlockID}, nil
 	case *BossBar:
-		return &_340.BossBar{Flags: i.Flags, UUID: i.UUID, Action: i.Action, Title: i.Title, Health: i.Health, Color: i.Color, Style: i.Style}, nil
+		return &_340.BossBar{UUID: i.UUID, Action: i.Action, Title: i.Title, Health: i.Health, Color: i.Color, Style: i.Style, Flags: i.Flags}, nil
 	case *ServerDifficulty:
 		return &_340.ServerDifficulty{Difficulty: i.Difficulty}, nil
 	case *TabCompleteReply:
-		return &_340.TabCompleteReply{Matches: i.Matches, Count: i.Count}, nil
+		return &_340.TabCompleteReply{Count: i.Count, Matches: i.Matches}, nil
 	case *ServerMessage:
 		return &_340.ServerMessage{Message: i.Message, Type: i.Type}, nil
 	case *MultiBlockChange:
@@ -79,9 +79,9 @@ func Translate_340(i interface{}) (lib.Packet, error) {
 	case *WindowItems:
 		return &_340.WindowItems{ID: i.ID, Items: i.Items}, nil
 	case *WindowProperty:
-		return &_340.WindowProperty{ID: i.ID, Property: i.Property, Value: i.Value}, nil
+		return &_340.WindowProperty{Value: i.Value, ID: i.ID, Property: i.Property}, nil
 	case *WindowSetSlot:
-		return &_340.WindowSetSlot{ItemStack: i.ItemStack, ID: i.ID, Slot: i.Slot}, nil
+		return &_340.WindowSetSlot{Slot: i.Slot, ItemStack: i.ItemStack, ID: i.ID}, nil
 	case *SetCooldown:
 		return &_340.SetCooldown{ItemID: i.ItemID, Ticks: i.Ticks}, nil
 	case *PluginMessageClientbound:
@@ -91,7 +91,7 @@ func Translate_340(i interface{}) (lib.Packet, error) {
 	case *Disconnect:
 		return &_340.Disconnect{Reason: i.Reason}, nil
 	case *EntityAction:
-		return &_340.EntityAction{EntityID: i.EntityID, ActionID: i.ActionID}, nil
+		return &_340.EntityAction{ActionID: i.ActionID, EntityID: i.EntityID}, nil
 	case *Explosion:
 		var tmp2 []_340.ExplosionRecord
 		for _, v := range i.Records {
@@ -100,7 +100,7 @@ func Translate_340(i interface{}) (lib.Packet, error) {
 		}
 		return &_340.Explosion{X: i.X, Y: i.Y, Z: i.Z, Radius: i.Radius, Records: tmp2, VelocityX: i.VelocityX, VelocityY: i.VelocityY, VelocityZ: i.VelocityZ}, nil
 	case *ChunkUnload:
-		return &_340.ChunkUnload{Z: i.Z, X: i.X}, nil
+		return &_340.ChunkUnload{X: i.X, Z: i.Z}, nil
 	case *ChangeGameState:
 		return &_340.ChangeGameState{Reason: i.Reason, Value: i.Value}, nil
 	case *KeepAliveClientbound:
@@ -113,11 +113,11 @@ func Translate_340(i interface{}) (lib.Packet, error) {
 		}
 		return &_340.ChunkData{ChunkX: i.ChunkX, ChunkZ: i.ChunkZ, New: i.New, BitMask: i.BitMask, Data: i.Data, BlockEntities: tmp3}, nil
 	case *Effect:
-		return &_340.Effect{Data: i.Data, DisableRelative: i.DisableRelative, EffectID: i.EffectID, Location: i.Location}, nil
+		return &_340.Effect{EffectID: i.EffectID, Location: i.Location, Data: i.Data, DisableRelative: i.DisableRelative}, nil
 	case *Particle:
-		return &_340.Particle{PData: i.PData, Y: i.Y, Z: i.Z, OffsetX: i.OffsetX, OffsetY: i.OffsetY, OffsetZ: i.OffsetZ, Count: i.Count, Data: i.Data, ParticleID: i.ParticleID, LongDistance: i.LongDistance, X: i.X}, nil
+		return &_340.Particle{ParticleID: i.ParticleID, X: i.X, Y: i.Y, Z: i.Z, OffsetY: i.OffsetY, LongDistance: i.LongDistance, OffsetX: i.OffsetX, OffsetZ: i.OffsetZ, PData: i.PData, Count: i.Count, Data: i.Data}, nil
 	case *JoinGame:
-		return &_340.JoinGame{Difficulty: i.Difficulty, MaxPlayers: i.MaxPlayers, LevelType: i.LevelType, ReducedDebugInfo: i.ReducedDebugInfo, EntityID: i.EntityID, Gamemode: i.Gamemode, Dimension: i.Dimension}, nil
+		return &_340.JoinGame{Gamemode: i.Gamemode, Dimension: i.Dimension, Difficulty: i.Difficulty, MaxPlayers: i.MaxPlayers, LevelType: i.LevelType, ReducedDebugInfo: i.ReducedDebugInfo, EntityID: i.EntityID}, nil
 	case *Maps:
 		var tmp4 []_340.MapIcon
 		for _, v := range i.Icons {
@@ -128,9 +128,9 @@ func Translate_340(i interface{}) (lib.Packet, error) {
 	case *Entity:
 		return &_340.Entity{EntityID: i.EntityID}, nil
 	case *EntityMove:
-		return &_340.EntityMove{EntityID: i.EntityID, DeltaX: i.DeltaX, DeltaY: i.DeltaY, DeltaZ: i.DeltaZ, OnGround: i.OnGround}, nil
+		return &_340.EntityMove{DeltaY: i.DeltaY, DeltaZ: i.DeltaZ, OnGround: i.OnGround, EntityID: i.EntityID, DeltaX: i.DeltaX}, nil
 	case *EntityLookAndMove:
-		return &_340.EntityLookAndMove{DeltaY: i.DeltaY, DeltaZ: i.DeltaZ, Yaw: i.Yaw, Pitch: i.Pitch, OnGround: i.OnGround, EntityID: i.EntityID, DeltaX: i.DeltaX}, nil
+		return &_340.EntityLookAndMove{DeltaX: i.DeltaX, DeltaY: i.DeltaY, DeltaZ: i.DeltaZ, Yaw: i.Yaw, Pitch: i.Pitch, OnGround: i.OnGround, EntityID: i.EntityID}, nil
 	case *EntityLook:
 		return &_340.EntityLook{EntityID: i.EntityID, Yaw: i.Yaw, Pitch: i.Pitch, OnGround: i.OnGround}, nil
 	case *VehicleMove:
@@ -139,9 +139,9 @@ func Translate_340(i interface{}) (lib.Packet, error) {
 		return &_340.SignEditorOpen{Location: i.Location}, nil
 		// FIXME add CraftReceipeResponse
 	case *PlayerAbilities:
-		return &_340.PlayerAbilities{Flags: i.Flags, FlyingSpeed: i.FlyingSpeed, WalkingSpeed: i.WalkingSpeed}, nil
+		return &_340.PlayerAbilities{FlyingSpeed: i.FlyingSpeed, WalkingSpeed: i.WalkingSpeed, Flags: i.Flags}, nil
 	case *CombatEvent:
-		return &_340.CombatEvent{PlayerID: i.PlayerID, EntityID: i.EntityID, Message: i.Message, Event: i.Event, Duration: i.Duration}, nil
+		return &_340.CombatEvent{EntityID: i.EntityID, Message: i.Message, Event: i.Event, Duration: i.Duration, PlayerID: i.PlayerID}, nil
 	case *PlayerInfo:
 		var tmp5 []_340.PlayerDetail
 		for _, v := range i.Players {
@@ -156,11 +156,11 @@ func Translate_340(i interface{}) (lib.Packet, error) {
 		}
 		return &_340.PlayerInfo{Action: i.Action, Players: tmp5}, nil
 	case *TeleportPlayer:
-		return &_340.TeleportPlayer{Yaw: i.Yaw, Pitch: i.Pitch, Flags: i.Flags, TPID: i.TPID, X: i.X, Y: i.Y, Z: i.Z}, nil
+		return &_340.TeleportPlayer{Pitch: i.Pitch, Flags: i.Flags, TPID: i.TPID, X: i.X, Y: i.Y, Z: i.Z, Yaw: i.Yaw}, nil
 	case *EntityUsedBed:
 		return &_340.EntityUsedBed{EntityID: i.EntityID, Location: i.Location}, nil
 	case *UnlockReceipes:
-		return &_340.UnlockReceipes{Action: i.Action, CraftingBookOpen: i.CraftingBookOpen, FilteringCraftable: i.FilteringCraftable, ReceipeIDs: i.ReceipeIDs, AllReceipeIDs: i.AllReceipeIDs}, nil
+		return &_340.UnlockReceipes{FilteringCraftable: i.FilteringCraftable, ReceipeIDs: i.ReceipeIDs, AllReceipeIDs: i.AllReceipeIDs, Action: i.Action, CraftingBookOpen: i.CraftingBookOpen}, nil
 	case *EntityDestroy:
 		return &_340.EntityDestroy{EntityIDs: i.EntityIDs}, nil
 	case *EntityRemoveEffect:
@@ -174,7 +174,7 @@ func Translate_340(i interface{}) (lib.Packet, error) {
 	case *SelectAdvancementTab:
 		return &_340.SelectAdvancementTab{HasID: i.HasID, Identifier: i.Identifier}, nil
 	case *WorldBorder:
-		return &_340.WorldBorder{Action: i.Action, OldRadius: i.OldRadius, NewRadius: i.NewRadius, Z: i.Z, PortalBoundary: i.PortalBoundary, Speed: i.Speed, X: i.X, WarningTime: i.WarningTime, WarningBlocks: i.WarningBlocks}, nil
+		return &_340.WorldBorder{OldRadius: i.OldRadius, X: i.X, Z: i.Z, WarningBlocks: i.WarningBlocks, Action: i.Action, NewRadius: i.NewRadius, Speed: i.Speed, PortalBoundary: i.PortalBoundary, WarningTime: i.WarningTime}, nil
 	case *Camera:
 		return &_340.Camera{TargetID: i.TargetID}, nil
 	case *SetCurrentHotbarSlot:
@@ -186,35 +186,35 @@ func Translate_340(i interface{}) (lib.Packet, error) {
 	case *EntityAttach:
 		return &_340.EntityAttach{EntityID: i.EntityID, Vehicle: i.Vehicle, Leash: i.Leash}, nil
 	case *EntityVelocity:
-		return &_340.EntityVelocity{VelocityX: i.VelocityX, VelocityY: i.VelocityY, VelocityZ: i.VelocityZ, EntityID: i.EntityID}, nil
+		return &_340.EntityVelocity{VelocityZ: i.VelocityZ, EntityID: i.EntityID, VelocityX: i.VelocityX, VelocityY: i.VelocityY}, nil
 	case *EntityEquipment:
 		return &_340.EntityEquipment{Item: i.Item, EntityID: i.EntityID, Slot: i.Slot}, nil
 	case *SetExperience:
-		return &_340.SetExperience{ExperienceBar: i.ExperienceBar, Level: i.Level, TotalExperience: i.TotalExperience}, nil
+		return &_340.SetExperience{Level: i.Level, TotalExperience: i.TotalExperience, ExperienceBar: i.ExperienceBar}, nil
 	case *UpdateHealth:
 		return &_340.UpdateHealth{Health: i.Health, Food: i.Food, FoodSaturation: i.FoodSaturation}, nil
 	case *ScoreboardObjective:
 		return &_340.ScoreboardObjective{Name: i.Name, Mode: i.Mode, Value: i.Value, Type: i.Type}, nil
 	case *Passengers:
-		return &_340.Passengers{Passengers: i.Passengers, ID: i.ID}, nil
+		return &_340.Passengers{ID: i.ID, Passengers: i.Passengers}, nil
 	case *Teams:
-		return &_340.Teams{Players: i.Players, DisplayName: i.DisplayName, Prefix: i.Prefix, Flags: i.Flags, NameTagVisibility: i.NameTagVisibility, CollisionRule: i.CollisionRule, Name: i.Name, Mode: i.Mode, Suffix: i.Suffix, Color: i.Color}, nil
+		return &_340.Teams{Color: i.Color, Mode: i.Mode, DisplayName: i.DisplayName, Suffix: i.Suffix, Flags: i.Flags, Players: i.Players, Name: i.Name, Prefix: i.Prefix, NameTagVisibility: i.NameTagVisibility, CollisionRule: i.CollisionRule}, nil
 	case *UpdateScore:
-		return &_340.UpdateScore{Action: i.Action, ObjectName: i.ObjectName, Value: i.Value, Name: i.Name}, nil
+		return &_340.UpdateScore{Value: i.Value, Name: i.Name, Action: i.Action, ObjectName: i.ObjectName}, nil
 	case *SpawnPosition:
 		return &_340.SpawnPosition{Location: i.Location}, nil
 	case *TimeUpdate:
 		return &_340.TimeUpdate{WorldAge: i.WorldAge, TimeOfDay: i.TimeOfDay}, nil
 	case *Title:
-		return &_340.Title{SubTitle: i.SubTitle, FadeIn: i.FadeIn, FadeStay: i.FadeStay, FadeOut: i.FadeOut, Action: i.Action, Title: i.Title}, nil
+		return &_340.Title{FadeIn: i.FadeIn, FadeStay: i.FadeStay, FadeOut: i.FadeOut, Action: i.Action, Title: i.Title, SubTitle: i.SubTitle}, nil
 	case *HardSoundEffect:
-		return &_340.HardSoundEffect{Cat: i.Cat, X: i.X, Y: i.Y, Z: i.Z, Vol: i.Vol, Pitch: i.Pitch, ID: i.ID}, nil
+		return &_340.HardSoundEffect{Z: i.Z, Vol: i.Vol, Pitch: i.Pitch, ID: i.ID, Cat: i.Cat, X: i.X, Y: i.Y}, nil
 	case *PlayerListHeaderFooter:
-		return &_340.PlayerListHeaderFooter{Header: i.Header, Footer: i.Footer}, nil
+		return &_340.PlayerListHeaderFooter{Footer: i.Footer, Header: i.Header}, nil
 	case *CollectItem:
-		return &_340.CollectItem{CollectedEntityID: i.CollectedEntityID, CollectorEntityID: i.CollectorEntityID, PickUpCount: i.PickUpCount}, nil
+		return &_340.CollectItem{PickUpCount: i.PickUpCount, CollectedEntityID: i.CollectedEntityID, CollectorEntityID: i.CollectorEntityID}, nil
 	case *EntityTeleport:
-		return &_340.EntityTeleport{X: i.X, Y: i.Y, Z: i.Z, Yaw: i.Yaw, Pitch: i.Pitch, OnGround: i.OnGround, EntityID: i.EntityID}, nil
+		return &_340.EntityTeleport{EntityID: i.EntityID, X: i.X, Y: i.Y, Z: i.Z, Yaw: i.Yaw, Pitch: i.Pitch, OnGround: i.OnGround}, nil
 	case *Advancements:
 		var tmp7 []_340.AdvancementMappingItem
 		for _, v := range i.AdvancementMapping {
@@ -252,60 +252,60 @@ func Translate_340(i interface{}) (lib.Packet, error) {
 	case *ClientStatus:
 		return &_340.ClientStatus{ActionID: i.ActionID}, nil
 	case *ClientSettings:
-		return &_340.ClientSettings{DisplayedSkinParts: i.DisplayedSkinParts, MainHand: i.MainHand, Locale: i.Locale, ViewDistance: i.ViewDistance, ChatMode: i.ChatMode, ChatColors: i.ChatColors}, nil
+		return &_340.ClientSettings{ViewDistance: i.ViewDistance, ChatMode: i.ChatMode, ChatColors: i.ChatColors, DisplayedSkinParts: i.DisplayedSkinParts, MainHand: i.MainHand, Locale: i.Locale}, nil
 	case *ConfirmTransactionServerbound:
 		return &_340.ConfirmTransactionServerbound{ID: i.ID, ActionNumber: i.ActionNumber, Accepted: i.Accepted}, nil
 	case *EnchantItem:
 		return &_340.EnchantItem{ID: i.ID, Enchantment: i.Enchantment}, nil
 	case *ClickWindow:
-		return &_340.ClickWindow{ID: i.ID, Slot: i.Slot, Button: i.Button, ActionNumber: i.ActionNumber, Mode: i.Mode, ClickedItem: i.ClickedItem}, nil
+		return &_340.ClickWindow{Slot: i.Slot, Button: i.Button, ActionNumber: i.ActionNumber, Mode: i.Mode, ClickedItem: i.ClickedItem, ID: i.ID}, nil
 	case *CloseWindow:
 		return &_340.CloseWindow{ID: i.ID}, nil
 	case *PluginMessageServerbound:
 		return &_340.PluginMessageServerbound{Channel: i.Channel, Data: i.Data}, nil
 	case *UseEntity:
-		return &_340.UseEntity{Type: i.Type, TargetX: i.TargetX, TargetY: i.TargetY, TargetZ: i.TargetZ, Hand: i.Hand, TargetID: i.TargetID}, nil
+		return &_340.UseEntity{TargetY: i.TargetY, TargetZ: i.TargetZ, Hand: i.Hand, TargetID: i.TargetID, Type: i.Type, TargetX: i.TargetX}, nil
 	case *KeepAliveServerbound:
 		return &_340.KeepAliveServerbound{ID: int64(i.ID)}, nil
 	case *Player:
 		return &_340.Player{OnGround: i.OnGround}, nil
 	case *PlayerPosition:
-		return &_340.PlayerPosition{X: i.X, Y: i.Y, Z: i.Z, OnGround: i.OnGround}, nil
+		return &_340.PlayerPosition{OnGround: i.OnGround, X: i.X, Y: i.Y, Z: i.Z}, nil
 	case *PlayerPositionLook:
-		return &_340.PlayerPositionLook{Pitch: i.Pitch, OnGround: i.OnGround, X: i.X, Y: i.Y, Z: i.Z, Yaw: i.Yaw}, nil
+		return &_340.PlayerPositionLook{OnGround: i.OnGround, X: i.X, Y: i.Y, Z: i.Z, Yaw: i.Yaw, Pitch: i.Pitch}, nil
 	case *PlayerLook:
-		return &_340.PlayerLook{Pitch: i.Pitch, OnGround: i.OnGround, Yaw: i.Yaw}, nil
+		return &_340.PlayerLook{Yaw: i.Yaw, Pitch: i.Pitch, OnGround: i.OnGround}, nil
 	case *VehicleDrive:
-		return &_340.VehicleDrive{X: i.X, Y: i.Y, Z: i.Z, Yaw: i.Yaw, Pitch: i.Pitch}, nil
+		return &_340.VehicleDrive{Pitch: i.Pitch, X: i.X, Y: i.Y, Z: i.Z, Yaw: i.Yaw}, nil
 	case *SteerBoat:
-		return &_340.SteerBoat{Right: i.Right, Left: i.Left}, nil
+		return &_340.SteerBoat{Left: i.Left, Right: i.Right}, nil
 		// FIXME add CraftReceipeRequest
 	case *ClientAbilities:
-		return &_340.ClientAbilities{Flags: i.Flags, FlyingSpeed: i.FlyingSpeed, WalkingSpeed: i.WalkingSpeed}, nil
+		return &_340.ClientAbilities{WalkingSpeed: i.WalkingSpeed, Flags: i.Flags, FlyingSpeed: i.FlyingSpeed}, nil
 	case *PlayerDigging:
-		return &_340.PlayerDigging{Location: i.Location, Face: i.Face, Status: i.Status}, nil
+		return &_340.PlayerDigging{Status: i.Status, Location: i.Location, Face: i.Face}, nil
 	case *PlayerAction:
 		return &_340.PlayerAction{EntityID: i.EntityID, ActionID: i.ActionID, JumpBoost: i.JumpBoost}, nil
 	case *SteerVehicle:
-		return &_340.SteerVehicle{Forward: i.Forward, Flags: i.Flags, Sideways: i.Sideways}, nil
+		return &_340.SteerVehicle{Sideways: i.Sideways, Forward: i.Forward, Flags: i.Flags}, nil
 	case *CraftingBookData:
-		return &_340.CraftingBookData{CraftingFilter: i.CraftingFilter, Type: i.Type, DisplayedReceipe: i.DisplayedReceipe, CraftingBookOpen: i.CraftingBookOpen}, nil
+		return &_340.CraftingBookData{Type: i.Type, DisplayedReceipe: i.DisplayedReceipe, CraftingBookOpen: i.CraftingBookOpen, CraftingFilter: i.CraftingFilter}, nil
 	case *ResourcePackStatus:
 		return &_340.ResourcePackStatus{Result: i.Result}, nil
 	case *AdvancementTab:
-		return &_340.AdvancementTab{Action: i.Action, TabID: i.TabID}, nil
+		return &_340.AdvancementTab{TabID: i.TabID, Action: i.Action}, nil
 	case *HeldItemChange:
 		return &_340.HeldItemChange{Slot: i.Slot}, nil
 	case *CreativeInventoryAction:
 		return &_340.CreativeInventoryAction{Slot: i.Slot, ClickedItem: i.ClickedItem}, nil
 	case *SetSign:
-		return &_340.SetSign{Line1: i.Line1, Line2: i.Line2, Line3: i.Line3, Line4: i.Line4, Location: i.Location}, nil
+		return &_340.SetSign{Location: i.Location, Line1: i.Line1, Line2: i.Line2, Line3: i.Line3, Line4: i.Line4}, nil
 	case *ArmSwing:
 		return &_340.ArmSwing{Hand: i.Hand}, nil
 	case *SpectateTeleport:
 		return &_340.SpectateTeleport{Target: i.Target}, nil
 	case *PlayerBlockPlacement:
-		return &_340.PlayerBlockPlacement{CursorZ: i.CursorZ, Location: i.Location, Face: i.Face, Hand: i.Hand, CursorX: i.CursorX, CursorY: i.CursorY}, nil
+		return &_340.PlayerBlockPlacement{CursorY: i.CursorY, CursorZ: i.CursorZ, Location: i.Location, Face: i.Face, Hand: i.Hand, CursorX: i.CursorX}, nil
 	case *UseItem:
 		return &_340.UseItem{Hand: i.Hand}, nil
 	case *StatusResponse:
@@ -338,13 +338,13 @@ func Back_340(i interface{}) (lib.MetaPacket, error) {
 	case *_340.EncryptionResponse:
 		return &EncryptionResponse{SharedSecret: i.SharedSecret, VerifyToken: i.VerifyToken}, nil
 	case *_340.SpawnObject:
-		return &SpawnObject{Z: i.Z, Pitch: i.Pitch, Yaw: i.Yaw, Data: i.Data, VelocityY: i.VelocityY, EntityID: i.EntityID, UUID: i.UUID, Type: i.Type, X: i.X, Y: i.Y, VelocityX: i.VelocityX, VelocityZ: i.VelocityZ}, nil
+		return &SpawnObject{UUID: i.UUID, Type: i.Type, EntityID: i.EntityID, X: i.X, Y: i.Y, Z: i.Z, Pitch: i.Pitch, Yaw: i.Yaw, Data: i.Data, VelocityX: i.VelocityX, VelocityY: i.VelocityY, VelocityZ: i.VelocityZ}, nil
 	case *_340.SpawnExperienceOrb:
-		return &SpawnExperienceOrb{EntityID: i.EntityID, X: i.X, Y: i.Y, Z: i.Z, Count: i.Count}, nil
+		return &SpawnExperienceOrb{X: i.X, Y: i.Y, Z: i.Z, Count: i.Count, EntityID: i.EntityID}, nil
 	case *_340.SpawnGlobalEntity:
-		return &SpawnGlobalEntity{Z: i.Z, EntityID: i.EntityID, Type: i.Type, X: i.X, Y: i.Y}, nil
+		return &SpawnGlobalEntity{X: i.X, Y: i.Y, Z: i.Z, EntityID: i.EntityID, Type: i.Type}, nil
 	case *_340.SpawnMob:
-		return &SpawnMob{Metadata: i.Metadata, EntityID: i.EntityID, Type: i.Type, X: i.X, Y: i.Y, Yaw: i.Yaw, Pitch: i.Pitch, VelocityZ: i.VelocityZ, UUID: i.UUID, Z: i.Z, HeadPitch: i.HeadPitch, VelocityX: i.VelocityX, VelocityY: i.VelocityY}, nil
+		return &SpawnMob{VelocityY: i.VelocityY, Metadata: i.Metadata, EntityID: i.EntityID, UUID: i.UUID, Yaw: i.Yaw, Z: i.Z, Pitch: i.Pitch, HeadPitch: i.HeadPitch, VelocityX: i.VelocityX, VelocityZ: i.VelocityZ, Type: i.Type, X: i.X, Y: i.Y}, nil
 	case *_340.SpawnPainting:
 		return &SpawnPainting{EntityID: i.EntityID, UUID: i.UUID, Title: i.Title, Location: i.Location, Direction: i.Direction}, nil
 	case *_340.SpawnPlayer:
@@ -363,15 +363,15 @@ func Back_340(i interface{}) (lib.MetaPacket, error) {
 	case *_340.UpdateBlockEntity:
 		return &UpdateBlockEntity{Location: i.Location, Action: i.Action, NBT: i.NBT}, nil
 	case *_340.BlockAction:
-		return &BlockAction{Location: i.Location, Byte1: i.Byte1, Byte2: i.Byte2, BlockType: i.BlockType}, nil
+		return &BlockAction{Byte2: i.Byte2, BlockType: i.BlockType, Location: i.Location, Byte1: i.Byte1}, nil
 	case *_340.BlockChange:
 		return &BlockChange{Location: i.Location, BlockID: i.BlockID}, nil
 	case *_340.BossBar:
-		return &BossBar{Flags: i.Flags, UUID: i.UUID, Action: i.Action, Title: i.Title, Health: i.Health, Color: i.Color, Style: i.Style}, nil
+		return &BossBar{Color: i.Color, Style: i.Style, Flags: i.Flags, UUID: i.UUID, Action: i.Action, Title: i.Title, Health: i.Health}, nil
 	case *_340.ServerDifficulty:
 		return &ServerDifficulty{Difficulty: i.Difficulty}, nil
 	case *_340.TabCompleteReply:
-		return &TabCompleteReply{Count: i.Count, Matches: i.Matches}, nil
+		return &TabCompleteReply{Matches: i.Matches, Count: i.Count}, nil
 	case *_340.ServerMessage:
 		return &ServerMessage{Message: i.Message, Type: i.Type}, nil
 	case *_340.MultiBlockChange:
@@ -386,7 +386,7 @@ func Back_340(i interface{}) (lib.MetaPacket, error) {
 	case *_340.WindowClose:
 		return &WindowClose{ID: i.ID}, nil
 	case *_340.WindowOpen:
-		return &WindowOpen{ID: i.ID, Type: i.Type, Title: i.Title, SlotCount: i.SlotCount, EntityID: i.EntityID}, nil
+		return &WindowOpen{SlotCount: i.SlotCount, EntityID: i.EntityID, ID: i.ID, Type: i.Type, Title: i.Title}, nil
 	case *_340.WindowItems:
 		return &WindowItems{ID: i.ID, Items: i.Items}, nil
 	case *_340.WindowProperty:
@@ -396,9 +396,9 @@ func Back_340(i interface{}) (lib.MetaPacket, error) {
 	case *_340.SetCooldown:
 		return &SetCooldown{ItemID: i.ItemID, Ticks: i.Ticks}, nil
 	case *_340.PluginMessageClientbound:
-		return &PluginMessageClientbound{Data: i.Data, Channel: i.Channel}, nil
+		return &PluginMessageClientbound{Channel: i.Channel, Data: i.Data}, nil
 	case *_340.SoundEffect:
-		return &SoundEffect{Volume: i.Volume, Pitch: i.Pitch, Name: i.Name, Catargory: i.Catargory, X: i.X, Y: i.Y, Z: i.Z}, nil
+		return &SoundEffect{Name: i.Name, Catargory: i.Catargory, X: i.X, Y: i.Y, Z: i.Z, Volume: i.Volume, Pitch: i.Pitch}, nil
 	case *_340.Disconnect:
 		return &Disconnect{Reason: i.Reason}, nil
 	case *_340.EntityAction:
@@ -426,9 +426,9 @@ func Back_340(i interface{}) (lib.MetaPacket, error) {
 	case *_340.Effect:
 		return &Effect{EffectID: i.EffectID, Location: i.Location, Data: i.Data, DisableRelative: i.DisableRelative}, nil
 	case *_340.Particle:
-		return &Particle{ParticleID: i.ParticleID, LongDistance: i.LongDistance, Y: i.Y, Data: i.Data, X: i.X, Z: i.Z, OffsetX: i.OffsetX, OffsetY: i.OffsetY, OffsetZ: i.OffsetZ, PData: i.PData, Count: i.Count}, nil
+		return &Particle{LongDistance: i.LongDistance, X: i.X, Y: i.Y, OffsetY: i.OffsetY, OffsetZ: i.OffsetZ, Count: i.Count, ParticleID: i.ParticleID, OffsetX: i.OffsetX, PData: i.PData, Data: i.Data, Z: i.Z}, nil
 	case *_340.JoinGame:
-		return &JoinGame{ReducedDebugInfo: i.ReducedDebugInfo, EntityID: i.EntityID, Gamemode: i.Gamemode, Dimension: i.Dimension, Difficulty: i.Difficulty, MaxPlayers: i.MaxPlayers, LevelType: i.LevelType}, nil
+		return &JoinGame{Dimension: i.Dimension, Difficulty: i.Difficulty, MaxPlayers: i.MaxPlayers, LevelType: i.LevelType, ReducedDebugInfo: i.ReducedDebugInfo, EntityID: i.EntityID, Gamemode: i.Gamemode}, nil
 	case *_340.Maps:
 		var tmp15 []MapIcon
 		for _, v := range i.Icons {
@@ -439,18 +439,18 @@ func Back_340(i interface{}) (lib.MetaPacket, error) {
 	case *_340.Entity:
 		return &Entity{EntityID: i.EntityID}, nil
 	case *_340.EntityMove:
-		return &EntityMove{OnGround: i.OnGround, EntityID: i.EntityID, DeltaX: i.DeltaX, DeltaY: i.DeltaY, DeltaZ: i.DeltaZ}, nil
+		return &EntityMove{DeltaX: i.DeltaX, DeltaY: i.DeltaY, DeltaZ: i.DeltaZ, OnGround: i.OnGround, EntityID: i.EntityID}, nil
 	case *_340.EntityLookAndMove:
-		return &EntityLookAndMove{DeltaX: i.DeltaX, DeltaY: i.DeltaY, DeltaZ: i.DeltaZ, Yaw: i.Yaw, Pitch: i.Pitch, OnGround: i.OnGround, EntityID: i.EntityID}, nil
+		return &EntityLookAndMove{Yaw: i.Yaw, Pitch: i.Pitch, OnGround: i.OnGround, EntityID: i.EntityID, DeltaX: i.DeltaX, DeltaY: i.DeltaY, DeltaZ: i.DeltaZ}, nil
 	case *_340.EntityLook:
-		return &EntityLook{Pitch: i.Pitch, OnGround: i.OnGround, EntityID: i.EntityID, Yaw: i.Yaw}, nil
+		return &EntityLook{EntityID: i.EntityID, Yaw: i.Yaw, Pitch: i.Pitch, OnGround: i.OnGround}, nil
 	case *_340.VehicleMove:
 		return &VehicleMove{X: i.X, Y: i.Y, Z: i.Z, Yaw: i.Yaw, Pitch: i.Pitch}, nil
 	case *_340.SignEditorOpen:
 		return &SignEditorOpen{Location: i.Location}, nil
 		// FIXME add CraftReceipeResponse
 	case *_340.PlayerAbilities:
-		return &PlayerAbilities{Flags: i.Flags, FlyingSpeed: i.FlyingSpeed, WalkingSpeed: i.WalkingSpeed}, nil
+		return &PlayerAbilities{WalkingSpeed: i.WalkingSpeed, Flags: i.Flags, FlyingSpeed: i.FlyingSpeed}, nil
 	case *_340.CombatEvent:
 		return &CombatEvent{Event: i.Event, Duration: i.Duration, PlayerID: i.PlayerID, EntityID: i.EntityID, Message: i.Message}, nil
 	case *_340.PlayerInfo:
@@ -467,25 +467,25 @@ func Back_340(i interface{}) (lib.MetaPacket, error) {
 		}
 		return &PlayerInfo{Action: i.Action, Players: tmp16}, nil
 	case *_340.TeleportPlayer:
-		return &TeleportPlayer{Flags: i.Flags, TPID: i.TPID, X: i.X, Y: i.Y, Z: i.Z, Yaw: i.Yaw, Pitch: i.Pitch}, nil
+		return &TeleportPlayer{Yaw: i.Yaw, Pitch: i.Pitch, Flags: i.Flags, TPID: i.TPID, X: i.X, Y: i.Y, Z: i.Z}, nil
 	case *_340.EntityUsedBed:
 		return &EntityUsedBed{EntityID: i.EntityID, Location: i.Location}, nil
 	case *_340.UnlockReceipes:
-		return &UnlockReceipes{Action: i.Action, CraftingBookOpen: i.CraftingBookOpen, FilteringCraftable: i.FilteringCraftable, ReceipeIDs: i.ReceipeIDs, AllReceipeIDs: i.AllReceipeIDs}, nil
+		return &UnlockReceipes{ReceipeIDs: i.ReceipeIDs, AllReceipeIDs: i.AllReceipeIDs, Action: i.Action, CraftingBookOpen: i.CraftingBookOpen, FilteringCraftable: i.FilteringCraftable}, nil
 	case *_340.EntityDestroy:
 		return &EntityDestroy{EntityIDs: i.EntityIDs}, nil
 	case *_340.EntityRemoveEffect:
-		return &EntityRemoveEffect{EffectID: i.EffectID, EntityID: i.EntityID}, nil
+		return &EntityRemoveEffect{EntityID: i.EntityID, EffectID: i.EffectID}, nil
 	case *_340.ResourcePackSend:
 		return &ResourcePackSend{URL: i.URL, Hash: i.Hash}, nil
 	case *_340.Respawn:
-		return &Respawn{Dimension: i.Dimension, Difficulty: i.Difficulty, Gamemode: i.Gamemode, LevelType: i.LevelType}, nil
+		return &Respawn{Gamemode: i.Gamemode, LevelType: i.LevelType, Dimension: i.Dimension, Difficulty: i.Difficulty}, nil
 	case *_340.EntityHeadLook:
-		return &EntityHeadLook{EntityID: i.EntityID, HeadYaw: i.HeadYaw}, nil
+		return &EntityHeadLook{HeadYaw: i.HeadYaw, EntityID: i.EntityID}, nil
 	case *_340.SelectAdvancementTab:
 		return &SelectAdvancementTab{HasID: i.HasID, Identifier: i.Identifier}, nil
 	case *_340.WorldBorder:
-		return &WorldBorder{NewRadius: i.NewRadius, Speed: i.Speed, PortalBoundary: i.PortalBoundary, WarningTime: i.WarningTime, Action: i.Action, OldRadius: i.OldRadius, X: i.X, Z: i.Z, WarningBlocks: i.WarningBlocks}, nil
+		return &WorldBorder{PortalBoundary: i.PortalBoundary, WarningBlocks: i.WarningBlocks, Action: i.Action, OldRadius: i.OldRadius, NewRadius: i.NewRadius, X: i.X, Z: i.Z, Speed: i.Speed, WarningTime: i.WarningTime}, nil
 	case *_340.Camera:
 		return &Camera{TargetID: i.TargetID}, nil
 	case *_340.SetCurrentHotbarSlot:
@@ -493,13 +493,13 @@ func Back_340(i interface{}) (lib.MetaPacket, error) {
 	case *_340.ScoreboardDisplay:
 		return &ScoreboardDisplay{Position: i.Position, Name: i.Name}, nil
 	case *_340.EntityMetadata:
-		return &EntityMetadata{EntityID: i.EntityID, Metadata: i.Metadata}, nil
+		return &EntityMetadata{Metadata: i.Metadata, EntityID: i.EntityID}, nil
 	case *_340.EntityAttach:
 		return &EntityAttach{EntityID: i.EntityID, Vehicle: i.Vehicle, Leash: i.Leash}, nil
 	case *_340.EntityVelocity:
 		return &EntityVelocity{EntityID: i.EntityID, VelocityX: i.VelocityX, VelocityY: i.VelocityY, VelocityZ: i.VelocityZ}, nil
 	case *_340.EntityEquipment:
-		return &EntityEquipment{EntityID: i.EntityID, Slot: i.Slot, Item: i.Item}, nil
+		return &EntityEquipment{Item: i.Item, EntityID: i.EntityID, Slot: i.Slot}, nil
 	case *_340.SetExperience:
 		return &SetExperience{ExperienceBar: i.ExperienceBar, Level: i.Level, TotalExperience: i.TotalExperience}, nil
 	case *_340.UpdateHealth:
@@ -509,7 +509,7 @@ func Back_340(i interface{}) (lib.MetaPacket, error) {
 	case *_340.Passengers:
 		return &Passengers{ID: i.ID, Passengers: i.Passengers}, nil
 	case *_340.Teams:
-		return &Teams{Name: i.Name, Prefix: i.Prefix, Flags: i.Flags, NameTagVisibility: i.NameTagVisibility, CollisionRule: i.CollisionRule, Players: i.Players, Mode: i.Mode, DisplayName: i.DisplayName, Suffix: i.Suffix, Color: i.Color}, nil
+		return &Teams{Players: i.Players, Name: i.Name, Prefix: i.Prefix, CollisionRule: i.CollisionRule, Flags: i.Flags, NameTagVisibility: i.NameTagVisibility, Color: i.Color, Mode: i.Mode, DisplayName: i.DisplayName, Suffix: i.Suffix}, nil
 	case *_340.UpdateScore:
 		return &UpdateScore{Name: i.Name, Action: i.Action, ObjectName: i.ObjectName, Value: i.Value}, nil
 	case *_340.SpawnPosition:
@@ -517,15 +517,15 @@ func Back_340(i interface{}) (lib.MetaPacket, error) {
 	case *_340.TimeUpdate:
 		return &TimeUpdate{WorldAge: i.WorldAge, TimeOfDay: i.TimeOfDay}, nil
 	case *_340.Title:
-		return &Title{SubTitle: i.SubTitle, FadeIn: i.FadeIn, FadeStay: i.FadeStay, FadeOut: i.FadeOut, Action: i.Action, Title: i.Title}, nil
+		return &Title{Title: i.Title, SubTitle: i.SubTitle, FadeIn: i.FadeIn, FadeStay: i.FadeStay, FadeOut: i.FadeOut, Action: i.Action}, nil
 	case *_340.HardSoundEffect:
-		return &HardSoundEffect{ID: i.ID, Cat: i.Cat, X: i.X, Y: i.Y, Z: i.Z, Vol: i.Vol, Pitch: i.Pitch}, nil
+		return &HardSoundEffect{Z: i.Z, Vol: i.Vol, Pitch: i.Pitch, ID: i.ID, Cat: i.Cat, X: i.X, Y: i.Y}, nil
 	case *_340.PlayerListHeaderFooter:
 		return &PlayerListHeaderFooter{Footer: i.Footer, Header: i.Header}, nil
 	case *_340.CollectItem:
 		return &CollectItem{PickUpCount: i.PickUpCount, CollectedEntityID: i.CollectedEntityID, CollectorEntityID: i.CollectorEntityID}, nil
 	case *_340.EntityTeleport:
-		return &EntityTeleport{OnGround: i.OnGround, EntityID: i.EntityID, X: i.X, Y: i.Y, Z: i.Z, Yaw: i.Yaw, Pitch: i.Pitch}, nil
+		return &EntityTeleport{EntityID: i.EntityID, X: i.X, Y: i.Y, Z: i.Z, Yaw: i.Yaw, Pitch: i.Pitch, OnGround: i.OnGround}, nil
 	case *_340.Advancements:
 		var tmp18 []AdvancementMappingItem
 		for _, v := range i.AdvancementMapping {
@@ -553,7 +553,7 @@ func Back_340(i interface{}) (lib.MetaPacket, error) {
 		}
 		return &EntityProperties{EntityID: i.EntityID, Properties: tmp20}, nil
 	case *_340.EntityEffect:
-		return &EntityEffect{Amplifier: i.Amplifier, Duration: i.Duration, HideParticles: i.HideParticles, EntityID: i.EntityID, EffectID: i.EffectID}, nil
+		return &EntityEffect{Duration: i.Duration, HideParticles: i.HideParticles, EntityID: i.EntityID, EffectID: i.EffectID, Amplifier: i.Amplifier}, nil
 	case *_340.TeleConfirm:
 		return &TeleConfirm{ID: i.ID}, nil
 	case *_340.TabComplete:
@@ -563,40 +563,40 @@ func Back_340(i interface{}) (lib.MetaPacket, error) {
 	case *_340.ClientStatus:
 		return &ClientStatus{ActionID: i.ActionID}, nil
 	case *_340.ClientSettings:
-		return &ClientSettings{ChatMode: i.ChatMode, ChatColors: i.ChatColors, DisplayedSkinParts: i.DisplayedSkinParts, MainHand: i.MainHand, Locale: i.Locale, ViewDistance: i.ViewDistance}, nil
+		return &ClientSettings{ChatColors: i.ChatColors, DisplayedSkinParts: i.DisplayedSkinParts, MainHand: i.MainHand, Locale: i.Locale, ViewDistance: i.ViewDistance, ChatMode: i.ChatMode}, nil
 	case *_340.ConfirmTransactionServerbound:
-		return &ConfirmTransactionServerbound{ID: i.ID, ActionNumber: i.ActionNumber, Accepted: i.Accepted}, nil
+		return &ConfirmTransactionServerbound{Accepted: i.Accepted, ID: i.ID, ActionNumber: i.ActionNumber}, nil
 	case *_340.EnchantItem:
-		return &EnchantItem{ID: i.ID, Enchantment: i.Enchantment}, nil
+		return &EnchantItem{Enchantment: i.Enchantment, ID: i.ID}, nil
 	case *_340.ClickWindow:
-		return &ClickWindow{Slot: i.Slot, Button: i.Button, ActionNumber: i.ActionNumber, Mode: i.Mode, ClickedItem: i.ClickedItem, ID: i.ID}, nil
+		return &ClickWindow{ClickedItem: i.ClickedItem, ID: i.ID, Slot: i.Slot, Button: i.Button, ActionNumber: i.ActionNumber, Mode: i.Mode}, nil
 	case *_340.CloseWindow:
 		return &CloseWindow{ID: i.ID}, nil
 	case *_340.PluginMessageServerbound:
-		return &PluginMessageServerbound{Data: i.Data, Channel: i.Channel}, nil
+		return &PluginMessageServerbound{Channel: i.Channel, Data: i.Data}, nil
 	case *_340.UseEntity:
-		return &UseEntity{TargetZ: i.TargetZ, Hand: i.Hand, TargetID: i.TargetID, Type: i.Type, TargetX: i.TargetX, TargetY: i.TargetY}, nil
+		return &UseEntity{TargetID: i.TargetID, Type: i.Type, TargetX: i.TargetX, TargetY: i.TargetY, TargetZ: i.TargetZ, Hand: i.Hand}, nil
 	case *_340.KeepAliveServerbound:
 		return &KeepAliveServerbound{ID: lib.VarInt(i.ID)}, nil
 	case *_340.Player:
 		return &Player{OnGround: i.OnGround}, nil
 	case *_340.PlayerPosition:
-		return &PlayerPosition{X: i.X, Y: i.Y, Z: i.Z, OnGround: i.OnGround}, nil
+		return &PlayerPosition{OnGround: i.OnGround, X: i.X, Y: i.Y, Z: i.Z}, nil
 	case *_340.PlayerPositionLook:
-		return &PlayerPositionLook{X: i.X, Y: i.Y, Z: i.Z, Yaw: i.Yaw, Pitch: i.Pitch, OnGround: i.OnGround}, nil
+		return &PlayerPositionLook{OnGround: i.OnGround, X: i.X, Y: i.Y, Z: i.Z, Yaw: i.Yaw, Pitch: i.Pitch}, nil
 	case *_340.PlayerLook:
 		return &PlayerLook{Yaw: i.Yaw, Pitch: i.Pitch, OnGround: i.OnGround}, nil
 	case *_340.VehicleDrive:
-		return &VehicleDrive{X: i.X, Y: i.Y, Z: i.Z, Yaw: i.Yaw, Pitch: i.Pitch}, nil
+		return &VehicleDrive{Z: i.Z, Yaw: i.Yaw, Pitch: i.Pitch, X: i.X, Y: i.Y}, nil
 	case *_340.SteerBoat:
 		return &SteerBoat{Right: i.Right, Left: i.Left}, nil
 		// FIXME add CraftReceipeRequest
 	case *_340.ClientAbilities:
-		return &ClientAbilities{WalkingSpeed: i.WalkingSpeed, Flags: i.Flags, FlyingSpeed: i.FlyingSpeed}, nil
+		return &ClientAbilities{Flags: i.Flags, FlyingSpeed: i.FlyingSpeed, WalkingSpeed: i.WalkingSpeed}, nil
 	case *_340.PlayerDigging:
-		return &PlayerDigging{Location: i.Location, Face: i.Face, Status: i.Status}, nil
+		return &PlayerDigging{Face: i.Face, Status: i.Status, Location: i.Location}, nil
 	case *_340.PlayerAction:
-		return &PlayerAction{JumpBoost: i.JumpBoost, EntityID: i.EntityID, ActionID: i.ActionID}, nil
+		return &PlayerAction{ActionID: i.ActionID, JumpBoost: i.JumpBoost, EntityID: i.EntityID}, nil
 	case *_340.SteerVehicle:
 		return &SteerVehicle{Sideways: i.Sideways, Forward: i.Forward, Flags: i.Flags}, nil
 	case *_340.CraftingBookData:
@@ -604,13 +604,13 @@ func Back_340(i interface{}) (lib.MetaPacket, error) {
 	case *_340.ResourcePackStatus:
 		return &ResourcePackStatus{Result: i.Result}, nil
 	case *_340.AdvancementTab:
-		return &AdvancementTab{TabID: i.TabID, Action: i.Action}, nil
+		return &AdvancementTab{Action: i.Action, TabID: i.TabID}, nil
 	case *_340.HeldItemChange:
 		return &HeldItemChange{Slot: i.Slot}, nil
 	case *_340.CreativeInventoryAction:
 		return &CreativeInventoryAction{Slot: i.Slot, ClickedItem: i.ClickedItem}, nil
 	case *_340.SetSign:
-		return &SetSign{Location: i.Location, Line1: i.Line1, Line2: i.Line2, Line3: i.Line3, Line4: i.Line4}, nil
+		return &SetSign{Line2: i.Line2, Line3: i.Line3, Line4: i.Line4, Location: i.Location, Line1: i.Line1}, nil
 	case *_340.ArmSwing:
 		return &ArmSwing{Hand: i.Hand}, nil
 	case *_340.SpectateTeleport:

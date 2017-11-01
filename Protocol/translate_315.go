@@ -13,7 +13,7 @@ func Translate_315(i interface{}) (lib.Packet, error) {
 	}
 	switch i := i.(type) {
 	case *Handshake:
-		return &_315.Handshake{Port: i.Port, Next: i.Next, ProtocolVersion: i.ProtocolVersion, Host: i.Host}, nil
+		return &_315.Handshake{Host: i.Host, Port: i.Port, Next: i.Next, ProtocolVersion: i.ProtocolVersion}, nil
 	case *LoginDisconnect:
 		return &_315.LoginDisconnect{Reason: i.Reason}, nil
 	case *EncryptionRequest:
@@ -25,19 +25,19 @@ func Translate_315(i interface{}) (lib.Packet, error) {
 	case *LoginStart:
 		return &_315.LoginStart{Username: i.Username}, nil
 	case *EncryptionResponse:
-		return &_315.EncryptionResponse{VerifyToken: i.VerifyToken, SharedSecret: i.SharedSecret}, nil
+		return &_315.EncryptionResponse{SharedSecret: i.SharedSecret, VerifyToken: i.VerifyToken}, nil
 	case *SpawnObject:
-		return &_315.SpawnObject{Yaw: i.Yaw, Data: i.Data, Y: i.Y, Z: i.Z, Type: i.Type, X: i.X, Pitch: i.Pitch, VelocityX: i.VelocityX, VelocityY: i.VelocityY, VelocityZ: i.VelocityZ, EntityID: i.EntityID, UUID: i.UUID}, nil
+		return &_315.SpawnObject{Pitch: i.Pitch, Yaw: i.Yaw, VelocityY: i.VelocityY, VelocityZ: i.VelocityZ, Type: i.Type, X: i.X, Y: i.Y, Data: i.Data, VelocityX: i.VelocityX, EntityID: i.EntityID, UUID: i.UUID, Z: i.Z}, nil
 	case *SpawnExperienceOrb:
 		return &_315.SpawnExperienceOrb{EntityID: i.EntityID, X: int32(i.X), Y: int32(i.Y), Z: int32(i.Z), Count: i.Count}, nil
 	case *SpawnGlobalEntity:
 		return &_315.SpawnGlobalEntity{EntityID: i.EntityID, Type: i.Type, X: i.X, Y: i.Y, Z: i.Z}, nil
 	case *SpawnMob:
-		return &_315.SpawnMob{UUID: i.UUID, Type: i.Type, Pitch: i.Pitch, VelocityZ: i.VelocityZ, Metadata: i.Metadata, VelocityY: i.VelocityY, EntityID: i.EntityID, X: i.X, Y: i.Y, Z: i.Z, Yaw: i.Yaw, HeadPitch: i.HeadPitch, VelocityX: i.VelocityX}, nil
+		return &_315.SpawnMob{Type: i.Type, X: i.X, Yaw: i.Yaw, HeadPitch: i.HeadPitch, VelocityY: i.VelocityY, VelocityZ: i.VelocityZ, EntityID: i.EntityID, UUID: i.UUID, Y: i.Y, Z: i.Z, Pitch: i.Pitch, VelocityX: i.VelocityX, Metadata: i.Metadata}, nil
 	case *SpawnPainting:
-		return &_315.SpawnPainting{EntityID: i.EntityID, UUID: i.UUID, Title: i.Title, Location: i.Location, Direction: i.Direction}, nil
+		return &_315.SpawnPainting{UUID: i.UUID, Title: i.Title, Location: i.Location, Direction: i.Direction, EntityID: i.EntityID}, nil
 	case *SpawnPlayer:
-		return &_315.SpawnPlayer{Z: i.Z, Yaw: i.Yaw, Pitch: i.Pitch, Metadata: i.Metadata, EntityID: i.EntityID, UUID: i.UUID, X: i.X, Y: i.Y}, nil
+		return &_315.SpawnPlayer{X: i.X, Y: i.Y, Z: i.Z, Yaw: i.Yaw, Pitch: i.Pitch, Metadata: i.Metadata, EntityID: i.EntityID, UUID: i.UUID}, nil
 	case *Animation:
 		return &_315.Animation{EntityID: i.EntityID, AnimationID: i.AnimationID}, nil
 	case *Statistics:
@@ -56,7 +56,7 @@ func Translate_315(i interface{}) (lib.Packet, error) {
 	case *BlockChange:
 		return &_315.BlockChange{Location: i.Location, BlockID: i.BlockID}, nil
 	case *BossBar:
-		return &_315.BossBar{Health: i.Health, Color: i.Color, Style: i.Style, Flags: i.Flags, UUID: i.UUID, Action: i.Action, Title: i.Title}, nil
+		return &_315.BossBar{Action: i.Action, Title: i.Title, Health: i.Health, Color: i.Color, Style: i.Style, Flags: i.Flags, UUID: i.UUID}, nil
 	case *ServerDifficulty:
 		return &_315.ServerDifficulty{Difficulty: i.Difficulty}, nil
 	case *TabCompleteReply:
@@ -75,11 +75,11 @@ func Translate_315(i interface{}) (lib.Packet, error) {
 	case *WindowClose:
 		return &_315.WindowClose{ID: i.ID}, nil
 	case *WindowOpen:
-		return &_315.WindowOpen{SlotCount: i.SlotCount, EntityID: i.EntityID, ID: i.ID, Type: i.Type, Title: i.Title}, nil
+		return &_315.WindowOpen{ID: i.ID, Type: i.Type, Title: i.Title, SlotCount: i.SlotCount, EntityID: i.EntityID}, nil
 	case *WindowItems:
 		return &_315.WindowItems{ID: i.ID, Items: i.Items}, nil
 	case *WindowProperty:
-		return &_315.WindowProperty{ID: i.ID, Property: i.Property, Value: i.Value}, nil
+		return &_315.WindowProperty{Value: i.Value, ID: i.ID, Property: i.Property}, nil
 	case *WindowSetSlot:
 		return &_315.WindowSetSlot{ID: i.ID, Slot: i.Slot, ItemStack: i.ItemStack}, nil
 	case *SetCooldown:
@@ -87,7 +87,7 @@ func Translate_315(i interface{}) (lib.Packet, error) {
 	case *PluginMessageClientbound:
 		return &_315.PluginMessageClientbound{Channel: i.Channel, Data: i.Data}, nil
 	case *SoundEffect:
-		return &_315.SoundEffect{Pitch: i.Pitch, Name: i.Name, Catargory: i.Catargory, X: i.X, Y: i.Y, Z: i.Z, Volume: i.Volume}, nil
+		return &_315.SoundEffect{X: i.X, Y: i.Y, Z: i.Z, Volume: i.Volume, Pitch: i.Pitch, Name: i.Name, Catargory: i.Catargory}, nil
 	case *Disconnect:
 		return &_315.Disconnect{Reason: i.Reason}, nil
 	case *EntityAction:
@@ -102,7 +102,7 @@ func Translate_315(i interface{}) (lib.Packet, error) {
 	case *ChunkUnload:
 		return &_315.ChunkUnload{X: i.X, Z: i.Z}, nil
 	case *ChangeGameState:
-		return &_315.ChangeGameState{Reason: i.Reason, Value: i.Value}, nil
+		return &_315.ChangeGameState{Value: i.Value, Reason: i.Reason}, nil
 	case *KeepAliveClientbound:
 		return &_315.KeepAliveClientbound{ID: i.ID}, nil
 	case *ChunkData:
@@ -113,11 +113,11 @@ func Translate_315(i interface{}) (lib.Packet, error) {
 		}
 		return &_315.ChunkData{ChunkX: i.ChunkX, ChunkZ: i.ChunkZ, New: i.New, BitMask: i.BitMask, Data: i.Data, BlockEntities: tmp3}, nil
 	case *Effect:
-		return &_315.Effect{Location: i.Location, Data: i.Data, DisableRelative: i.DisableRelative, EffectID: i.EffectID}, nil
+		return &_315.Effect{EffectID: i.EffectID, Location: i.Location, Data: i.Data, DisableRelative: i.DisableRelative}, nil
 	case *Particle:
-		return &_315.Particle{Z: i.Z, OffsetX: i.OffsetX, PData: i.PData, Data: i.Data, LongDistance: i.LongDistance, X: i.X, OffsetY: i.OffsetY, OffsetZ: i.OffsetZ, Count: i.Count, ParticleID: i.ParticleID, Y: i.Y}, nil
+		return &_315.Particle{ParticleID: i.ParticleID, LongDistance: i.LongDistance, X: i.X, Y: i.Y, Z: i.Z, OffsetZ: i.OffsetZ, PData: i.PData, Count: i.Count, Data: i.Data, OffsetX: i.OffsetX, OffsetY: i.OffsetY}, nil
 	case *JoinGame:
-		return &_315.JoinGame{EntityID: i.EntityID, Gamemode: i.Gamemode, Dimension: i.Dimension, Difficulty: i.Difficulty, MaxPlayers: i.MaxPlayers, LevelType: i.LevelType, ReducedDebugInfo: i.ReducedDebugInfo}, nil
+		return &_315.JoinGame{MaxPlayers: i.MaxPlayers, LevelType: i.LevelType, ReducedDebugInfo: i.ReducedDebugInfo, EntityID: i.EntityID, Gamemode: i.Gamemode, Dimension: i.Dimension, Difficulty: i.Difficulty}, nil
 	case *Maps:
 		var tmp4 []_315.MapIcon
 		for _, v := range i.Icons {
@@ -126,21 +126,21 @@ func Translate_315(i interface{}) (lib.Packet, error) {
 		}
 		return &_315.Maps{ItemDamage: i.ItemDamage, Scale: i.Scale, TrackingPosition: i.TrackingPosition, Icons: tmp4, Columns: i.Columns, Rows: i.Rows, X: i.X, Z: i.Z, Data: i.Data}, nil
 	case *EntityMove:
-		return &_315.EntityMove{DeltaY: i.DeltaY, DeltaZ: i.DeltaZ, OnGround: i.OnGround, EntityID: i.EntityID, DeltaX: i.DeltaX}, nil
+		return &_315.EntityMove{EntityID: i.EntityID, DeltaX: i.DeltaX, DeltaY: i.DeltaY, DeltaZ: i.DeltaZ, OnGround: i.OnGround}, nil
 	case *EntityLookAndMove:
-		return &_315.EntityLookAndMove{EntityID: i.EntityID, DeltaX: i.DeltaX, DeltaY: i.DeltaY, DeltaZ: i.DeltaZ, Yaw: i.Yaw, Pitch: i.Pitch, OnGround: i.OnGround}, nil
+		return &_315.EntityLookAndMove{DeltaX: i.DeltaX, DeltaY: i.DeltaY, DeltaZ: i.DeltaZ, Yaw: i.Yaw, Pitch: i.Pitch, OnGround: i.OnGround, EntityID: i.EntityID}, nil
 	case *EntityLook:
-		return &_315.EntityLook{EntityID: i.EntityID, Yaw: i.Yaw, Pitch: i.Pitch, OnGround: i.OnGround}, nil
+		return &_315.EntityLook{Pitch: i.Pitch, OnGround: i.OnGround, EntityID: i.EntityID, Yaw: i.Yaw}, nil
 	case *Entity:
 		return &_315.Entity{EntityID: i.EntityID}, nil
 	case *VehicleMove:
-		return &_315.VehicleMove{Yaw: i.Yaw, Pitch: i.Pitch, X: i.X, Y: i.Y, Z: i.Z}, nil
+		return &_315.VehicleMove{X: i.X, Y: i.Y, Z: i.Z, Yaw: i.Yaw, Pitch: i.Pitch}, nil
 	case *SignEditorOpen:
 		return &_315.SignEditorOpen{Location: i.Location}, nil
 	case *PlayerAbilities:
-		return &_315.PlayerAbilities{FlyingSpeed: i.FlyingSpeed, WalkingSpeed: i.WalkingSpeed, Flags: i.Flags}, nil
+		return &_315.PlayerAbilities{Flags: i.Flags, FlyingSpeed: i.FlyingSpeed, WalkingSpeed: i.WalkingSpeed}, nil
 	case *CombatEvent:
-		return &_315.CombatEvent{PlayerID: i.PlayerID, EntityID: i.EntityID, Message: i.Message, Event: i.Event, Duration: i.Duration}, nil
+		return &_315.CombatEvent{Event: i.Event, Duration: i.Duration, PlayerID: i.PlayerID, EntityID: i.EntityID, Message: i.Message}, nil
 	case *PlayerInfo:
 		var tmp5 []_315.PlayerDetail
 		for _, v := range i.Players {
@@ -155,7 +155,7 @@ func Translate_315(i interface{}) (lib.Packet, error) {
 		}
 		return &_315.PlayerInfo{Action: i.Action, Players: tmp5}, nil
 	case *TeleportPlayer:
-		return &_315.TeleportPlayer{Pitch: i.Pitch, Flags: i.Flags, TPID: i.TPID, X: i.X, Y: i.Y, Z: i.Z, Yaw: i.Yaw}, nil
+		return &_315.TeleportPlayer{X: i.X, Y: i.Y, Z: i.Z, Yaw: i.Yaw, Pitch: i.Pitch, Flags: i.Flags, TPID: i.TPID}, nil
 	case *EntityUsedBed:
 		return &_315.EntityUsedBed{EntityID: i.EntityID, Location: i.Location}, nil
 	case *EntityDestroy:
@@ -165,19 +165,19 @@ func Translate_315(i interface{}) (lib.Packet, error) {
 	case *ResourcePackSend:
 		return &_315.ResourcePackSend{URL: i.URL, Hash: i.Hash}, nil
 	case *Respawn:
-		return &_315.Respawn{Gamemode: i.Gamemode, LevelType: i.LevelType, Dimension: i.Dimension, Difficulty: i.Difficulty}, nil
+		return &_315.Respawn{Difficulty: i.Difficulty, Gamemode: i.Gamemode, LevelType: i.LevelType, Dimension: i.Dimension}, nil
 	case *EntityHeadLook:
 		return &_315.EntityHeadLook{EntityID: i.EntityID, HeadYaw: i.HeadYaw}, nil
 	case *WorldBorder:
-		return &_315.WorldBorder{Action: i.Action, OldRadius: i.OldRadius, Z: i.Z, PortalBoundary: i.PortalBoundary, WarningBlocks: i.WarningBlocks, NewRadius: i.NewRadius, Speed: i.Speed, X: i.X, WarningTime: i.WarningTime}, nil
+		return &_315.WorldBorder{Action: i.Action, NewRadius: i.NewRadius, X: i.X, Z: i.Z, WarningTime: i.WarningTime, OldRadius: i.OldRadius, Speed: i.Speed, PortalBoundary: i.PortalBoundary, WarningBlocks: i.WarningBlocks}, nil
 	case *Camera:
 		return &_315.Camera{TargetID: i.TargetID}, nil
 	case *SetCurrentHotbarSlot:
 		return &_315.SetCurrentHotbarSlot{Slot: i.Slot}, nil
 	case *ScoreboardDisplay:
-		return &_315.ScoreboardDisplay{Name: i.Name, Position: i.Position}, nil
+		return &_315.ScoreboardDisplay{Position: i.Position, Name: i.Name}, nil
 	case *EntityMetadata:
-		return &_315.EntityMetadata{EntityID: i.EntityID, Metadata: i.Metadata}, nil
+		return &_315.EntityMetadata{Metadata: i.Metadata, EntityID: i.EntityID}, nil
 	case *EntityAttach:
 		return &_315.EntityAttach{EntityID: i.EntityID, Vehicle: i.Vehicle, Leash: i.Leash}, nil
 	case *EntityVelocity:
@@ -185,17 +185,17 @@ func Translate_315(i interface{}) (lib.Packet, error) {
 	case *EntityEquipment:
 		return &_315.EntityEquipment{EntityID: i.EntityID, Slot: i.Slot, Item: i.Item}, nil
 	case *SetExperience:
-		return &_315.SetExperience{Level: i.Level, TotalExperience: i.TotalExperience, ExperienceBar: i.ExperienceBar}, nil
+		return &_315.SetExperience{TotalExperience: i.TotalExperience, ExperienceBar: i.ExperienceBar, Level: i.Level}, nil
 	case *UpdateHealth:
 		return &_315.UpdateHealth{Health: i.Health, Food: i.Food, FoodSaturation: i.FoodSaturation}, nil
 	case *ScoreboardObjective:
-		return &_315.ScoreboardObjective{Value: i.Value, Type: i.Type, Name: i.Name, Mode: i.Mode}, nil
+		return &_315.ScoreboardObjective{Mode: i.Mode, Value: i.Value, Type: i.Type, Name: i.Name}, nil
 	case *Passengers:
 		return &_315.Passengers{ID: i.ID, Passengers: i.Passengers}, nil
 	case *Teams:
-		return &_315.Teams{Color: i.Color, Players: i.Players, Name: i.Name, Mode: i.Mode, DisplayName: i.DisplayName, Flags: i.Flags, NameTagVisibility: i.NameTagVisibility, CollisionRule: i.CollisionRule, Prefix: i.Prefix, Suffix: i.Suffix}, nil
+		return &_315.Teams{DisplayName: i.DisplayName, Suffix: i.Suffix, Flags: i.Flags, NameTagVisibility: i.NameTagVisibility, Players: i.Players, Name: i.Name, Prefix: i.Prefix, CollisionRule: i.CollisionRule, Color: i.Color, Mode: i.Mode}, nil
 	case *UpdateScore:
-		return &_315.UpdateScore{Name: i.Name, Action: i.Action, ObjectName: i.ObjectName, Value: i.Value}, nil
+		return &_315.UpdateScore{Action: i.Action, ObjectName: i.ObjectName, Value: i.Value, Name: i.Name}, nil
 	case *SpawnPosition:
 		return &_315.SpawnPosition{Location: i.Location}, nil
 	case *TimeUpdate:
@@ -209,7 +209,7 @@ func Translate_315(i interface{}) (lib.Packet, error) {
 	case *CollectItem:
 		return &_315.CollectItem{CollectedEntityID: i.CollectedEntityID, CollectorEntityID: i.CollectorEntityID, PickUpCount: i.PickUpCount}, nil
 	case *EntityTeleport:
-		return &_315.EntityTeleport{Pitch: i.Pitch, OnGround: i.OnGround, EntityID: i.EntityID, X: i.X, Y: i.Y, Z: i.Z, Yaw: i.Yaw}, nil
+		return &_315.EntityTeleport{EntityID: i.EntityID, X: i.X, Y: i.Y, Z: i.Z, Yaw: i.Yaw, Pitch: i.Pitch, OnGround: i.OnGround}, nil
 	case *EntityProperties:
 		var tmp7 []_315.EntityProperty
 		for _, v := range i.Properties {
@@ -224,49 +224,49 @@ func Translate_315(i interface{}) (lib.Packet, error) {
 		}
 		return &_315.EntityProperties{EntityID: i.EntityID, Properties: tmp7}, nil
 	case *EntityEffect:
-		return &_315.EntityEffect{EffectID: i.EffectID, Amplifier: i.Amplifier, Duration: i.Duration, HideParticles: i.HideParticles, EntityID: i.EntityID}, nil
+		return &_315.EntityEffect{EntityID: i.EntityID, EffectID: i.EffectID, Amplifier: i.Amplifier, Duration: i.Duration, HideParticles: i.HideParticles}, nil
 	case *TeleConfirm:
 		return &_315.TeleConfirm{ID: i.ID}, nil
 	case *TabComplete:
-		return &_315.TabComplete{HasTarget: i.HasTarget, Target: i.Target, Text: i.Text}, nil
+		return &_315.TabComplete{Target: i.Target, Text: i.Text, HasTarget: i.HasTarget}, nil
 	case *ChatMessage:
 		return &_315.ChatMessage{Message: i.Message}, nil
 	case *ClientStatus:
 		return &_315.ClientStatus{ActionID: i.ActionID}, nil
 	case *ClientSettings:
-		return &_315.ClientSettings{Locale: i.Locale, ViewDistance: i.ViewDistance, ChatMode: i.ChatMode, ChatColors: i.ChatColors, DisplayedSkinParts: i.DisplayedSkinParts, MainHand: i.MainHand}, nil
+		return &_315.ClientSettings{MainHand: i.MainHand, Locale: i.Locale, ViewDistance: i.ViewDistance, ChatMode: i.ChatMode, ChatColors: i.ChatColors, DisplayedSkinParts: i.DisplayedSkinParts}, nil
 	case *ConfirmTransactionServerbound:
-		return &_315.ConfirmTransactionServerbound{ID: i.ID, ActionNumber: i.ActionNumber, Accepted: i.Accepted}, nil
+		return &_315.ConfirmTransactionServerbound{Accepted: i.Accepted, ID: i.ID, ActionNumber: i.ActionNumber}, nil
 	case *EnchantItem:
-		return &_315.EnchantItem{Enchantment: i.Enchantment, ID: i.ID}, nil
+		return &_315.EnchantItem{ID: i.ID, Enchantment: i.Enchantment}, nil
 	case *ClickWindow:
-		return &_315.ClickWindow{Mode: i.Mode, ClickedItem: i.ClickedItem, ID: i.ID, Slot: i.Slot, Button: i.Button, ActionNumber: i.ActionNumber}, nil
+		return &_315.ClickWindow{ID: i.ID, Slot: i.Slot, Button: i.Button, ActionNumber: i.ActionNumber, Mode: i.Mode, ClickedItem: i.ClickedItem}, nil
 	case *CloseWindow:
 		return &_315.CloseWindow{ID: i.ID}, nil
 	case *PluginMessageServerbound:
 		return &_315.PluginMessageServerbound{Channel: i.Channel, Data: i.Data}, nil
 	case *UseEntity:
-		return &_315.UseEntity{Type: i.Type, TargetX: i.TargetX, TargetY: i.TargetY, TargetZ: i.TargetZ, Hand: i.Hand, TargetID: i.TargetID}, nil
+		return &_315.UseEntity{Hand: i.Hand, TargetID: i.TargetID, Type: i.Type, TargetX: i.TargetX, TargetY: i.TargetY, TargetZ: i.TargetZ}, nil
 	case *KeepAliveServerbound:
 		return &_315.KeepAliveServerbound{ID: i.ID}, nil
 	case *PlayerPosition:
-		return &_315.PlayerPosition{X: i.X, Y: i.Y, Z: i.Z, OnGround: i.OnGround}, nil
+		return &_315.PlayerPosition{OnGround: i.OnGround, X: i.X, Y: i.Y, Z: i.Z}, nil
 	case *PlayerPositionLook:
 		return &_315.PlayerPositionLook{Z: i.Z, Yaw: i.Yaw, Pitch: i.Pitch, OnGround: i.OnGround, X: i.X, Y: i.Y}, nil
 	case *PlayerLook:
-		return &_315.PlayerLook{Pitch: i.Pitch, OnGround: i.OnGround, Yaw: i.Yaw}, nil
+		return &_315.PlayerLook{Yaw: i.Yaw, Pitch: i.Pitch, OnGround: i.OnGround}, nil
 	case *Player:
 		return &_315.Player{OnGround: i.OnGround}, nil
 	case *VehicleDrive:
-		return &_315.VehicleDrive{Y: i.Y, Z: i.Z, Yaw: i.Yaw, Pitch: i.Pitch, X: i.X}, nil
+		return &_315.VehicleDrive{X: i.X, Y: i.Y, Z: i.Z, Yaw: i.Yaw, Pitch: i.Pitch}, nil
 	case *SteerBoat:
-		return &_315.SteerBoat{Right: i.Right, Left: i.Left}, nil
+		return &_315.SteerBoat{Left: i.Left, Right: i.Right}, nil
 	case *ClientAbilities:
 		return &_315.ClientAbilities{Flags: i.Flags, FlyingSpeed: i.FlyingSpeed, WalkingSpeed: i.WalkingSpeed}, nil
 	case *PlayerDigging:
 		return &_315.PlayerDigging{Status: i.Status, Location: i.Location, Face: i.Face}, nil
 	case *PlayerAction:
-		return &_315.PlayerAction{EntityID: i.EntityID, ActionID: i.ActionID, JumpBoost: i.JumpBoost}, nil
+		return &_315.PlayerAction{JumpBoost: i.JumpBoost, EntityID: i.EntityID, ActionID: i.ActionID}, nil
 	case *SteerVehicle:
 		return &_315.SteerVehicle{Sideways: i.Sideways, Forward: i.Forward, Flags: i.Flags}, nil
 	case *ResourcePackStatus:
@@ -282,7 +282,7 @@ func Translate_315(i interface{}) (lib.Packet, error) {
 	case *SpectateTeleport:
 		return &_315.SpectateTeleport{Target: i.Target}, nil
 	case *PlayerBlockPlacement:
-		return &_315.PlayerBlockPlacement{CursorY: i.CursorY, CursorZ: i.CursorZ, Location: i.Location, Face: i.Face, Hand: i.Hand, CursorX: i.CursorX}, nil
+		return &_315.PlayerBlockPlacement{CursorZ: byte(i.CursorZ), Location: i.Location, Face: i.Face, Hand: i.Hand, CursorX: byte(i.CursorX), CursorY: byte(i.CursorY)}, nil
 	case *UseItem:
 		return &_315.UseItem{Hand: i.Hand}, nil
 	case *StatusResponse:
@@ -301,7 +301,7 @@ func Translate_315(i interface{}) (lib.Packet, error) {
 func Back_315(i interface{}) (lib.MetaPacket, error) {
 	switch i := i.(type) {
 	case *_315.Handshake:
-		return &Handshake{Host: i.Host, Port: i.Port, Next: i.Next, ProtocolVersion: i.ProtocolVersion}, nil
+		return &Handshake{ProtocolVersion: i.ProtocolVersion, Host: i.Host, Port: i.Port, Next: i.Next}, nil
 	case *_315.LoginDisconnect:
 		return &LoginDisconnect{Reason: i.Reason}, nil
 	case *_315.EncryptionRequest:
@@ -313,21 +313,21 @@ func Back_315(i interface{}) (lib.MetaPacket, error) {
 	case *_315.LoginStart:
 		return &LoginStart{Username: i.Username}, nil
 	case *_315.EncryptionResponse:
-		return &EncryptionResponse{VerifyToken: i.VerifyToken, SharedSecret: i.SharedSecret}, nil
+		return &EncryptionResponse{SharedSecret: i.SharedSecret, VerifyToken: i.VerifyToken}, nil
 	case *_315.SpawnObject:
-		return &SpawnObject{VelocityY: i.VelocityY, Type: i.Type, Y: i.Y, Pitch: i.Pitch, Yaw: i.Yaw, Data: i.Data, VelocityZ: i.VelocityZ, EntityID: i.EntityID, UUID: i.UUID, X: i.X, Z: i.Z, VelocityX: i.VelocityX}, nil
+		return &SpawnObject{Type: i.Type, Z: i.Z, Yaw: i.Yaw, VelocityX: i.VelocityX, VelocityY: i.VelocityY, EntityID: i.EntityID, UUID: i.UUID, X: i.X, Y: i.Y, Pitch: i.Pitch, Data: i.Data, VelocityZ: i.VelocityZ}, nil
 	case *_315.SpawnExperienceOrb:
-		return &SpawnExperienceOrb{EntityID: i.EntityID, X: int64(i.X), Y: int64(i.Y), Z: int64(i.Z), Count: i.Count}, nil
+		return &SpawnExperienceOrb{X: int64(i.X), Y: int64(i.Y), Z: int64(i.Z), Count: i.Count, EntityID: i.EntityID}, nil
 	case *_315.SpawnGlobalEntity:
 		return &SpawnGlobalEntity{X: i.X, Y: i.Y, Z: i.Z, EntityID: i.EntityID, Type: i.Type}, nil
 	case *_315.SpawnMob:
-		return &SpawnMob{VelocityX: i.VelocityX, VelocityZ: i.VelocityZ, EntityID: i.EntityID, UUID: i.UUID, Type: i.Type, Y: i.Y, HeadPitch: i.HeadPitch, VelocityY: i.VelocityY, Metadata: i.Metadata, X: i.X, Z: i.Z, Yaw: i.Yaw, Pitch: i.Pitch}, nil
+		return &SpawnMob{Metadata: i.Metadata, Y: i.Y, Pitch: i.Pitch, HeadPitch: i.HeadPitch, VelocityY: i.VelocityY, Z: i.Z, Yaw: i.Yaw, VelocityX: i.VelocityX, VelocityZ: i.VelocityZ, EntityID: i.EntityID, UUID: i.UUID, Type: i.Type, X: i.X}, nil
 	case *_315.SpawnPainting:
-		return &SpawnPainting{Location: i.Location, Direction: i.Direction, EntityID: i.EntityID, UUID: i.UUID, Title: i.Title}, nil
+		return &SpawnPainting{Direction: i.Direction, EntityID: i.EntityID, UUID: i.UUID, Title: i.Title, Location: i.Location}, nil
 	case *_315.SpawnPlayer:
-		return &SpawnPlayer{Z: i.Z, Yaw: i.Yaw, Pitch: i.Pitch, Metadata: i.Metadata, EntityID: i.EntityID, UUID: i.UUID, X: i.X, Y: i.Y}, nil
+		return &SpawnPlayer{Metadata: i.Metadata, EntityID: i.EntityID, UUID: i.UUID, X: i.X, Y: i.Y, Z: i.Z, Yaw: i.Yaw, Pitch: i.Pitch}, nil
 	case *_315.Animation:
-		return &Animation{AnimationID: i.AnimationID, EntityID: i.EntityID}, nil
+		return &Animation{EntityID: i.EntityID, AnimationID: i.AnimationID}, nil
 	case *_315.Statistics:
 		var tmp9 []Statistic
 		for _, v := range i.Statistics {
@@ -338,13 +338,13 @@ func Back_315(i interface{}) (lib.MetaPacket, error) {
 	case *_315.BlockBreakAnimation:
 		return &BlockBreakAnimation{EntityID: i.EntityID, Location: i.Location, Stage: i.Stage}, nil
 	case *_315.UpdateBlockEntity:
-		return &UpdateBlockEntity{Location: i.Location, Action: i.Action, NBT: i.NBT}, nil
+		return &UpdateBlockEntity{NBT: i.NBT, Location: i.Location, Action: i.Action}, nil
 	case *_315.BlockAction:
 		return &BlockAction{Location: i.Location, Byte1: i.Byte1, Byte2: i.Byte2, BlockType: i.BlockType}, nil
 	case *_315.BlockChange:
-		return &BlockChange{BlockID: i.BlockID, Location: i.Location}, nil
+		return &BlockChange{Location: i.Location, BlockID: i.BlockID}, nil
 	case *_315.BossBar:
-		return &BossBar{Title: i.Title, Health: i.Health, Color: i.Color, Style: i.Style, Flags: i.Flags, UUID: i.UUID, Action: i.Action}, nil
+		return &BossBar{Flags: i.Flags, UUID: i.UUID, Action: i.Action, Title: i.Title, Health: i.Health, Color: i.Color, Style: i.Style}, nil
 	case *_315.ServerDifficulty:
 		return &ServerDifficulty{Difficulty: i.Difficulty}, nil
 	case *_315.TabCompleteReply:
@@ -363,19 +363,19 @@ func Back_315(i interface{}) (lib.MetaPacket, error) {
 	case *_315.WindowClose:
 		return &WindowClose{ID: i.ID}, nil
 	case *_315.WindowOpen:
-		return &WindowOpen{Type: i.Type, Title: i.Title, SlotCount: i.SlotCount, EntityID: i.EntityID, ID: i.ID}, nil
+		return &WindowOpen{ID: i.ID, Type: i.Type, Title: i.Title, SlotCount: i.SlotCount, EntityID: i.EntityID}, nil
 	case *_315.WindowItems:
 		return &WindowItems{ID: i.ID, Items: i.Items}, nil
 	case *_315.WindowProperty:
-		return &WindowProperty{ID: i.ID, Property: i.Property, Value: i.Value}, nil
+		return &WindowProperty{Property: i.Property, Value: i.Value, ID: i.ID}, nil
 	case *_315.WindowSetSlot:
-		return &WindowSetSlot{ItemStack: i.ItemStack, ID: i.ID, Slot: i.Slot}, nil
+		return &WindowSetSlot{ID: i.ID, Slot: i.Slot, ItemStack: i.ItemStack}, nil
 	case *_315.SetCooldown:
-		return &SetCooldown{Ticks: i.Ticks, ItemID: i.ItemID}, nil
+		return &SetCooldown{ItemID: i.ItemID, Ticks: i.Ticks}, nil
 	case *_315.PluginMessageClientbound:
 		return &PluginMessageClientbound{Channel: i.Channel, Data: i.Data}, nil
 	case *_315.SoundEffect:
-		return &SoundEffect{Catargory: i.Catargory, X: i.X, Y: i.Y, Z: i.Z, Volume: i.Volume, Pitch: i.Pitch, Name: i.Name}, nil
+		return &SoundEffect{Z: i.Z, Volume: i.Volume, Pitch: i.Pitch, Name: i.Name, Catargory: i.Catargory, X: i.X, Y: i.Y}, nil
 	case *_315.Disconnect:
 		return &Disconnect{Reason: i.Reason}, nil
 	case *_315.EntityAction:
@@ -403,9 +403,9 @@ func Back_315(i interface{}) (lib.MetaPacket, error) {
 	case *_315.Effect:
 		return &Effect{EffectID: i.EffectID, Location: i.Location, Data: i.Data, DisableRelative: i.DisableRelative}, nil
 	case *_315.Particle:
-		return &Particle{LongDistance: i.LongDistance, Z: i.Z, OffsetX: i.OffsetX, PData: i.PData, Count: i.Count, Data: i.Data, ParticleID: i.ParticleID, X: i.X, Y: i.Y, OffsetY: i.OffsetY, OffsetZ: i.OffsetZ}, nil
+		return &Particle{LongDistance: i.LongDistance, X: i.X, Y: i.Y, OffsetX: i.OffsetX, OffsetY: i.OffsetY, PData: i.PData, Count: i.Count, ParticleID: i.ParticleID, Z: i.Z, OffsetZ: i.OffsetZ, Data: i.Data}, nil
 	case *_315.JoinGame:
-		return &JoinGame{LevelType: i.LevelType, ReducedDebugInfo: i.ReducedDebugInfo, EntityID: i.EntityID, Gamemode: i.Gamemode, Dimension: i.Dimension, Difficulty: i.Difficulty, MaxPlayers: i.MaxPlayers}, nil
+		return &JoinGame{Dimension: i.Dimension, Difficulty: i.Difficulty, MaxPlayers: i.MaxPlayers, LevelType: i.LevelType, ReducedDebugInfo: i.ReducedDebugInfo, EntityID: i.EntityID, Gamemode: i.Gamemode}, nil
 	case *_315.Maps:
 		var tmp13 []MapIcon
 		for _, v := range i.Icons {
@@ -414,21 +414,21 @@ func Back_315(i interface{}) (lib.MetaPacket, error) {
 		}
 		return &Maps{ItemDamage: i.ItemDamage, Scale: i.Scale, TrackingPosition: i.TrackingPosition, Icons: tmp13, Columns: i.Columns, Rows: i.Rows, X: i.X, Z: i.Z, Data: i.Data}, nil
 	case *_315.EntityMove:
-		return &EntityMove{DeltaX: i.DeltaX, DeltaY: i.DeltaY, DeltaZ: i.DeltaZ, OnGround: i.OnGround, EntityID: i.EntityID}, nil
+		return &EntityMove{DeltaY: i.DeltaY, DeltaZ: i.DeltaZ, OnGround: i.OnGround, EntityID: i.EntityID, DeltaX: i.DeltaX}, nil
 	case *_315.EntityLookAndMove:
-		return &EntityLookAndMove{Pitch: i.Pitch, OnGround: i.OnGround, EntityID: i.EntityID, DeltaX: i.DeltaX, DeltaY: i.DeltaY, DeltaZ: i.DeltaZ, Yaw: i.Yaw}, nil
+		return &EntityLookAndMove{EntityID: i.EntityID, DeltaX: i.DeltaX, DeltaY: i.DeltaY, DeltaZ: i.DeltaZ, Yaw: i.Yaw, Pitch: i.Pitch, OnGround: i.OnGround}, nil
 	case *_315.EntityLook:
 		return &EntityLook{EntityID: i.EntityID, Yaw: i.Yaw, Pitch: i.Pitch, OnGround: i.OnGround}, nil
 	case *_315.Entity:
 		return &Entity{EntityID: i.EntityID}, nil
 	case *_315.VehicleMove:
-		return &VehicleMove{Z: i.Z, Yaw: i.Yaw, Pitch: i.Pitch, X: i.X, Y: i.Y}, nil
+		return &VehicleMove{Pitch: i.Pitch, X: i.X, Y: i.Y, Z: i.Z, Yaw: i.Yaw}, nil
 	case *_315.SignEditorOpen:
 		return &SignEditorOpen{Location: i.Location}, nil
 	case *_315.PlayerAbilities:
-		return &PlayerAbilities{FlyingSpeed: i.FlyingSpeed, WalkingSpeed: i.WalkingSpeed, Flags: i.Flags}, nil
+		return &PlayerAbilities{Flags: i.Flags, FlyingSpeed: i.FlyingSpeed, WalkingSpeed: i.WalkingSpeed}, nil
 	case *_315.CombatEvent:
-		return &CombatEvent{EntityID: i.EntityID, Message: i.Message, Event: i.Event, Duration: i.Duration, PlayerID: i.PlayerID}, nil
+		return &CombatEvent{Event: i.Event, Duration: i.Duration, PlayerID: i.PlayerID, EntityID: i.EntityID, Message: i.Message}, nil
 	case *_315.PlayerInfo:
 		var tmp14 []PlayerDetail
 		for _, v := range i.Players {
@@ -443,13 +443,13 @@ func Back_315(i interface{}) (lib.MetaPacket, error) {
 		}
 		return &PlayerInfo{Action: i.Action, Players: tmp14}, nil
 	case *_315.TeleportPlayer:
-		return &TeleportPlayer{TPID: i.TPID, X: i.X, Y: i.Y, Z: i.Z, Yaw: i.Yaw, Pitch: i.Pitch, Flags: i.Flags}, nil
+		return &TeleportPlayer{Flags: i.Flags, TPID: i.TPID, X: i.X, Y: i.Y, Z: i.Z, Yaw: i.Yaw, Pitch: i.Pitch}, nil
 	case *_315.EntityUsedBed:
-		return &EntityUsedBed{Location: i.Location, EntityID: i.EntityID}, nil
+		return &EntityUsedBed{EntityID: i.EntityID, Location: i.Location}, nil
 	case *_315.EntityDestroy:
 		return &EntityDestroy{EntityIDs: i.EntityIDs}, nil
 	case *_315.EntityRemoveEffect:
-		return &EntityRemoveEffect{EntityID: i.EntityID, EffectID: i.EffectID}, nil
+		return &EntityRemoveEffect{EffectID: i.EffectID, EntityID: i.EntityID}, nil
 	case *_315.ResourcePackSend:
 		return &ResourcePackSend{URL: i.URL, Hash: i.Hash}, nil
 	case *_315.Respawn:
@@ -457,47 +457,47 @@ func Back_315(i interface{}) (lib.MetaPacket, error) {
 	case *_315.EntityHeadLook:
 		return &EntityHeadLook{EntityID: i.EntityID, HeadYaw: i.HeadYaw}, nil
 	case *_315.WorldBorder:
-		return &WorldBorder{Action: i.Action, NewRadius: i.NewRadius, Speed: i.Speed, PortalBoundary: i.PortalBoundary, WarningTime: i.WarningTime, WarningBlocks: i.WarningBlocks, OldRadius: i.OldRadius, X: i.X, Z: i.Z}, nil
+		return &WorldBorder{Speed: i.Speed, X: i.X, PortalBoundary: i.PortalBoundary, WarningTime: i.WarningTime, WarningBlocks: i.WarningBlocks, Action: i.Action, OldRadius: i.OldRadius, NewRadius: i.NewRadius, Z: i.Z}, nil
 	case *_315.Camera:
 		return &Camera{TargetID: i.TargetID}, nil
 	case *_315.SetCurrentHotbarSlot:
 		return &SetCurrentHotbarSlot{Slot: i.Slot}, nil
 	case *_315.ScoreboardDisplay:
-		return &ScoreboardDisplay{Name: i.Name, Position: i.Position}, nil
+		return &ScoreboardDisplay{Position: i.Position, Name: i.Name}, nil
 	case *_315.EntityMetadata:
 		return &EntityMetadata{EntityID: i.EntityID, Metadata: i.Metadata}, nil
 	case *_315.EntityAttach:
-		return &EntityAttach{Leash: i.Leash, EntityID: i.EntityID, Vehicle: i.Vehicle}, nil
+		return &EntityAttach{EntityID: i.EntityID, Vehicle: i.Vehicle, Leash: i.Leash}, nil
 	case *_315.EntityVelocity:
-		return &EntityVelocity{EntityID: i.EntityID, VelocityX: i.VelocityX, VelocityY: i.VelocityY, VelocityZ: i.VelocityZ}, nil
+		return &EntityVelocity{VelocityZ: i.VelocityZ, EntityID: i.EntityID, VelocityX: i.VelocityX, VelocityY: i.VelocityY}, nil
 	case *_315.EntityEquipment:
-		return &EntityEquipment{Slot: i.Slot, Item: i.Item, EntityID: i.EntityID}, nil
+		return &EntityEquipment{EntityID: i.EntityID, Slot: i.Slot, Item: i.Item}, nil
 	case *_315.SetExperience:
-		return &SetExperience{ExperienceBar: i.ExperienceBar, Level: i.Level, TotalExperience: i.TotalExperience}, nil
+		return &SetExperience{TotalExperience: i.TotalExperience, ExperienceBar: i.ExperienceBar, Level: i.Level}, nil
 	case *_315.UpdateHealth:
-		return &UpdateHealth{Health: i.Health, Food: i.Food, FoodSaturation: i.FoodSaturation}, nil
+		return &UpdateHealth{Food: i.Food, FoodSaturation: i.FoodSaturation, Health: i.Health}, nil
 	case *_315.ScoreboardObjective:
-		return &ScoreboardObjective{Name: i.Name, Mode: i.Mode, Value: i.Value, Type: i.Type}, nil
+		return &ScoreboardObjective{Type: i.Type, Name: i.Name, Mode: i.Mode, Value: i.Value}, nil
 	case *_315.Passengers:
-		return &Passengers{Passengers: i.Passengers, ID: i.ID}, nil
+		return &Passengers{ID: i.ID, Passengers: i.Passengers}, nil
 	case *_315.Teams:
-		return &Teams{Flags: i.Flags, CollisionRule: i.CollisionRule, DisplayName: i.DisplayName, Prefix: i.Prefix, Suffix: i.Suffix, NameTagVisibility: i.NameTagVisibility, Color: i.Color, Players: i.Players, Name: i.Name, Mode: i.Mode}, nil
+		return &Teams{Name: i.Name, DisplayName: i.DisplayName, Prefix: i.Prefix, Suffix: i.Suffix, Players: i.Players, Mode: i.Mode, Flags: i.Flags, NameTagVisibility: i.NameTagVisibility, CollisionRule: i.CollisionRule, Color: i.Color}, nil
 	case *_315.UpdateScore:
-		return &UpdateScore{Action: i.Action, ObjectName: i.ObjectName, Value: i.Value, Name: i.Name}, nil
+		return &UpdateScore{Value: i.Value, Name: i.Name, Action: i.Action, ObjectName: i.ObjectName}, nil
 	case *_315.SpawnPosition:
 		return &SpawnPosition{Location: i.Location}, nil
 	case *_315.TimeUpdate:
 		return &TimeUpdate{WorldAge: i.WorldAge, TimeOfDay: i.TimeOfDay}, nil
 	case *_315.Title:
-		return &Title{Action: i.Action, Title: i.Title, SubTitle: i.SubTitle, FadeIn: i.FadeIn, FadeStay: i.FadeStay, FadeOut: i.FadeOut}, nil
+		return &Title{FadeStay: i.FadeStay, FadeOut: i.FadeOut, Action: i.Action, Title: i.Title, SubTitle: i.SubTitle, FadeIn: i.FadeIn}, nil
 	case *_315.HardSoundEffect:
-		return &HardSoundEffect{Cat: i.Cat, X: i.X, Y: i.Y, Z: i.Z, Vol: i.Vol, ID: i.ID}, nil
+		return &HardSoundEffect{ID: i.ID, Cat: i.Cat, X: i.X, Y: i.Y, Z: i.Z, Vol: i.Vol}, nil
 	case *_315.PlayerListHeaderFooter:
 		return &PlayerListHeaderFooter{Header: i.Header, Footer: i.Footer}, nil
 	case *_315.CollectItem:
 		return &CollectItem{CollectedEntityID: i.CollectedEntityID, CollectorEntityID: i.CollectorEntityID, PickUpCount: i.PickUpCount}, nil
 	case *_315.EntityTeleport:
-		return &EntityTeleport{Pitch: i.Pitch, OnGround: i.OnGround, EntityID: i.EntityID, X: i.X, Y: i.Y, Z: i.Z, Yaw: i.Yaw}, nil
+		return &EntityTeleport{Y: i.Y, Z: i.Z, Yaw: i.Yaw, Pitch: i.Pitch, OnGround: i.OnGround, EntityID: i.EntityID, X: i.X}, nil
 	case *_315.EntityProperties:
 		var tmp16 []EntityProperty
 		for _, v := range i.Properties {
@@ -522,9 +522,9 @@ func Back_315(i interface{}) (lib.MetaPacket, error) {
 	case *_315.ClientStatus:
 		return &ClientStatus{ActionID: i.ActionID}, nil
 	case *_315.ClientSettings:
-		return &ClientSettings{ChatMode: i.ChatMode, ChatColors: i.ChatColors, DisplayedSkinParts: i.DisplayedSkinParts, MainHand: i.MainHand, Locale: i.Locale, ViewDistance: i.ViewDistance}, nil
+		return &ClientSettings{Locale: i.Locale, ViewDistance: i.ViewDistance, ChatMode: i.ChatMode, ChatColors: i.ChatColors, DisplayedSkinParts: i.DisplayedSkinParts, MainHand: i.MainHand}, nil
 	case *_315.ConfirmTransactionServerbound:
-		return &ConfirmTransactionServerbound{ActionNumber: i.ActionNumber, Accepted: i.Accepted, ID: i.ID}, nil
+		return &ConfirmTransactionServerbound{ID: i.ID, ActionNumber: i.ActionNumber, Accepted: i.Accepted}, nil
 	case *_315.EnchantItem:
 		return &EnchantItem{ID: i.ID, Enchantment: i.Enchantment}, nil
 	case *_315.ClickWindow:
@@ -534,21 +534,21 @@ func Back_315(i interface{}) (lib.MetaPacket, error) {
 	case *_315.PluginMessageServerbound:
 		return &PluginMessageServerbound{Channel: i.Channel, Data: i.Data}, nil
 	case *_315.UseEntity:
-		return &UseEntity{TargetID: i.TargetID, Type: i.Type, TargetX: i.TargetX, TargetY: i.TargetY, TargetZ: i.TargetZ, Hand: i.Hand}, nil
+		return &UseEntity{Type: i.Type, TargetX: i.TargetX, TargetY: i.TargetY, TargetZ: i.TargetZ, Hand: i.Hand, TargetID: i.TargetID}, nil
 	case *_315.KeepAliveServerbound:
 		return &KeepAliveServerbound{ID: i.ID}, nil
 	case *_315.PlayerPosition:
-		return &PlayerPosition{Y: i.Y, Z: i.Z, OnGround: i.OnGround, X: i.X}, nil
+		return &PlayerPosition{X: i.X, Y: i.Y, Z: i.Z, OnGround: i.OnGround}, nil
 	case *_315.PlayerPositionLook:
-		return &PlayerPositionLook{Yaw: i.Yaw, Pitch: i.Pitch, OnGround: i.OnGround, X: i.X, Y: i.Y, Z: i.Z}, nil
+		return &PlayerPositionLook{Pitch: i.Pitch, OnGround: i.OnGround, X: i.X, Y: i.Y, Z: i.Z, Yaw: i.Yaw}, nil
 	case *_315.PlayerLook:
 		return &PlayerLook{Yaw: i.Yaw, Pitch: i.Pitch, OnGround: i.OnGround}, nil
 	case *_315.Player:
 		return &Player{OnGround: i.OnGround}, nil
 	case *_315.VehicleDrive:
-		return &VehicleDrive{Pitch: i.Pitch, X: i.X, Y: i.Y, Z: i.Z, Yaw: i.Yaw}, nil
+		return &VehicleDrive{Z: i.Z, Yaw: i.Yaw, Pitch: i.Pitch, X: i.X, Y: i.Y}, nil
 	case *_315.SteerBoat:
-		return &SteerBoat{Left: i.Left, Right: i.Right}, nil
+		return &SteerBoat{Right: i.Right, Left: i.Left}, nil
 	case *_315.ClientAbilities:
 		return &ClientAbilities{Flags: i.Flags, FlyingSpeed: i.FlyingSpeed, WalkingSpeed: i.WalkingSpeed}, nil
 	case *_315.PlayerDigging:
@@ -564,13 +564,13 @@ func Back_315(i interface{}) (lib.MetaPacket, error) {
 	case *_315.CreativeInventoryAction:
 		return &CreativeInventoryAction{Slot: i.Slot, ClickedItem: i.ClickedItem}, nil
 	case *_315.SetSign:
-		return &SetSign{Line2: i.Line2, Line3: i.Line3, Line4: i.Line4, Location: i.Location, Line1: i.Line1}, nil
+		return &SetSign{Line4: i.Line4, Location: i.Location, Line1: i.Line1, Line2: i.Line2, Line3: i.Line3}, nil
 	case *_315.ArmSwing:
 		return &ArmSwing{Hand: i.Hand}, nil
 	case *_315.SpectateTeleport:
 		return &SpectateTeleport{Target: i.Target}, nil
 	case *_315.PlayerBlockPlacement:
-		return &PlayerBlockPlacement{Hand: i.Hand, CursorX: i.CursorX, CursorY: i.CursorY, CursorZ: i.CursorZ, Location: i.Location, Face: i.Face}, nil
+		return &PlayerBlockPlacement{CursorY: float32(i.CursorY), CursorZ: float32(i.CursorZ), Location: i.Location, Face: i.Face, Hand: i.Hand, CursorX: float32(i.CursorX)}, nil
 	case *_315.UseItem:
 		return &UseItem{Hand: i.Hand}, nil
 	case *_315.StatusResponse:

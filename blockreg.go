@@ -3,6 +3,7 @@ package main
 func init() {
 	registerBlockType("default", &blockSimple{})
 	registerBlockType("stone", &blockStone{})
+	registerBlockType("sand", &blockSand{})
 	registerBlockType("grass", &blockGrass{})
 	registerBlockType("planks", &blockPlanks{})
 	registerBlockType("sapling", &blockSapling{})
@@ -11,6 +12,7 @@ func init() {
 	registerBlockType("leaves", &blockLeaves{})
 	registerBlockType("sponge", &blockSponge{})
 	registerBlockType("dispenser", &blockDispenser{})
+	registerBlockType("chest", &blockChest{})
 	registerBlockType("bed", &blockBed{})
 	registerBlockType("rail", &blockRail{})
 	registerBlockType("poweredRail", &blockPoweredRail{})

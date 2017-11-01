@@ -210,7 +210,7 @@ func NAV(x, y, z float64) (err error) {
 		pathLocs := map[string]info{}
 		if len(path) == 1 {
 			fmt.Println("Already at destination")
-			return errors.New("Already at destination " + xyz)
+			return alreadyAtDest
 		}
 		for _, p := range path {
 			pT := p.(*Tile)
@@ -230,6 +230,8 @@ func NAV(x, y, z float64) (err error) {
 	}
 	return nil
 }
+
+var alreadyAtDest = errors.New("Already at destination")
 
 const (
 	RadToDeg  = 180 / math.Pi
@@ -317,6 +319,11 @@ LOOP:
 
 		if propdx == 0 && propdz == 0 {
 			break LOOP
+		}
+
+		Client.checkGround()
+		if !Client.OnGround {
+			Client.Y = float64(int(Client.Y))
 		}
 
 		select {

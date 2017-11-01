@@ -111,6 +111,22 @@ func main() {
 			Cursor    *slot
 		}
 
+		go func() {
+			for {
+				msgType, msg, err := conn.ReadMessage()
+				if err != nil {
+					LS("ERROR:", err, msgType)
+					return
+				}
+				i, _ := strconv.Atoi(string(msg))
+				if i > 0 {
+					II.Swap(i, true)
+				} else {
+					II.dropCursor()
+				}
+			}
+		}()
+
 		for range time.Tick(250 * time.Millisecond) {
 			var INV = &inv{}
 			var Slots = make([]*slot, len(Client.playerInventory.Items))
@@ -520,6 +536,33 @@ func callback(data string) {
 	} else if data == "CURSOR" {
 		CS(Client.playerCursor)
 		return
+	} else if strings.HasPrefix(data, "USE") {
+		xyz := strings.TrimPrefix(data, "USE")
+		XYZ := strings.Split(xyz, ",")
+		var x float64
+		var y float64
+		var z float64
+		var err error
+		X := strings.TrimSpace(XYZ[0])
+		Y := strings.TrimSpace(XYZ[1])
+		Z := strings.TrimSpace(XYZ[2])
+		x, err = strconv.ParseFloat(X, 0)
+		if err != nil {
+			panic(err)
+		}
+		y, err = strconv.ParseFloat(Y, 0)
+		if err != nil {
+			panic(err)
+		}
+		z, err = strconv.ParseFloat(Z, 0)
+		if err != nil {
+			panic(err)
+		}
+
+		CS(Client.X, Client.Y, Client.Z)
+		CS(x, y, z)
+		Use(int(x), int(y), int(z))
+		return
 	}
 	XYZ := strings.Split(data, ",")
 	if len(XYZ) != 3 {
@@ -541,6 +584,6 @@ func callback(data string) {
 		panic(err)
 	}
 	b := chunkMap.Block(int(x), int(y), int(z))
-	CS(b.BlockSet().stringify(b), "@", int(x), int(y), int(z), ":", int(x)&0xF, int(z)&0xF)
+	CS(b.BlockSet().stringify(b), "@", int(x), int(y), int(z), "%", b.Name(), b.String(), b.SID(), b.BlockSet().ID)
 
 }

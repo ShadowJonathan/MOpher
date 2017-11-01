@@ -20,7 +20,7 @@ var Blocks = struct {
 	Water                      *BlockSet `type:"liquid"`
 	FlowingLava                *BlockSet `type:"liquid" lava:"true"`
 	Lava                       *BlockSet `type:"liquid" lava:"true"`
-	Sand                       *BlockSet `hardness:"0.5"`
+	Sand                       *BlockSet `hardness:"0.5" type:"sand"`
 	Gravel                     *BlockSet
 	GoldOre                    *BlockSet
 	IronOre                    *BlockSet
@@ -62,7 +62,7 @@ var Blocks = struct {
 	Fire                       *BlockSet `type:"fire"`
 	MobSpawner                 *BlockSet
 	OakStairs                  *BlockSet `type:"stairs"`
-	Chest                      *BlockSet
+	Chest                      *BlockSet `type:"chest"`
 	RedstoneWire               *BlockSet `type:"redstone"`
 	DiamondOre                 *BlockSet
 	DiamondBlock               *BlockSet
@@ -138,7 +138,7 @@ var Blocks = struct {
 	Cocoa                      *BlockSet
 	SandstoneStairs            *BlockSet `type:"stairs"`
 	EmeraldOre                 *BlockSet
-	EnderChest                 *BlockSet
+	EnderChest                 *BlockSet `type:"chest"`
 	TripwireHook               *BlockSet
 	Tripwire                   *BlockSet
 	EmeraldBlock               *BlockSet
@@ -154,7 +154,7 @@ var Blocks = struct {
 	WoodenButton               *BlockSet
 	Skull                      *BlockSet `type:"skull"`
 	Anvil                      *BlockSet
-	TrappedChest               *BlockSet
+	TrappedChest               *BlockSet `type:"chest"`
 	LightWeightedPressurePlate *BlockSet
 	HeavyWeightedPressurePlate *BlockSet
 	ComparatorUnpowered        *BlockSet

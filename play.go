@@ -3,6 +3,7 @@ package main
 import (
 	"./Protocol"
 	"./Protocol/lib"
+	"./type/direction"
 	"errors"
 	"fmt"
 	"runtime/debug"
@@ -33,7 +34,7 @@ func Dig(x, y, z int, ec chan error, cancel chan bool) bool {
 		return false
 	}
 	required := minpick[b.BlockSet().ID]
-	var iID int
+	var iID = II.emptySlot()
 	var found bool
 	if required != anything {
 		pi := Client.playerInventory
@@ -69,11 +70,7 @@ func Dig(x, y, z int, ec chan error, cancel chan bool) bool {
 		}
 	}
 
-	II.PickUp(iID, true)
-	if !II.Drop(36, true) {
-		II.Swap(36, true)
-		II.Drop(iID, true)
-	}
+	II.pickOrSwap(iID, 36)
 
 	if Client.playerInventory.Items[36] != nil {
 		LS("SELECTED", Client.playerInventory.Items[36].Type.Name())
@@ -93,6 +90,7 @@ func Dig(x, y, z int, ec chan error, cancel chan bool) bool {
 		}
 	}
 	err = dig(x, y, z, b.BlockSet().ID, cancel, required == anything)
+	II.penalty(200 * time.Millisecond)
 	if err != nil {
 		LS("ERR", err)
 		return false
@@ -151,7 +149,11 @@ func dig(x, y, z, ID int, cancel chan bool, anything bool) error {
 	}
 
 	var Time = Hardness[ID]*mod*20 + 1
-	fmt.Println("Time needed:", Time, Hardness[ID], mod, t, hold.Type.Name(), hold.rawID)
+	if hold != nil {
+		fmt.Println("Time needed:", Time, Hardness[ID], mod, t, hold.Type.Name(), hold.rawID)
+	} else {
+		fmt.Println("Time needed:", Time, Hardness[ID], mod, t)
+	}
 
 	Client.network.Write(&protocol.PlayerDigging{
 		Status:   0,
@@ -184,6 +186,70 @@ DIG:
 		Face:     byte(dir),
 	})
 	return nil
+}
+
+func Use(x, y, z int) bool {
+	defer func() {
+		err := recover()
+		if err != nil {
+			fmt.Println("RECOVERED", err, "\n"+string(debug.Stack()))
+			LS("RECOVERED", err, "\n"+string(debug.Stack()))
+		}
+	}()
+
+	LS("STARTING USING AT", x, y, z)
+
+	err, _, fx, fy, fz := NAVtoNearest(float64(x), float64(y), float64(z))
+	if err != nil {
+		LS("ERR", err)
+		return false
+	} else {
+		err = NAV(fx, fy, fz)
+		if err != nil && err != alreadyAtDest {
+			LS("ERR", err)
+			return false
+		}
+	}
+
+	NewY, NewP := Client.lookat(float64(x)+0.5, float64(y)+0.5, float64(z)+0.5)
+
+	Client.network.Write(&protocol.PlayerPositionLook{
+		X:        Client.X,
+		Y:        Client.Y,
+		Z:        Client.Z,
+		Yaw:      float32(NewY),
+		Pitch:    float32(NewP),
+		OnGround: Client.OnGround,
+	})
+
+	Client.Yaw = -NewY * DegToRad
+	Client.Pitch = Refpitch(float32(NewP))
+	<-T.C
+
+	pos, b, face, cur := Client.targetBlock()
+	if b.Is(Blocks.Air) {
+		return false
+	}
+	Client.network.Write(&protocol.ArmSwing{})
+	Client.network.Write(&protocol.PlayerBlockPlacement{
+		Location: lib.NewPosition(pos.X, pos.Y, pos.Z),
+		Face:     lib.VarInt(directionToProtocol(face)),
+		CursorX:  cur.X() * 16,
+		CursorY:  cur.Y() * 16,
+		CursorZ:  cur.Z() * 16,
+	})
+	return true
+}
+
+func directionToProtocol(d direction.Type) byte {
+	switch d {
+	case direction.Up:
+		return 1
+	case direction.Down:
+		return 0
+	default:
+		return byte(d)
+	}
 }
 
 var notool = errors.New("I dont have a tool to break this")
@@ -246,6 +312,6 @@ var (
 	NOTMINABLE  = errors.New("Defined block is not minable")
 )
 
-func pickBestFromInventory() {
+func pickBestFromInventory(f int) {
 
 }

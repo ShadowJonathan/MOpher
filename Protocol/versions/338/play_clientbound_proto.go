@@ -104,7 +104,7 @@ func (s *SpawnObject) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	s.Type = byte(tmp[0]) << 0
+	s.Type = (byte(tmp[0]) << 0)
 	var tmp0 uint64
 	if _, err = rr.Read(tmp[:8]); err != nil {
 		return
@@ -126,11 +126,11 @@ func (s *SpawnObject) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	s.Pitch = int8(uint8(tmp[0]) << 0)
+	s.Pitch = int8((uint8(tmp[0]) << 0))
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	s.Yaw = int8(uint8(tmp[0]) << 0)
+	s.Yaw = int8((uint8(tmp[0]) << 0))
 	if _, err = rr.Read(tmp[:4]); err != nil {
 		return
 	}
@@ -273,7 +273,7 @@ func (s *SpawnGlobalEntity) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	s.Type = byte(tmp[0]) << 0
+	s.Type = (byte(tmp[0]) << 0)
 	if _, err = rr.Read(tmp[:8]); err != nil {
 		return
 	}
@@ -378,7 +378,7 @@ func (s *SpawnMob) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	s.Type = byte(tmp[0]) << 0
+	s.Type = (byte(tmp[0]) << 0)
 	if _, err = rr.Read(tmp[:8]); err != nil {
 		return
 	}
@@ -394,15 +394,15 @@ func (s *SpawnMob) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	s.Yaw = int8(uint8(tmp[0]) << 0)
+	s.Yaw = int8((uint8(tmp[0]) << 0))
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	s.Pitch = int8(uint8(tmp[0]) << 0)
+	s.Pitch = int8((uint8(tmp[0]) << 0))
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	s.HeadPitch = int8(uint8(tmp[0]) << 0)
+	s.HeadPitch = int8((uint8(tmp[0]) << 0))
 	if _, err = rr.Read(tmp[:2]); err != nil {
 		return
 	}
@@ -468,7 +468,7 @@ func (s *SpawnPainting) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	s.Direction = byte(tmp[0]) << 0
+	s.Direction = (byte(tmp[0]) << 0)
 	return
 }
 
@@ -559,11 +559,11 @@ func (s *SpawnPlayer) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	s.Yaw = int8(uint8(tmp[0]) << 0)
+	s.Yaw = int8((uint8(tmp[0]) << 0))
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	s.Pitch = int8(uint8(tmp[0]) << 0)
+	s.Pitch = int8((uint8(tmp[0]) << 0))
 	if s.Metadata, err = lib.ReadMetadata(rr); err != nil {
 		return
 	}
@@ -590,7 +590,7 @@ func (a *Animation) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	a.AnimationID = byte(tmp[0]) << 0
+	a.AnimationID = (byte(tmp[0]) << 0)
 	return
 }
 
@@ -667,7 +667,7 @@ func (b *BlockBreakAnimation) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	b.Stage = int8(uint8(tmp[0]) << 0)
+	b.Stage = int8((uint8(tmp[0]) << 0))
 	return
 }
 
@@ -703,7 +703,7 @@ func (u *UpdateBlockEntity) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	u.Action = byte(tmp[0]) << 0
+	u.Action = (byte(tmp[0]) << 0)
 	if u.NBT, err = lib.ReadNBT(rr); err != nil {
 		return
 	}
@@ -746,11 +746,11 @@ func (b *BlockAction) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	b.Byte1 = byte(tmp[0]) << 0
+	b.Byte1 = (byte(tmp[0]) << 0)
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	b.Byte2 = byte(tmp[0]) << 0
+	b.Byte2 = (byte(tmp[0]) << 0)
 	if b.BlockType, err = lib.ReadVarInt(rr); err != nil {
 		return
 	}
@@ -870,7 +870,7 @@ func (b *BossBar) Read(rr io.Reader) (err error) {
 		if _, err = rr.Read(tmp[:1]); err != nil {
 			return
 		}
-		b.Flags = byte(tmp[0]) << 0
+		b.Flags = (byte(tmp[0]) << 0)
 	}
 	return
 }
@@ -889,7 +889,7 @@ func (s *ServerDifficulty) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	s.Difficulty = byte(tmp[0]) << 0
+	s.Difficulty = (byte(tmp[0]) << 0)
 	return
 }
 
@@ -960,7 +960,7 @@ func (s *ServerMessage) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	s.Type = byte(tmp[0]) << 0
+	s.Type = (byte(tmp[0]) << 0)
 	return
 }
 
@@ -1024,11 +1024,11 @@ func (m *MultiBlockChange) Read(rr io.Reader) (err error) {
 		if _, err = rr.Read(tmp[:1]); err != nil {
 			return
 		}
-		m.Records[tmp1].XZ = byte(tmp[0]) << 0
+		m.Records[tmp1].XZ = (byte(tmp[0]) << 0)
 		if _, err = rr.Read(tmp[:1]); err != nil {
 			return
 		}
-		m.Records[tmp1].Y = byte(tmp[0]) << 0
+		m.Records[tmp1].Y = (byte(tmp[0]) << 0)
 		if m.Records[tmp1].BlockID, err = lib.ReadVarInt(rr); err != nil {
 			return
 		}
@@ -1058,7 +1058,7 @@ func (c *ConfirmTransaction) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	c.ID = byte(tmp[0]) << 0
+	c.ID = (byte(tmp[0]) << 0)
 	if _, err = rr.Read(tmp[:2]); err != nil {
 		return
 	}
@@ -1083,7 +1083,7 @@ func (w *WindowClose) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	w.ID = byte(tmp[0]) << 0
+	w.ID = (byte(tmp[0]) << 0)
 	return
 }
 
@@ -1125,7 +1125,7 @@ func (w *WindowOpen) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	w.ID = byte(tmp[0]) << 0
+	w.ID = (byte(tmp[0]) << 0)
 	if w.Type, err = lib.ReadString(rr); err != nil {
 		return
 	}
@@ -1139,7 +1139,7 @@ func (w *WindowOpen) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	w.SlotCount = byte(tmp[0]) << 0
+	w.SlotCount = (byte(tmp[0]) << 0)
 	if w.Type == "EntityHorse" {
 		if _, err = rr.Read(tmp[:4]); err != nil {
 			return
@@ -1173,7 +1173,7 @@ func (w *WindowItems) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	w.ID = byte(tmp[0]) << 0
+	w.ID = (byte(tmp[0]) << 0)
 	var tmp0 int16
 	if _, err = rr.Read(tmp[:2]); err != nil {
 		return
@@ -1218,7 +1218,7 @@ func (w *WindowProperty) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	w.ID = byte(tmp[0]) << 0
+	w.ID = (byte(tmp[0]) << 0)
 	if _, err = rr.Read(tmp[:2]); err != nil {
 		return
 	}
@@ -1252,7 +1252,7 @@ func (w *WindowSetSlot) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	w.ID = byte(tmp[0]) << 0
+	w.ID = (byte(tmp[0]) << 0)
 	if _, err = rr.Read(tmp[:2]); err != nil {
 		return
 	}
@@ -1434,7 +1434,7 @@ func (e *EntityAction) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	e.ActionID = byte(tmp[0]) << 0
+	e.ActionID = (byte(tmp[0]) << 0)
 	return
 }
 
@@ -1562,15 +1562,15 @@ func (e *Explosion) Read(rr io.Reader) (err error) {
 		if _, err = rr.Read(tmp[:1]); err != nil {
 			return
 		}
-		e.Records[tmp5].X = int8(uint8(tmp[0]) << 0)
+		e.Records[tmp5].X = int8((uint8(tmp[0]) << 0))
 		if _, err = rr.Read(tmp[:1]); err != nil {
 			return
 		}
-		e.Records[tmp5].Y = int8(uint8(tmp[0]) << 0)
+		e.Records[tmp5].Y = int8((uint8(tmp[0]) << 0))
 		if _, err = rr.Read(tmp[:1]); err != nil {
 			return
 		}
-		e.Records[tmp5].Z = int8(uint8(tmp[0]) << 0)
+		e.Records[tmp5].Z = int8((uint8(tmp[0]) << 0))
 	}
 	var tmp6 uint32
 	if _, err = rr.Read(tmp[:4]); err != nil {
@@ -1647,7 +1647,7 @@ func (c *ChangeGameState) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	c.Reason = byte(tmp[0]) << 0
+	c.Reason = (byte(tmp[0]) << 0)
 	var tmp0 uint32
 	if _, err = rr.Read(tmp[:4]); err != nil {
 		return
@@ -2009,7 +2009,7 @@ func (j *JoinGame) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	j.Gamemode = byte(tmp[0]) << 0
+	j.Gamemode = (byte(tmp[0]) << 0)
 	if _, err = rr.Read(tmp[:4]); err != nil {
 		return
 	}
@@ -2017,11 +2017,11 @@ func (j *JoinGame) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	j.Difficulty = byte(tmp[0]) << 0
+	j.Difficulty = (byte(tmp[0]) << 0)
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	j.MaxPlayers = byte(tmp[0]) << 0
+	j.MaxPlayers = (byte(tmp[0]) << 0)
 	if j.LevelType, err = lib.ReadString(rr); err != nil {
 		return
 	}
@@ -2095,7 +2095,7 @@ func (m *Maps) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	m.Scale = int8(uint8(tmp[0]) << 0)
+	m.Scale = int8((uint8(tmp[0]) << 0))
 	if m.TrackingPosition, err = lib.ReadBool(rr); err != nil {
 		return
 	}
@@ -2114,33 +2114,33 @@ func (m *Maps) Read(rr io.Reader) (err error) {
 		if _, err = rr.Read(tmp[:1]); err != nil {
 			return
 		}
-		m.Icons[tmp1].DirectionType = int8(uint8(tmp[0]) << 0)
+		m.Icons[tmp1].DirectionType = int8((uint8(tmp[0]) << 0))
 		if _, err = rr.Read(tmp[:1]); err != nil {
 			return
 		}
-		m.Icons[tmp1].X = int8(uint8(tmp[0]) << 0)
+		m.Icons[tmp1].X = int8((uint8(tmp[0]) << 0))
 		if _, err = rr.Read(tmp[:1]); err != nil {
 			return
 		}
-		m.Icons[tmp1].Z = int8(uint8(tmp[0]) << 0)
+		m.Icons[tmp1].Z = int8((uint8(tmp[0]) << 0))
 	}
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	m.Columns = byte(tmp[0]) << 0
+	m.Columns = (byte(tmp[0]) << 0)
 	if m.Columns > 0 {
 		if _, err = rr.Read(tmp[:1]); err != nil {
 			return
 		}
-		m.Rows = byte(tmp[0]) << 0
+		m.Rows = (byte(tmp[0]) << 0)
 		if _, err = rr.Read(tmp[:1]); err != nil {
 			return
 		}
-		m.X = byte(tmp[0]) << 0
+		m.X = (byte(tmp[0]) << 0)
 		if _, err = rr.Read(tmp[:1]); err != nil {
 			return
 		}
-		m.Z = byte(tmp[0]) << 0
+		m.Z = (byte(tmp[0]) << 0)
 		var tmp2 lib.VarInt
 		if tmp2, err = lib.ReadVarInt(rr); err != nil {
 			return
@@ -2276,11 +2276,11 @@ func (e *EntityLookAndMove) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	e.Yaw = int8(uint8(tmp[0]) << 0)
+	e.Yaw = int8((uint8(tmp[0]) << 0))
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	e.Pitch = int8(uint8(tmp[0]) << 0)
+	e.Pitch = int8((uint8(tmp[0]) << 0))
 	if e.OnGround, err = lib.ReadBool(rr); err != nil {
 		return
 	}
@@ -2314,11 +2314,11 @@ func (e *EntityLook) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	e.Yaw = int8(uint8(tmp[0]) << 0)
+	e.Yaw = int8((uint8(tmp[0]) << 0))
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	e.Pitch = int8(uint8(tmp[0]) << 0)
+	e.Pitch = int8((uint8(tmp[0]) << 0))
 	if e.OnGround, err = lib.ReadBool(rr); err != nil {
 		return
 	}
@@ -2450,7 +2450,7 @@ func (c *CraftReceipeResponse) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	c.WindowID = byte(tmp[0]) << 0
+	c.WindowID = (byte(tmp[0]) << 0)
 	if c.Receipe, err = lib.ReadVarInt(rr); err != nil {
 		return
 	}
@@ -2487,7 +2487,7 @@ func (p *PlayerAbilities) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	p.Flags = byte(tmp[0]) << 0
+	p.Flags = (byte(tmp[0]) << 0)
 	var tmp0 uint32
 	if _, err = rr.Read(tmp[:4]); err != nil {
 		return
@@ -2815,7 +2815,7 @@ func (t *TeleportPlayer) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	t.Flags = byte(tmp[0]) << 0
+	t.Flags = (byte(tmp[0]) << 0)
 	if t.TPID, err = lib.ReadVarInt(rr); err != nil {
 		return
 	}
@@ -2983,7 +2983,7 @@ func (e *EntityRemoveEffect) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	e.EffectID = int8(uint8(tmp[0]) << 0)
+	e.EffectID = int8((uint8(tmp[0]) << 0))
 	return
 }
 
@@ -3039,11 +3039,11 @@ func (r *Respawn) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	r.Difficulty = byte(tmp[0]) << 0
+	r.Difficulty = (byte(tmp[0]) << 0)
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	r.Gamemode = byte(tmp[0]) << 0
+	r.Gamemode = (byte(tmp[0]) << 0)
 	if r.LevelType, err = lib.ReadString(rr); err != nil {
 		return
 	}
@@ -3070,7 +3070,7 @@ func (e *EntityHeadLook) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	e.HeadYaw = int8(uint8(tmp[0]) << 0)
+	e.HeadYaw = int8((uint8(tmp[0]) << 0))
 	return
 }
 
@@ -3266,7 +3266,7 @@ func (s *SetCurrentHotbarSlot) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	s.Slot = byte(tmp[0]) << 0
+	s.Slot = (byte(tmp[0]) << 0)
 	return
 }
 
@@ -3287,7 +3287,7 @@ func (s *ScoreboardDisplay) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	s.Position = byte(tmp[0]) << 0
+	s.Position = (byte(tmp[0]) << 0)
 	if s.Name, err = lib.ReadString(rr); err != nil {
 		return
 	}
@@ -3529,7 +3529,7 @@ func (s *ScoreboardObjective) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	s.Mode = byte(tmp[0]) << 0
+	s.Mode = (byte(tmp[0]) << 0)
 	if s.Mode == 0 || s.Mode == 2 {
 		if s.Value, err = lib.ReadString(rr); err != nil {
 			return
@@ -3634,7 +3634,7 @@ func (t *Teams) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	t.Mode = byte(tmp[0]) << 0
+	t.Mode = (byte(tmp[0]) << 0)
 	if t.Mode == 0 || t.Mode == 2 {
 		if t.DisplayName, err = lib.ReadString(rr); err != nil {
 			return
@@ -3648,7 +3648,7 @@ func (t *Teams) Read(rr io.Reader) (err error) {
 		if _, err = rr.Read(tmp[:1]); err != nil {
 			return
 		}
-		t.Flags = byte(tmp[0]) << 0
+		t.Flags = (byte(tmp[0]) << 0)
 		if t.NameTagVisibility, err = lib.ReadString(rr); err != nil {
 			return
 		}
@@ -3658,7 +3658,7 @@ func (t *Teams) Read(rr io.Reader) (err error) {
 		if _, err = rr.Read(tmp[:1]); err != nil {
 			return
 		}
-		t.Color = byte(tmp[0]) << 0
+		t.Color = (byte(tmp[0]) << 0)
 	}
 	if t.Mode == 0 || t.Mode == 3 || t.Mode == 4 {
 		var tmp0 lib.VarInt
@@ -3709,7 +3709,7 @@ func (u *UpdateScore) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	u.Action = byte(tmp[0]) << 0
+	u.Action = (byte(tmp[0]) << 0)
 	if u.ObjectName, err = lib.ReadString(rr); err != nil {
 		return
 	}
@@ -4105,11 +4105,11 @@ func (e *EntityTeleport) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	e.Yaw = int8(uint8(tmp[0]) << 0)
+	e.Yaw = int8((uint8(tmp[0]) << 0))
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	e.Pitch = int8(uint8(tmp[0]) << 0)
+	e.Pitch = int8((uint8(tmp[0]) << 0))
 	if e.OnGround, err = lib.ReadBool(rr); err != nil {
 		return
 	}
@@ -4543,7 +4543,7 @@ func (e *EntityProperties) Read(rr io.Reader) (err error) {
 			if _, err = rr.Read(tmp[:1]); err != nil {
 				return
 			}
-			e.Properties[tmp1].Modifiers[tmp4].Operation = int8(uint8(tmp[0]) << 0)
+			e.Properties[tmp1].Modifiers[tmp4].Operation = int8((uint8(tmp[0]) << 0))
 		}
 	}
 	return
@@ -4579,11 +4579,11 @@ func (e *EntityEffect) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	e.EffectID = int8(uint8(tmp[0]) << 0)
+	e.EffectID = int8((uint8(tmp[0]) << 0))
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	e.Amplifier = int8(uint8(tmp[0]) << 0)
+	e.Amplifier = int8((uint8(tmp[0]) << 0))
 	if e.Duration, err = lib.ReadVarInt(rr); err != nil {
 		return
 	}

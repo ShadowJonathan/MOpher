@@ -167,7 +167,7 @@ func (handler) TimeUpdate(p *protocol.TimeUpdate) {
 
 func (handler) Confirm(c *protocol.ConfirmTransaction) {
 	if !c.Accepted {
-		fmt.Println("CONFLICT")
+		LS(c.ActionNumber, "CONFLICT")
 		Client.network.Write(&protocol.ConfirmTransactionServerbound{
 			ID:           c.ID,
 			ActionNumber: c.ActionNumber,

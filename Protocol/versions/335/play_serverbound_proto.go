@@ -80,7 +80,7 @@ func (p *PrepareCraftingGrid) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	p.WindowID = byte(tmp[0]) << 0
+	p.WindowID = (byte(tmp[0]) << 0)
 	if _, err = rr.Read(tmp[:2]); err != nil {
 		return
 	}
@@ -104,11 +104,11 @@ func (p *PrepareCraftingGrid) Read(rr io.Reader) (err error) {
 		if _, err = rr.Read(tmp[:1]); err != nil {
 			return
 		}
-		p.ReturnEntries[tmp1].CSlot = byte(tmp[0]) << 0
+		p.ReturnEntries[tmp1].CSlot = (byte(tmp[0]) << 0)
 		if _, err = rr.Read(tmp[:1]); err != nil {
 			return
 		}
-		p.ReturnEntries[tmp1].PSlot = byte(tmp[0]) << 0
+		p.ReturnEntries[tmp1].PSlot = (byte(tmp[0]) << 0)
 	}
 	var tmp2 int16
 	if _, err = rr.Read(tmp[:2]); err != nil {
@@ -129,11 +129,11 @@ func (p *PrepareCraftingGrid) Read(rr io.Reader) (err error) {
 		if _, err = rr.Read(tmp[:1]); err != nil {
 			return
 		}
-		p.PreparedEntries[tmp3].CSlot = byte(tmp[0]) << 0
+		p.PreparedEntries[tmp3].CSlot = (byte(tmp[0]) << 0)
 		if _, err = rr.Read(tmp[:1]); err != nil {
 			return
 		}
-		p.PreparedEntries[tmp3].PSlot = byte(tmp[0]) << 0
+		p.PreparedEntries[tmp3].PSlot = (byte(tmp[0]) << 0)
 	}
 	return
 }
@@ -241,18 +241,18 @@ func (c *ClientSettings) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	c.ViewDistance = byte(tmp[0]) << 0
+	c.ViewDistance = (byte(tmp[0]) << 0)
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	c.ChatMode = byte(tmp[0]) << 0
+	c.ChatMode = (byte(tmp[0]) << 0)
 	if c.ChatColors, err = lib.ReadBool(rr); err != nil {
 		return
 	}
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	c.DisplayedSkinParts = byte(tmp[0]) << 0
+	c.DisplayedSkinParts = (byte(tmp[0]) << 0)
 	if c.MainHand, err = lib.ReadVarInt(rr); err != nil {
 		return
 	}
@@ -281,7 +281,7 @@ func (c *ConfirmTransactionServerbound) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	c.ID = byte(tmp[0]) << 0
+	c.ID = (byte(tmp[0]) << 0)
 	if _, err = rr.Read(tmp[:2]); err != nil {
 		return
 	}
@@ -310,11 +310,11 @@ func (e *EnchantItem) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	e.ID = byte(tmp[0]) << 0
+	e.ID = (byte(tmp[0]) << 0)
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	e.Enchantment = byte(tmp[0]) << 0
+	e.Enchantment = (byte(tmp[0]) << 0)
 	return
 }
 
@@ -353,7 +353,7 @@ func (c *ClickWindow) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	c.ID = byte(tmp[0]) << 0
+	c.ID = (byte(tmp[0]) << 0)
 	if _, err = rr.Read(tmp[:2]); err != nil {
 		return
 	}
@@ -361,7 +361,7 @@ func (c *ClickWindow) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	c.Button = byte(tmp[0]) << 0
+	c.Button = (byte(tmp[0]) << 0)
 	if _, err = rr.Read(tmp[:2]); err != nil {
 		return
 	}
@@ -369,7 +369,7 @@ func (c *ClickWindow) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	c.Mode = byte(tmp[0]) << 0
+	c.Mode = (byte(tmp[0]) << 0)
 	if err = c.ClickedItem.Deserialize(rr); err != nil {
 		return
 	}
@@ -390,7 +390,7 @@ func (c *CloseWindow) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	c.ID = byte(tmp[0]) << 0
+	c.ID = (byte(tmp[0]) << 0)
 	return
 }
 
@@ -865,7 +865,7 @@ func (c *ClientAbilities) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	c.Flags = byte(tmp[0]) << 0
+	c.Flags = (byte(tmp[0]) << 0)
 	var tmp0 uint32
 	if _, err = rr.Read(tmp[:4]); err != nil {
 		return
@@ -910,7 +910,7 @@ func (p *PlayerDigging) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	p.Status = byte(tmp[0]) << 0
+	p.Status = (byte(tmp[0]) << 0)
 	if _, err = rr.Read(tmp[:8]); err != nil {
 		return
 	}
@@ -918,7 +918,7 @@ func (p *PlayerDigging) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	p.Face = byte(tmp[0]) << 0
+	p.Face = (byte(tmp[0]) << 0)
 	return
 }
 
@@ -990,7 +990,7 @@ func (s *SteerVehicle) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	s.Flags = byte(tmp[0]) << 0
+	s.Flags = (byte(tmp[0]) << 0)
 	return
 }
 
@@ -1025,7 +1025,7 @@ func (c *CraftingBookData) Read(rr io.Reader) (err error) {
 		if _, err = rr.Read(tmp[:1]); err != nil {
 			return
 		}
-		c.DisplayedReceipe = int8(uint8(tmp[0]) << 0)
+		c.DisplayedReceipe = int8((uint8(tmp[0]) << 0))
 	}
 	if c.Type == 1 {
 		if c.CraftingBookOpen, err = lib.ReadBool(rr); err != nil {
@@ -1246,15 +1246,15 @@ func (p *PlayerBlockPlacement) Read(rr io.Reader) (err error) {
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	p.CursorX = byte(tmp[0]) << 0
+	p.CursorX = (byte(tmp[0]) << 0)
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	p.CursorY = byte(tmp[0]) << 0
+	p.CursorY = (byte(tmp[0]) << 0)
 	if _, err = rr.Read(tmp[:1]); err != nil {
 		return
 	}
-	p.CursorZ = byte(tmp[0]) << 0
+	p.CursorZ = (byte(tmp[0]) << 0)
 	return
 }
 
