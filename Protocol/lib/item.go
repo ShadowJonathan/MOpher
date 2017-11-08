@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 	"io"
 
-	"../../encoding/nbt"
+	"github.com/ShadowJonathan/mopher/encoding/nbt"
 )
 
 // ItemStack is a stack of items of a single type that can be serilized

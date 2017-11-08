@@ -4,7 +4,7 @@
 package _335
 
 import (
-	"../../lib"
+	"github.com/ShadowJonathan/mopher/Protocol/lib"
 	"fmt"
 	"io"
 	"io/ioutil"

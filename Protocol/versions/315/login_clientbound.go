@@ -3,8 +3,8 @@
 package _315
 
 import (
-	"../../../format"
-	"../../lib"
+	"github.com/ShadowJonathan/mopher/format"
+	"github.com/ShadowJonathan/mopher/Protocol/lib"
 )
 
 // LoginDisconnect is sent by the server if there was any issues

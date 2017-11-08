@@ -2,7 +2,7 @@
 
 package _315
 
-import "../../lib"
+import "github.com/ShadowJonathan/mopher/Protocol/lib"
 
 // StatusResponse is sent as a reply to a StatusRequest.
 // The Status should contain a json encoded structure with

@@ -3,9 +3,9 @@
 package protocol
 
 import (
-	"../encoding/nbt"
-	"../format"
-	"github.com/ShadowJonathan/mopher/lib"
+	"github.com/ShadowJonathan/mopher/encoding/nbt"
+	"github.com/ShadowJonathan/mopher/format"
+	"github.com/ShadowJonathan/mopher/Protocol/lib"
 )
 
 // SpawnObject is used to spawn an object or vehicle into the world when it

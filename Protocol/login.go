@@ -7,8 +7,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/ShadowJonathan/mopher/lib"
-	"github.com/ShadowJonathan/mopher/mojang"
+	"github.com/ShadowJonathan/mopher/Protocol/lib"
+	"github.com/ShadowJonathan/mopher/Protocol/mojang"
 )
 
 // BUG(Think) LoginToServer doesn't support offline mode. Call it a feature?

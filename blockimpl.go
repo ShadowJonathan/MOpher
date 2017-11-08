@@ -20,6 +20,7 @@ import (
 	"reflect"
 
 	"github.com/ShadowJonathan/mopher/type/vmath"
+	"github.com/ShadowJonathan/mopher/type/direction"
 )
 
 // Stone

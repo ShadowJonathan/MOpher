@@ -3,7 +3,7 @@
 package protocol
 
 import (
-	"github.com/ShadowJonathan/mopher/lib"
+	"github.com/ShadowJonathan/mopher/Protocol/lib"
 )
 
 // StatusResponse is sent as a reply to a StatusRequest.

@@ -12,10 +12,6 @@ import (
 	"time"
 )
 
-func init() {
-	SP.init()
-}
-
 var globalX int
 var globalY int
 var globalZ int
@@ -757,7 +753,7 @@ func CheckWalkable(x, y, z float64, TolerateNoBlockToWalkOn bool) error {
 			ChunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.RedstoneTorch ||
 			ChunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.TallGrass ||
 			ChunkMap.Block(int(x), int(y), int(z)).BlockSet().ID == Blocks.SnowLayer.ID {
-			if ASP.solidwhole(ChunkMap.Block(int(x), int(y-1), int(z)).BlockSet()) || TolerateNoBlockToWalkOn {
+			if solidwhole(ChunkMap.Block(int(x), int(y-1), int(z)).BlockSet()) || TolerateNoBlockToWalkOn {
 				return nil
 			} else {
 				return CHECK_ERR_BELOW_NON_SOLID
@@ -777,25 +773,7 @@ var CHECK_ERR_ABOVE_NON_AIR = errors.New("Block above defined block is not air, 
 var CHECK_ERR_DEFINED_NON_AIR = errors.New("Defined block is not air, must be air.")
 var CHECK_ERR_BELOW_NON_SOLID = errors.New("Block under defined block is not solid, must be solid.")
 
-// check from relative x and y
-func Nearestsnappoint(x, y float64) Snappoint {
-	var w int
-	if x >= 0 && x < 0.33 {
-		w += 1
-	} else if x > 0.33 && x <= 0.66 {
-		w += 2
-	} else if x > 0.66 && x <= 1 {
-		w += 3
-	}
-	if y > 0.33 && y <= 0.66 {
-		w += 3
-	} else if y > 0.66 && y <= 1 {
-		w += 6
-	}
-	return Snappoint(w)
-}
-
-func (a AnvalibleSnapPoints) solidwhole(set *BlockSet) bool {
+func solidwhole(set *BlockSet) bool {
 	return set == Blocks.Wool ||
 		set == Blocks.TNT ||
 		set == Blocks.StoneBrick ||
@@ -879,6 +857,26 @@ func (a AnvalibleSnapPoints) solidwhole(set *BlockSet) bool {
 		set == Blocks.Grass
 }
 
+/*
+
+// check from relative x and y
+func Nearestsnappoint(x, y float64) Snappoint {
+	var w int
+	if x >= 0 && x < 0.33 {
+		w += 1
+	} else if x > 0.33 && x <= 0.66 {
+		w += 2
+	} else if x > 0.66 && x <= 1 {
+		w += 3
+	}
+	if y > 0.33 && y <= 0.66 {
+		w += 3
+	} else if y > 0.66 && y <= 1 {
+		w += 6
+	}
+	return Snappoint(w)
+}
+
 type AnvalibleSnapPoints struct{}
 
 var ASP AnvalibleSnapPoints
@@ -952,7 +950,7 @@ func (a AnvalibleSnapPoints) Check(x, y, z int) []Snappoint {
 // this
 func (a AnvalibleSnapPoints) checkdoor(b *BlockSet, bl *BlockLake) []Snappoint {
 	return []Snappoint{}
-}
+}*/
 
 func whole(f float64) bool {
 	return f == float64(int64(f))
@@ -1215,7 +1213,7 @@ const (
 	Bottom
 	BottomRight
 )
-
+/*
 type Validsnappoints map[Snappoint]spexyz
 
 var SP Validsnappoints
@@ -1270,7 +1268,7 @@ func (v Validsnappoints) init() {
 			Z: 1,
 		},
 	}
-}
+}*/
 
 type xyz struct {
 	X int

@@ -655,7 +655,6 @@ func (n *NetworkManager) Connect(profile mojang.Profile, server string) {
 				return
 			}
 			if first {
-				lua_onload()
 				go n.writeHandler()
 				first = false
 			}

@@ -4,7 +4,7 @@
 package _338
 
 import (
-	"../../lib"
+	"github.com/ShadowJonathan/mopher/Protocol/lib"
 	"io"
 	"io/ioutil"
 	"math"

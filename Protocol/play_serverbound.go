@@ -3,7 +3,7 @@
 package protocol
 
 import (
-	"github.com/ShadowJonathan/mopher/lib"
+	"github.com/ShadowJonathan/mopher/Protocol/lib"
 )
 
 // TeleConfirm

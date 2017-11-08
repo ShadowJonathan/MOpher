@@ -7,8 +7,8 @@ import (
 	"io"
 	"strconv"
 
-	"../../encoding/nbt"
-	"../../format"
+	"github.com/ShadowJonathan/mopher/encoding/nbt"
+	"github.com/ShadowJonathan/mopher/format"
 )
 
 // Metadata is a simple index -> value map used in the Minecraft protocol.
