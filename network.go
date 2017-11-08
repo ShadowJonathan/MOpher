@@ -1,4 +1,4 @@
-package main
+package MO
 
 import (
 	"./Protocol"
@@ -85,7 +85,7 @@ func (handler) ServerMessage(msg *protocol.ServerMessage) {
 			if text[4:] == "me" {
 				uuid, ok := nametouuid[author]
 				if !ok {
-					chat("/msg " + author + " I cannot find your position!")
+					Chat("/msg " + author + " I cannot find your position!")
 					return
 				}
 				var found bool
@@ -101,7 +101,7 @@ func (handler) ServerMessage(msg *protocol.ServerMessage) {
 					}
 				}
 				if !found {
-					chat("/msg " + author + " I cannot find your position!")
+					Chat("/msg " + author + " I cannot find your position!")
 					return
 				}
 			} else {
@@ -127,7 +127,7 @@ func (handler) ServerMessage(msg *protocol.ServerMessage) {
 			fmt.Println(x, y, z)
 			err = NAV(x, y, z)
 			if err != nil {
-				chat("/msg " + author + " " + err.Error())
+				Chat("/msg " + author + " " + err.Error())
 				fmt.Println(x, y, z)
 			}
 		}
@@ -201,7 +201,7 @@ func (handler) ChangeGameState(c *protocol.ChangeGameState) {
 }
 
 func (handler) ChangeHotbarSlot(s *protocol.SetCurrentHotbarSlot) {
-	Client.currentHotbarSlot = int(s.Slot)
+	Client.CurrentHotbarSlot = int(s.Slot)
 }
 
 func (handler) Teleport(t *protocol.TeleportPlayer) {
@@ -225,7 +225,6 @@ func (handler) Teleport(t *protocol.TeleportPlayer) {
 	})
 	ready = true
 	Client.entity.SetPosition(Client.X, Client.Y, Client.Z)
-	TPSpam <- true
 }
 
 func RawPitch(ref float64) float32 {
@@ -257,10 +256,10 @@ func (handler) ChunkData(c *protocol.ChunkData) {
 func (handler) ChunkUnload(p *protocol.ChunkUnload) {
 	pos := chunkPosition{int(p.X), int(p.Z)}
 	chunkSync.Lock()
-	c, ok := chunkMap[pos]
+	c, ok := ChunkMap[pos]
 	if ok {
 		c.free()
-		delete(chunkMap, pos)
+		delete(ChunkMap, pos)
 	}
 	chunkSync.Unlock()
 }
@@ -277,8 +276,8 @@ func (handler) SetBlock(b *protocol.BlockChange) {
 	}
 
 	block := GetBlockByCombinedID(uint16(b.BlockID))
-	chunkMap.SetBlock(block, b.Location.X(), b.Location.Y(), b.Location.Z())
-	chunkMap.UpdateBlock(b.Location.X(), b.Location.Y(), b.Location.Z())
+	ChunkMap.SetBlock(block, b.Location.X(), b.Location.Y(), b.Location.Z())
+	ChunkMap.UpdateBlock(b.Location.X(), b.Location.Y(), b.Location.Z())
 }
 
 func (handler) SetBlockBatch(b *protocol.MultiBlockChange) {
@@ -289,7 +288,7 @@ func (handler) SetBlockBatch(b *protocol.MultiBlockChange) {
 	}
 
 	chunkSync.Lock()
-	chunk := chunkMap[cp]
+	chunk := ChunkMap[cp]
 	chunkSync.Unlock()
 	if chunk == nil {
 		return
@@ -298,7 +297,7 @@ func (handler) SetBlockBatch(b *protocol.MultiBlockChange) {
 		block := GetBlockByCombinedID(uint16(r.BlockID))
 		x, y, z := int(r.XZ>>4), int(r.Y), int(r.XZ&0xF)
 		chunk.setBlock(block, x, y, z)
-		chunkMap.UpdateBlock((chunk.X<<4)+x, y, (chunk.Z<<4)+z)
+		ChunkMap.UpdateBlock((chunk.X<<4)+x, y, (chunk.Z<<4)+z)
 	}
 }
 
@@ -546,44 +545,6 @@ func (handler) DestroyEntities(e *protocol.EntityDestroy) {
 	}
 }
 
-func (handler) WindowItems(p *protocol.WindowItems) {
-	var inv *Inventory
-	if p.ID == 0 {
-		inv = Client.playerInventory
-	}
-	if inv = Client.activeInventory; inv == nil || inv.ID != int(p.ID) {
-		inv = nil
-	}
-	if inv == nil {
-		return
-	}
-	for i, item := range p.Items {
-		if i >= len(inv.Items) {
-			break
-		}
-		it := ItemStackFromProtocol(item)
-		inv.Items[i] = it
-	}
-}
-
-func (handler) WindowItem(p *protocol.WindowSetSlot) {
-	var inv *Inventory
-	if p.ID == 0 {
-		inv = Client.playerInventory
-	}
-	if inv == nil {
-		return
-	}
-	if p.Slot >= int16(len(inv.Items)) {
-		return
-	}
-	if p.Slot == -1 {
-		Client.playerCursor = ItemStackFromProtocol(p.ItemStack)
-	} else {
-		inv.Items[p.Slot] = ItemStackFromProtocol(p.ItemStack)
-	}
-}
-
 var nametouuid = map[string]lib.UUID{}
 
 func (handler) PlayerInfo(pi *protocol.PlayerInfo) {
@@ -610,7 +571,7 @@ func (n *NetworkManager) init() {
 }
 
 func (n *NetworkManager) Connect(profile mojang.Profile, server string) {
-	logLevel := networkLogLevel
+	logLevel := NetworkLogLevel
 	go func() {
 		var err error
 		n.conn, err = protocol.Dial(server)
@@ -787,7 +748,7 @@ func (c *ClientState) checkCollisions(bounds vmath.AABB) (vmath.AABB, bool) {
 	for y := minY; y < maxY; y++ {
 		for z := minZ; z < maxZ; z++ {
 			for x := minX; x < maxX; x++ {
-				b := chunkMap.Block(x, y, z)
+				b := ChunkMap.Block(x, y, z)
 
 				if b.Collidable() {
 					for _, bb := range b.CollisionBounds() {

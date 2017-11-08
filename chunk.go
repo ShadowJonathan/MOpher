@@ -1,4 +1,4 @@
-package main
+package MO
 
 import (
 	"./Protocol/lib"
@@ -15,7 +15,7 @@ import (
 )
 
 var chunkSync = new(sync.Mutex)
-var chunkMap world = map[chunkPosition]*chunk{}
+var ChunkMap world = map[chunkPosition]*chunk{}
 
 type world map[chunkPosition]*chunk
 
@@ -139,10 +139,10 @@ func (w world) EntitiesIn(bounds vmath.AABB) (out []Entity) {
 }
 
 func clearChunks() {
-	for _, c := range chunkMap {
+	for _, c := range ChunkMap {
 		c.free()
 	}
-	chunkMap = map[chunkPosition]*chunk{}
+	ChunkMap = map[chunkPosition]*chunk{}
 	for _, e := range Client.entities.entities {
 		Client.entities.container.RemoveEntity(e)
 	}
@@ -250,7 +250,7 @@ itQueue:
 		// Handle neighbor chunks
 		if x < 0 || x > 15 || z < 0 || z > 15 {
 			chunkSync.Lock()
-			ch := chunkMap[chunkPosition{c.X + (x >> 4), c.Z + (z >> 4)}]
+			ch := ChunkMap[chunkPosition{c.X + (x >> 4), c.Z + (z >> 4)}]
 			chunkSync.Unlock()
 			if ch == nil {
 				continue itQueue
@@ -316,7 +316,7 @@ func (c *chunk) relLight(x, y, z int, f getLight, sky bool) byte {
 	ch := c
 	if x < 0 || x > 15 || z < 0 || z > 15 {
 		chunkSync.Lock()
-		ch = chunkMap[chunkPosition{c.X + (x >> 4), c.Z + (z >> 4)}]
+		ch = ChunkMap[chunkPosition{c.X + (x >> 4), c.Z + (z >> 4)}]
 		chunkSync.Unlock()
 		x &= 0xF
 		z &= 0xF
@@ -454,7 +454,7 @@ func loadChunk(x, z int, data *bytes.Reader, mask int32, sky, isNew bool) {
 		}
 	} else {
 		chunkSync.Lock()
-		c = chunkMap[chunkPosition{X: x, Z: z}]
+		c = ChunkMap[chunkPosition{X: x, Z: z}]
 		chunkSync.Unlock()
 		if c == nil {
 			return
@@ -524,7 +524,7 @@ func loadChunk(x, z int, data *bytes.Reader, mask int32, sky, isNew bool) {
 
 func (c *chunk) postLoad() {
 	chunkSync.Lock()
-	chunkMap[c.chunkPosition] = c
+	ChunkMap[c.chunkPosition] = c
 	chunkSync.Unlock()
 	for _, section := range c.Sections {
 		if section == nil {
@@ -553,7 +553,7 @@ func (c *chunk) postLoad() {
 	for xx := -1; xx <= 1; xx++ {
 		for zz := -1; zz <= 1; zz++ {
 			chunkSync.Lock()
-			c := chunkMap[chunkPosition{c.X + xx, c.Z + zz}]
+			c := ChunkMap[chunkPosition{c.X + xx, c.Z + zz}]
 			chunkSync.Unlock()
 			if c != nil && c != self {
 				for _, section := range c.Sections {
@@ -612,10 +612,10 @@ func (c *chunk) postLoad() {
 }
 
 func sortedChunks() []*chunk {
-	out := make([]*chunk, len(chunkMap))
+	out := make([]*chunk, len(ChunkMap))
 	i := 0
 	chunkSync.Lock()
-	for _, c := range chunkMap {
+	for _, c := range ChunkMap {
 		out[i] = c
 		i++
 	}

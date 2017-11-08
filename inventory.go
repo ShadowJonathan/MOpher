@@ -1,16 +1,19 @@
-package main
+package MO
 
 import (
 	"./Protocol"
 	"strconv"
 	"time"
 	"sync"
+	"fmt"
 )
 
 type InventoryInterface struct {
+	ID byte
+	*Inventory
 }
 
-var II = InventoryInterface{}
+var II InventoryInterface
 
 var actions = make(map[int16]func())
 var actionCounter int16 = 0
@@ -24,7 +27,7 @@ const CURSORSLOT = -1
 
 func (i InventoryInterface) penalty(d time.Duration) {
 	if p {
-		psync<-true
+		psync <- true
 	}
 	windowSync.Lock()
 	p = true
@@ -37,34 +40,34 @@ func (i InventoryInterface) penalty(d time.Duration) {
 }
 
 // false if there is item in cursor
-func (i InventoryInterface) PickUp(at int, wait bool) bool {
+func (i *InventoryInterface) PickUp(at int, wait bool) bool {
 	if i.CursorIsHolding() {
 		return false
 	}
 	var waitChan = make(chan bool)
 	a := actionCounter
 
-	LS("II:", a, "@", at, "("+i.makeReadableSlot(Client.playerInventory.Items[at])+") -> CUR")
+	LS(fmt.Sprintf("II (%d):", i.ID), a, "@", at, "("+i.makeReadableSlot(i.Items[at])+") -> CUR")
 
 	windowSync.Lock()
 	Client.network.Write(&protocol.ClickWindow{
-		ID:           0,
+		ID:           i.ID,
 		Slot:         int16(at),
 		Button:       0,
 		ActionNumber: a,
 		Mode:         0,
-		ClickedItem:  ItemStackToProtocol(Client.playerInventory.Items[at]),
+		ClickedItem:  ItemStackToProtocol(i.Items[at]),
 	})
 	windowSync.Unlock()
 
 	if wait {
 		actions[a] = func() {
-			Client.playerCursor, Client.playerInventory.Items[at] = Client.playerInventory.Items[at], Client.playerCursor
+			i.doPick(at, i.Inventory)
 			waitChan <- true
 		}
 	} else {
 		actions[a] = func() {
-			Client.playerCursor, Client.playerInventory.Items[at] = Client.playerInventory.Items[at], Client.playerCursor
+			i.doPick(at, i.Inventory)
 		}
 	}
 	actionCounter++
@@ -75,32 +78,31 @@ func (i InventoryInterface) PickUp(at int, wait bool) bool {
 }
 
 // false if there is item in slot
-func (i InventoryInterface) Drop(at int, wait bool) bool {
-	if Client.playerInventory.Items[at] != nil {
+func (i *InventoryInterface) Drop(at int, wait bool) bool {
+	if Client.PlayerInventory.Items[at] != nil {
 		return false
 	}
 	var waitChan = make(chan bool)
 	a := actionCounter
 
-	LS("II:", a, "@", "CUR ("+i.makeReadableSlot(Client.playerCursor)+") ->", at)
+	LS(fmt.Sprintf("II (%d):", i.ID), a, "@", "CUR ("+i.makeReadableSlot(Client.PlayerCursor)+") ->", at)
 	windowSync.Lock()
 	Client.network.Write(&protocol.ClickWindow{
-		ID:           0,
+		ID:           i.ID,
 		Slot:         int16(at),
 		Button:       0,
 		ActionNumber: a,
 		Mode:         0,
-		ClickedItem:  ItemStackToProtocol(Client.playerInventory.Items[at]),
+		ClickedItem:  ItemStackToProtocol(i.Items[at]),
 	})
 	windowSync.Unlock()
 	if wait {
 		actions[a] = func() {
-			Client.playerCursor, Client.playerInventory.Items[at] = Client.playerInventory.Items[at], Client.playerCursor
-			waitChan <- true
+			waitChan <- i.doDrop(at, i.Inventory)
 		}
 	} else {
 		actions[a] = func() {
-			Client.playerCursor, Client.playerInventory.Items[at] = Client.playerInventory.Items[at], Client.playerCursor
+			i.doDrop(at, i.Inventory)
 		}
 	}
 	actionCounter++
@@ -110,34 +112,96 @@ func (i InventoryInterface) Drop(at int, wait bool) bool {
 	return true
 }
 
-func (i InventoryInterface) Swap(at int, wait bool) {
+func (i *InventoryInterface) Swap(at int, wait bool) bool {
 	var waitChan = make(chan bool)
 	a := actionCounter
-	LS("II:", a, "@", at, "("+i.makeReadableSlot(Client.playerInventory.Items[at])+") <-> CUR ("+i.makeReadableSlot(Client.playerCursor)+")")
+	actionCounter++
+	LS(fmt.Sprintf("II (%d):", i.ID), a, "@", at, "("+i.makeReadableSlot(i.Items[at])+") <-> CUR ("+i.makeReadableSlot(Client.PlayerCursor)+")")
 	windowSync.Lock()
 	Client.network.Write(&protocol.ClickWindow{
-		ID:           0,
+		ID:           i.ID,
 		Slot:         int16(at),
 		Button:       0,
 		ActionNumber: a,
 		Mode:         0,
-		ClickedItem:  ItemStackToProtocol(Client.playerInventory.Items[at]),
+		ClickedItem:  ItemStackToProtocol(i.Items[at]),
 	})
 	windowSync.Unlock()
+	if wait && at != 0 {
+		actions[a] = func() {
+			waitChan <- i.doDrop(at, i.Inventory)
+		}
+	} else {
+		i.doDrop(at, i.Inventory)
+	}
+	if wait && at != 0 {
+		return <-waitChan
+	}
+	return true
+}
+
+func (i *InventoryInterface) RightClick(at int, wait bool) bool {
+	var waitChan = make(chan bool)
+	a := actionCounter
+	actionCounter++
+	LS(fmt.Sprintf("II (%d):", i.ID), a, "@", at, "("+i.makeReadableSlot(i.Items[at])+") <-> CUR (R) ("+i.makeReadableSlot(Client.PlayerCursor)+")")
+	windowSync.Lock()
+	Client.network.Write(&protocol.ClickWindow{
+		ID:           i.ID,
+		Slot:         int16(at),
+		Button:       1,
+		ActionNumber: a,
+		Mode:         0,
+		ClickedItem:  ItemStackToProtocol(i.Items[at]),
+	})
+	windowSync.Unlock()
+
 	if wait {
 		actions[a] = func() {
-			Client.playerCursor, Client.playerInventory.Items[at] = Client.playerInventory.Items[at], Client.playerCursor
 			waitChan <- true
+			i.doRight(at, i.Inventory)
 		}
 	} else {
 		actions[a] = func() {
-			Client.playerCursor, Client.playerInventory.Items[at] = Client.playerInventory.Items[at], Client.playerCursor
+			i.doRight(at, i.Inventory)
 		}
 	}
 	if wait {
-		<-waitChan
+		return <-waitChan
 	}
-	actionCounter++
+	return true
+}
+
+// return is swapped = true
+func (i *InventoryInterface) doDrop(at int, inv *Inventory) bool {
+	if Client.PlayerCursor != nil && inv.Items[at] != nil && Client.PlayerCursor.Type == inv.Items[at].Type {
+		Client.PlayerCursor, inv.Items[at] = Client.PlayerCursor.StackTo(inv.Items[at])
+		return false
+	} else {
+		LS("SWAP", Client.PlayerCursor != nil, inv.Items[at] != nil, Client.PlayerCursor != nil && inv.Items[at] != nil && Client.PlayerCursor.Type == inv.Items[at].Type)
+		Client.PlayerCursor, inv.Items[at] = inv.Items[at], Client.PlayerCursor
+		return true
+	}
+}
+
+func (i *InventoryInterface) doPick(at int, inv *Inventory) {
+	Client.PlayerCursor, inv.Items[at] = inv.Items[at], Client.PlayerCursor
+}
+
+func (i *InventoryInterface) doRight(at int, inv *Inventory) {
+	if Client.PlayerCursor != nil && inv.Items[at] != nil && Client.PlayerCursor.Type != inv.Items[at].Type {
+		Client.PlayerCursor, inv.Items[at] = inv.Items[at], Client.PlayerCursor
+	} else if Client.PlayerCursor != nil && inv.Items[at] != nil && Client.PlayerCursor.Type == inv.Items[at].Type {
+		Client.PlayerCursor, inv.Items[at] = Client.PlayerCursor.PopTo(inv.Items[at])
+	} else {
+		if Client.PlayerCursor == nil {
+			Client.PlayerCursor, inv.Items[at] = inv.Items[at].RightGrabToCursor()
+		} else if inv.Items[at] == nil {
+			Client.PlayerCursor, inv.Items[at] = Client.PlayerCursor.PopTo(inv.Items[at])
+		} else {
+			L("COULD NOT RIGHT CLICK")
+		}
+	}
 }
 
 func (i InventoryInterface) pickOrSwap(from, to int) {
@@ -152,8 +216,8 @@ func (i InventoryInterface) pickOrSwap(from, to int) {
 	}
 }
 
-func (i InventoryInterface) emptySlot() int {
-	for i, I := range Client.playerInventory.Items {
+func (i *InventoryInterface) emptySlot() int {
+	for i, I := range i.Items {
 		if I == nil {
 			return i
 		}
@@ -162,21 +226,22 @@ func (i InventoryInterface) emptySlot() int {
 }
 
 func (InventoryInterface) CursorIsHolding() bool {
-	return Client.playerCursor != nil
+	return Client.PlayerCursor != nil
 }
 
-func (i InventoryInterface) dropCursor() {
+func (i InventoryInterface) DropCursor() {
 	windowSync.Lock()
 	Client.network.Write(&protocol.CloseWindow{
-		ID:           0,
+		ID: 0,
 	})
+	Client.PlayerCursor = nil
 	windowSync.Unlock()
 }
 
-func (InventoryInterface) makeReadableSlot(s *ItemStack) string {
-	if s == nil {
+func (i *ItemStack) makeReadableSlot() string {
+	if i == nil {
 		return "nil"
 	} else {
-		return s.Type.Name() + " x" + strconv.Itoa(s.Count)
+		return i.Type.Name() + " x" + strconv.Itoa(i.Count)
 	}
 }

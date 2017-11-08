@@ -1,4 +1,4 @@
-package main
+package MO
 
 import (
 	"./Protocol"
@@ -30,7 +30,7 @@ type MetadataComponent interface {
 	Data() lib.Metadata
 }
 
-// Network
+// network
 
 type networkComponent struct {
 	NetworkID int
@@ -236,8 +236,28 @@ func NewInventory(id, size int) *Inventory {
 	}
 }
 
-func (inv *Inventory) Close() {
-	Client.network.Write(&protocol.CloseWindow{ID: byte(inv.ID)})
+func (i *Inventory) Close() {
+	Client.network.Write(&protocol.CloseWindow{ID: byte(i.ID)})
+}
+
+func (i *Inventory) String() string {
+	var total string
+	total += fmt.Sprintln(i.ID, "=")
+	for I, item := range i.Items {
+		if item == nil {
+			continue
+		}
+		total += fmt.Sprintln(I, "->", i.makeReadableSlot(item))
+	}
+	return total
+}
+
+func (Inventory) makeReadableSlot(s *ItemStack) string {
+	if s == nil {
+		return "nil"
+	} else {
+		return s.Type.Name() + " x" + strconv.Itoa(s.Count)
+	}
 }
 
 func openInventory(inv *Inventory) {
@@ -292,6 +312,84 @@ type ItemStack struct {
 	rawTag    *nbt.Compound
 }
 
+func (i *ItemStack) StackTo(stack *ItemStack) (new *ItemStack, other *ItemStack) {
+	new = i
+	other = stack
+	if other == nil {
+		return
+	}
+
+	if new.Type == other.Type && new.Type.Stackable() {
+		if new.Count+other.Count <= new.Type.MaxStack() {
+			other.Count = other.Count + new.Count
+			new = nil
+			return
+		} else {
+			new.Count = new.Count - (new.Type.MaxStack() - other.Count)
+			other.Count = new.Type.MaxStack()
+			return
+		}
+	}
+	return
+}
+
+func (i *ItemStack) PopTo(stack *ItemStack) (new *ItemStack, other *ItemStack) {
+	new = i
+	other = stack
+	if other == nil {
+		other = &ItemStack{
+			Type:      new.Type,
+			Count:     1,
+			rawID:     new.rawID,
+			rawDamage: new.rawDamage,
+			rawTag:    new.rawTag,
+		}
+		new.Count--
+		if new.Count <= 0 {
+			new = nil
+		}
+		return
+	}
+
+	if new.Type == other.Type && new.Type.Stackable() {
+		if other.Count+1 <= other.Type.MaxStack() {
+			other.Count++
+			new.Count--
+			if new.Count <= 0 {
+				new = nil
+			}
+		}
+	}
+	return
+}
+
+func (i *ItemStack) RightGrabToCursor() (new *ItemStack, other *ItemStack) {
+	new = i
+	other = &ItemStack{
+		Type:      new.Type,
+		Count:     0,
+		rawID:     new.rawID,
+		rawDamage: new.rawDamage,
+		rawTag:    new.rawTag,
+	}
+
+	count := new.Count
+
+	if float64(new.Count)/2 != math.Trunc(float64(new.Count)/2) {
+		new.Count = int(float64(count) / 2)
+		other.Count = int((float64(count) / 2) + 0.5)
+	} else {
+		new.Count = count / 2
+		other.Count = count / 2
+	}
+
+	if new.Count == 0 {
+		new = nil
+	}
+
+	return
+}
+
 func ItemStackFromProtocol(p lib.ItemStack) *ItemStack {
 	it := ItemById(int(p.ID))
 	if it == nil {
@@ -304,7 +402,9 @@ func ItemStackFromProtocol(p lib.ItemStack) *ItemStack {
 		rawDamage: p.Damage,
 		rawTag:    p.NBT,
 	}
-	i.Type.ParseDamage(p.Damage)
+	if id, ok := i.Type.(ItemDamagable); ok {
+		id.ParseDamage(p.Damage)
+	}
 	if p.NBT != nil {
 		i.Type.ParseTag(p.NBT)
 	}
@@ -326,8 +426,10 @@ type ItemType interface {
 	Name() string
 	NameLocaleKey() string
 
-	ParseDamage(d int16)
 	ParseTag(tag *nbt.Compound)
+
+	Stackable() bool
+	MaxStack() int
 }
 
 func ItemById(id int) (ty ItemType) {
@@ -342,7 +444,7 @@ func ItemById(id int) (ty ItemType) {
 		}
 	}
 	if ty == nil {
-		ty = ItemOfBlock(Blocks.Stone.Base)
+		ty = ItemOfBlock(Blocks.Bedrock.Base)
 	}
 	return ty
 }
@@ -406,6 +508,14 @@ func (b *blockItem) ParseTag(tag *nbt.Compound) {
 	b.displayTag.ParseTag(tag)
 }
 
+func (b *blockItem) Stackable() bool {
+	return true
+}
+
+func (b *blockItem) MaxStack() int {
+	return 64
+}
+
 type itemSimpleLocale struct {
 	locale string
 }
@@ -427,6 +537,7 @@ func (i *itemDamagable) MaxDamage() int16 { return i.maxDamage }
 type ItemDamagable interface {
 	Damage() int16
 	MaxDamage() int16
+	ParseDamage(d int16)
 }
 
 type itemNamed struct {
@@ -435,6 +546,12 @@ type itemNamed struct {
 
 func (i *itemNamed) Name() string {
 	return i.name
+}
+
+type item16Stack struct{}
+
+func (i *item16Stack) MaxStack() int {
+	return 16
 }
 
 var (
@@ -542,7 +659,7 @@ func (b *BaseBlock) Hardness() float64 {
 }
 
 func (b *BaseBlock) String() string {
-	return b.Parent.stringify(b.Parent.Blocks[b.Index])
+	return b.Parent.Stringify(b.Parent.Blocks[b.Index])
 }
 
 func (b *BaseBlock) Plugin() string {
@@ -806,7 +923,7 @@ func cloneBlock(b Block) Block {
 	return nv.Addr().Interface().(Block)
 }
 
-func (bs *BlockSet) stringify(block Block) string {
+func (bs *BlockSet) Stringify(block Block) string {
 	v := reflect.ValueOf(block).Elem()
 	buf := bytes.NewBufferString(block.Plugin())
 	buf.WriteRune(':')

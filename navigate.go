@@ -1,4 +1,4 @@
-package main
+package MO
 
 import (
 	"./Protocol"
@@ -747,17 +747,17 @@ Z
 
 //points and checks the block your FEET want to be in
 func CheckWalkable(x, y, z float64, TolerateNoBlockToWalkOn bool) error {
-	if chunkMap.Block(int(x), int(y+1), int(z)).BlockSet() == Blocks.Air ||
-		chunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.Torch ||
-		chunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.RedstoneTorch ||
-		chunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.TallGrass ||
-		chunkMap.Block(int(x), int(y), int(z)).BlockSet().ID == Blocks.SnowLayer.ID {
-		if chunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.Air ||
-			chunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.Torch ||
-			chunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.RedstoneTorch ||
-			chunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.TallGrass ||
-			chunkMap.Block(int(x), int(y), int(z)).BlockSet().ID == Blocks.SnowLayer.ID {
-			if ASP.solidwhole(chunkMap.Block(int(x), int(y-1), int(z)).BlockSet()) || TolerateNoBlockToWalkOn {
+	if ChunkMap.Block(int(x), int(y+1), int(z)).BlockSet() == Blocks.Air ||
+		ChunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.Torch ||
+		ChunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.RedstoneTorch ||
+		ChunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.TallGrass ||
+		ChunkMap.Block(int(x), int(y), int(z)).BlockSet().ID == Blocks.SnowLayer.ID {
+		if ChunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.Air ||
+			ChunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.Torch ||
+			ChunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.RedstoneTorch ||
+			ChunkMap.Block(int(x), int(y), int(z)).BlockSet() == Blocks.TallGrass ||
+			ChunkMap.Block(int(x), int(y), int(z)).BlockSet().ID == Blocks.SnowLayer.ID {
+			if ASP.solidwhole(ChunkMap.Block(int(x), int(y-1), int(z)).BlockSet()) || TolerateNoBlockToWalkOn {
 				return nil
 			} else {
 				return CHECK_ERR_BELOW_NON_SOLID
@@ -886,7 +886,7 @@ var ASP AnvalibleSnapPoints
 // on defines if the pathmaker wants to go on it, or through it
 func (a AnvalibleSnapPoints) Check(x, y, z int) []Snappoint {
 
-	bs := chunkMap.Block(x, y-1, z).BlockSet()
+	bs := ChunkMap.Block(x, y-1, z).BlockSet()
 	bl := new(BlockLake)
 	bl.Fill(x, y, z)
 
@@ -967,7 +967,7 @@ func (b *BlockLake) Fill(x, y, z int) {
 	for X := x - 1; X < x+1; X++ {
 		for Z := z - 1; Z < z+1; Z++ {
 			for Y := y - 1; Y < y+1; Y++ {
-				b.M[xyz{X: X, Y: Y, Z: Z}] = chunkMap.Block(X, Y, Z).BlockSet()
+				b.M[xyz{X: X, Y: Y, Z: Z}] = ChunkMap.Block(X, Y, Z).BlockSet()
 			}
 		}
 	}

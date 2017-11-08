@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package MO
 
 import (
 	"fmt"
@@ -140,7 +140,7 @@ func (b *blockGrass) DigSound() (name string, vol, pitch float64) {
 func (b *blockGrass) BreakSound() (name string, vol, pitch float64) { return "dig.grass", 0.5, 1 }
 
 func (b *blockGrass) UpdateState(x, y, z int) Block {
-	if bl := chunkMap.Block(x, y+1, z); bl.Is(Blocks.Snow) || bl.Is(Blocks.SnowLayer) {
+	if bl := ChunkMap.Block(x, y+1, z); bl.Is(Blocks.Snow) || bl.Is(Blocks.SnowLayer) {
 		return b.Set("snowy", true)
 	}
 	if b.Snowy {
@@ -338,7 +338,7 @@ func (b *blockDoor) ModelVariant() string {
 
 func (b *blockDoor) UpdateState(x, y, z int) Block {
 	if b.Half == doorUpper {
-		o := chunkMap.Block(x, y-1, z)
+		o := ChunkMap.Block(x, y-1, z)
 		if d, ok := o.(*blockDoor); ok {
 			return b.
 				Set("facing", d.Facing).
@@ -346,7 +346,7 @@ func (b *blockDoor) UpdateState(x, y, z int) Block {
 		}
 		return b
 	}
-	o := chunkMap.Block(x, y+1, z)
+	o := ChunkMap.Block(x, y+1, z)
 	if d, ok := o.(*blockDoor); ok {
 		return b.Set("hinge", d.Hinge)
 	}
@@ -586,7 +586,7 @@ func (b *blockFence) UpdateState(x, y, z int) Block {
 			continue
 		}
 		ox, oy, oz := d.Offset()
-		bl := chunkMap.Block(x+ox, y+oy, z+oz)
+		bl := ChunkMap.Block(x+ox, y+oy, z+oz)
 		_, ok2 := bl.(*blockFenceGate)
 		if fence, ok := bl.(*blockFence); bl.ShouldCullAgainst() || (ok && fence.Wood == b.Wood) || ok2 {
 			block = block.Set(d.String(), true)
@@ -621,11 +621,11 @@ func (b *blockFenceGate) load(tag reflect.StructTag) {
 func (b *blockFenceGate) UpdateState(x, y, z int) Block {
 	var block Block = b
 	ox, oy, oz := b.Facing.Clockwise().Offset()
-	if _, ok := chunkMap.Block(x+ox, y+oy, z+oz).(*blockWall); ok {
+	if _, ok := ChunkMap.Block(x+ox, y+oy, z+oz).(*blockWall); ok {
 		return block.Set("in_wall", true)
 	}
 	ox, oy, oz = b.Facing.CounterClockwise().Offset()
-	if _, ok := chunkMap.Block(x+ox, y+oy, z+oz).(*blockWall); ok {
+	if _, ok := ChunkMap.Block(x+ox, y+oy, z+oz).(*blockWall); ok {
 		return block.Set("in_wall", true)
 	}
 	return block.Set("in_wall", false)
@@ -696,7 +696,7 @@ func (b *blockWall) UpdateState(x, y, z int) Block {
 			continue
 		}
 		ox, oy, oz := d.Offset()
-		bl := chunkMap.Block(x+ox, y+oy, z+oz)
+		bl := ChunkMap.Block(x+ox, y+oy, z+oz)
 		_, ok := bl.(*blockWall)
 		_, ok2 := bl.(*blockFenceGate)
 		if bl.ShouldCullAgainst() || ok || ok2 {
@@ -856,7 +856,7 @@ func (b *blockConnectable) UpdateState(x, y, z int) Block {
 			continue
 		}
 		ox, oy, oz := d.Offset()
-		bl := chunkMap.Block(x+ox, y+oy, z+oz)
+		bl := ChunkMap.Block(x+ox, y+oy, z+oz)
 		if _, ok := bl.(connectable); bl.ShouldCullAgainst() || ok {
 			block = block.Set(d.String(), true)
 		} else {
@@ -935,7 +935,7 @@ func (b *blockStainedGlassPane) UpdateState(x, y, z int) Block {
 			continue
 		}
 		ox, oy, oz := d.Offset()
-		bl := chunkMap.Block(x+ox, y+oy, z+oz)
+		bl := ChunkMap.Block(x+ox, y+oy, z+oz)
 		if _, ok := bl.(connectable); bl.ShouldCullAgainst() || ok {
 			block = block.Set(d.String(), true)
 		} else {
@@ -1075,7 +1075,7 @@ func (b *blockStairs) UpdateState(x, y, z int) Block {
 	// is tested in the same way but forming an 'inner' shape
 
 	ox, oy, oz := b.Facing.Offset()
-	if s, ok := chunkMap.Block(x+ox, y+oy, z+oz).(*blockStairs); ok &&
+	if s, ok := ChunkMap.Block(x+ox, y+oy, z+oz).(*blockStairs); ok &&
 		s.Facing != b.Facing && s.Facing != b.Facing.Opposite() {
 		r := false
 		if s.Facing == b.Facing.Clockwise() {
@@ -1088,7 +1088,7 @@ func (b *blockStairs) UpdateState(x, y, z int) Block {
 	}
 
 	ox, oy, oz = b.Facing.Opposite().Offset()
-	if s, ok := chunkMap.Block(x+ox, y+oy, z+oz).(*blockStairs); ok &&
+	if s, ok := ChunkMap.Block(x+ox, y+oy, z+oz).(*blockStairs); ok &&
 		s.Facing != b.Facing && s.Facing != b.Facing.Opposite() {
 		r := false
 		if s.Facing == b.Facing.Clockwise() {
@@ -1143,7 +1143,7 @@ func (b *blockVines) ModelVariant() string {
 }
 
 func (b *blockVines) UpdateState(x, y, z int) Block {
-	if b := chunkMap.Block(x, y+1, z); b.ShouldCullAgainst() {
+	if b := ChunkMap.Block(x, y+1, z); b.ShouldCullAgainst() {
 		return b.Set("up", true)
 	}
 	return b.Set("up", false)
@@ -2082,16 +2082,16 @@ func (b *blockFire) load(tag reflect.StructTag) {
 
 func (b *blockFire) UpdateState(x, y, z int) Block {
 	pos := Position{X: x, Y: y, Z: z}
-	bl := chunkMap.Block(pos.ShiftDir(direction.Down).Get())
+	bl := ChunkMap.Block(pos.ShiftDir(direction.Down).Get())
 	if !bl.ShouldCullAgainst() && !burnableBlocks[bl.BlockSet()] {
 		alt := (x+y+z)&1 == 1
 		flip := (x/2+y/2+z/2)&1 == 1
-		up := burnableBlocks[chunkMap.Block(pos.ShiftDir(direction.Up).Get()).BlockSet()]
+		up := burnableBlocks[ChunkMap.Block(pos.ShiftDir(direction.Up).Get()).BlockSet()]
 		return b.
-			Set("north", burnableBlocks[chunkMap.Block(pos.ShiftDir(direction.North).Get()).BlockSet()]).
-			Set("south", burnableBlocks[chunkMap.Block(pos.ShiftDir(direction.South).Get()).BlockSet()]).
-			Set("east", burnableBlocks[chunkMap.Block(pos.ShiftDir(direction.East).Get()).BlockSet()]).
-			Set("west", burnableBlocks[chunkMap.Block(pos.ShiftDir(direction.West).Get()).BlockSet()]).
+			Set("north", burnableBlocks[ChunkMap.Block(pos.ShiftDir(direction.North).Get()).BlockSet()]).
+			Set("south", burnableBlocks[ChunkMap.Block(pos.ShiftDir(direction.South).Get()).BlockSet()]).
+			Set("east", burnableBlocks[ChunkMap.Block(pos.ShiftDir(direction.East).Get()).BlockSet()]).
+			Set("west", burnableBlocks[ChunkMap.Block(pos.ShiftDir(direction.West).Get()).BlockSet()]).
 			Set("up", up).
 			Set("flip", flip).
 			Set("alt", alt)
@@ -2151,15 +2151,15 @@ func (b *blockRedstone) UpdateState(x, y, z int) Block {
 
 func (b *blockRedstone) check(dir direction.Type, pos Position) redstoneConnection {
 	spos := pos.ShiftDir(dir)
-	bl := chunkMap.Block(spos.Get())
+	bl := ChunkMap.Block(spos.Get())
 	if bl.ShouldCullAgainst() {
 		p := spos.ShiftDir(direction.Up)
-		if chunkMap.Block(p.Get()).BlockSet() == b.BlockSet() && !chunkMap.Block(pos.ShiftDir(direction.Up).Get()).ShouldCullAgainst() {
+		if ChunkMap.Block(p.Get()).BlockSet() == b.BlockSet() && !ChunkMap.Block(pos.ShiftDir(direction.Up).Get()).ShouldCullAgainst() {
 			return rcUp
 		}
 		return rcNone
 	}
-	if bl.BlockSet() == b.BlockSet() || chunkMap.Block(spos.ShiftDir(direction.Down).Get()).BlockSet() == b.BlockSet() {
+	if bl.BlockSet() == b.BlockSet() || ChunkMap.Block(spos.ShiftDir(direction.Down).Get()).BlockSet() == b.BlockSet() {
 		return rcSide
 	}
 	return rcNone
@@ -2426,12 +2426,12 @@ func (b *blockDoublePlant) load(tag reflect.StructTag) {
 
 func (b *blockDoublePlant) UpdateState(x, y, z int) Block {
 	if b.Half == dpUpper {
-		o := chunkMap.Block(x, y-1, z)
+		o := ChunkMap.Block(x, y-1, z)
 		if op, ok := o.(*blockDoublePlant); ok {
 			return b.Set("variant", op.Variant)
 		}
 	} else if b.Half == dpLower {
-		o := chunkMap.Block(x, y+1, z)
+		o := ChunkMap.Block(x, y+1, z)
 		if op, ok := o.(*blockDoublePlant); ok {
 			return b.Set("facing", op.Facing)
 		}

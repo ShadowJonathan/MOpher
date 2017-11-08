@@ -1,28 +1,32 @@
-package main
+package MO
 
 var itemsByID = map[int]func() ItemType{
 	256: func() ItemType {
-		i := &itemBasic{}
+		i := &itemUsable{}
 		i.locale = "item.shovelIron.name"
 		i.itemNamed.name = "iron_shovel"
+		i.maxDamage = 251
 		return i
 	},
 	257: func() ItemType {
-		i := &itemBasic{}
+		i := &itemUsable{}
 		i.locale = "item.pickaxeIron.name"
 		i.itemNamed.name = "iron_pickaxe"
+		i.maxDamage = 251
 		return i
 	},
 	258: func() ItemType {
-		i := &itemBasic{}
+		i := &itemUsable{}
 		i.locale = "item.axeIron.name"
 		i.itemNamed.name = "iron_axe"
+		i.maxDamage = 251
 		return i
 	},
 	259: func() ItemType {
-		i := &itemBasic{}
+		i := &itemUsable{}
 		i.locale = "item.flintAndSteel.name"
 		i.itemNamed.name = "flint_and_steel"
+		i.maxDamage = 65
 		return i
 	},
 	260: func() ItemType {
@@ -32,9 +36,10 @@ var itemsByID = map[int]func() ItemType{
 		return i
 	},
 	261: func() ItemType {
-		i := &itemBasic{}
+		i := &itemUsable{}
 		i.locale = "item.bow.name"
 		i.itemNamed.name = "bow"
+		i.maxDamage = 385
 		return i
 	},
 	262: func() ItemType {
@@ -68,85 +73,94 @@ var itemsByID = map[int]func() ItemType{
 		return i
 	},
 	267: func() ItemType {
-		i := &itemSword{}
+		i := &itemUsable{}
 		i.locale = "item.swordIron.name"
 		i.itemNamed.name = "iron_sword"
 		i.maxDamage = 251
 		return i
 	},
 	268: func() ItemType {
-		i := &itemSword{}
+		i := &itemUsable{}
 		i.locale = "item.swordWood.name"
 		i.itemNamed.name = "wooden_sword"
-		i.maxDamage = 260
+		i.maxDamage = 60
 		return i
 	},
 	269: func() ItemType {
-		i := &itemBasic{}
+		i := &itemUsable{}
 		i.locale = "item.shovelWood.name"
 		i.itemNamed.name = "wooden_shovel"
+		i.maxDamage = 60
 		return i
 	},
 	270: func() ItemType {
-		i := &itemBasic{}
+		i := &itemUsable{}
 		i.locale = "item.pickaxeWood.name"
 		i.itemNamed.name = "wooden_pickaxe"
+		i.maxDamage = 60
 		return i
 	},
 	271: func() ItemType {
-		i := &itemBasic{}
+		i := &itemUsable{}
 		i.locale = "item.axeWood.name"
 		i.itemNamed.name = "wooden_axe"
+		i.maxDamage = 60
 		return i
 	},
 	272: func() ItemType {
-		i := &itemSword{}
+		i := &itemUsable{}
 		i.locale = "item.swordStone.name"
 		i.itemNamed.name = "stone_sword"
 		i.maxDamage = 132
 		return i
 	},
 	273: func() ItemType {
-		i := &itemBasic{}
+		i := &itemUsable{}
 		i.locale = "item.shovelStone.name"
 		i.itemNamed.name = "stone_shovel"
+		i.maxDamage = 132
 		return i
 	},
 	274: func() ItemType {
-		i := &itemBasic{}
+		i := &itemUsable{}
 		i.locale = "item.pickaxeStone.name"
 		i.itemNamed.name = "stone_pickaxe"
+		i.maxDamage = 132
 		return i
 	},
 	275: func() ItemType {
-		i := &itemBasic{}
+		i := &itemUsable{}
 		i.locale = "item.axeStone.name"
 		i.itemNamed.name = "stone_axe"
+		i.maxDamage = 132
 		return i
 	},
 	276: func() ItemType {
-		i := &itemSword{}
+		i := &itemUsable{}
 		i.locale = "item.swordDiamond.name"
 		i.itemNamed.name = "diamond_sword"
 		i.maxDamage = 1562
 		return i
 	},
 	277: func() ItemType {
-		i := &itemBasic{}
+		i := &itemUsable{}
 		i.locale = "item.shovelDiamond.name"
 		i.itemNamed.name = "diamond_shovel"
+		i.maxDamage = 1562
 		return i
 	},
 	278: func() ItemType {
-		i := &itemBasic{}
+		i := &itemUsable{}
 		i.locale = "item.pickaxeDiamond.name"
 		i.itemNamed.name = "diamond_pickaxe"
+		i.maxDamage = 1562
 		return i
 	},
 	279: func() ItemType {
-		i := &itemBasic{}
+		i := &itemUsable{}
 		i.locale = "item.axeDiamond.name"
 		i.itemNamed.name = "diamond_axe"
+		i.maxDamage = 1562
 		return i
 	},
 	280: func() ItemType {
@@ -162,22 +176,23 @@ var itemsByID = map[int]func() ItemType{
 		return i
 	},
 	282: func() ItemType {
-		i := &itemBasic{}
-		i.locale = "item.mushrromStew.name"
+		i := &itemUsable{}
+		i.locale = "item.mushroomStew.name"
 		i.itemNamed.name = "mushroom_stew"
 		return i
 	},
 	283: func() ItemType {
-		i := &itemSword{}
+		i := &itemUsable{}
 		i.locale = "item.swordGold.name"
 		i.itemNamed.name = "golden_sword"
 		i.maxDamage = 33
 		return i
 	},
 	284: func() ItemType {
-		i := &itemBasic{}
+		i := &itemUsable{}
 		i.locale = "item.shovelGold.name"
 		i.itemNamed.name = "golden_sword"
+		i.maxDamage = 33
 		return i
 	},
 	285: func() ItemType {
@@ -187,9 +202,10 @@ var itemsByID = map[int]func() ItemType{
 		return i
 	},
 	286: func() ItemType {
-		i := &itemBasic{}
+		i := &itemUsable{}
 		i.locale = "item.axeGold.name"
 		i.itemNamed.name = "golden_axe"
+		i.maxDamage = 33
 		return i
 	},
 	287: func() ItemType {
@@ -211,33 +227,38 @@ var itemsByID = map[int]func() ItemType{
 		return i
 	},
 	290: func() ItemType {
-		i := &itemBasic{}
+		i := &itemUsable{}
 		i.locale = "item.hoeWood.name"
 		i.itemNamed.name = "wooden_hoe"
+		i.maxDamage = 60
 		return i
 	},
 	291: func() ItemType {
-		i := &itemBasic{}
+		i := &itemUsable{}
 		i.locale = "item.hoeStone.name"
 		i.itemNamed.name = "stone_hoe"
+		i.maxDamage = 132
 		return i
 	},
 	292: func() ItemType {
-		i := &itemBasic{}
+		i := &itemUsable{}
 		i.locale = "item.hoeIron.name"
 		i.itemNamed.name = "iron_hoe"
+		i.maxDamage = 251
 		return i
 	},
 	293: func() ItemType {
-		i := &itemBasic{}
+		i := &itemUsable{}
 		i.locale = "item.hoeDiamond.name"
 		i.itemNamed.name = "diamond_hoe"
+		i.maxDamage = 1562
 		return i
 	},
 	294: func() ItemType {
-		i := &itemBasic{}
+		i := &itemUsable{}
 		i.locale = "item.hoeGold.name"
 		i.itemNamed.name = "golden_hoe"
+		i.maxDamage = 33
 		return i
 	},
 	295: func() ItemType {
@@ -259,7 +280,7 @@ var itemsByID = map[int]func() ItemType{
 		return i
 	},
 	298: func() ItemType {
-		i := &itemBasic{}
+		i := &itemWearable{} // TODO MAKE ALL OF THESE
 		i.locale = "item.helmetCloth.name"
 		i.itemNamed.name = "leather_helmet"
 		return i
@@ -1136,15 +1157,33 @@ type itemBasic struct {
 	itemNamed
 }
 
+func (i *itemBasic) MaxStack() int {
+	return 64
+}
+
 func (i *itemBasic) Stackable() bool {
 	return true
 }
 
-func (i *itemBasic) ParseDamage(d int16) {}
+type item16Stacked struct {
+	itemBasic
+	item16Stack
+}
 
-type itemSword struct {
-	displayTag
+type itemUsable struct {
+	itemBasic
+
 	itemDamagable
-	itemSimpleLocale
-	itemNamed
+}
+
+func (i *itemUsable) MaxStack() int {
+	return 1
+}
+
+func (i *itemUsable) Stackable() bool {
+	return false
+}
+
+type itemWearable struct {
+	itemBasic
 }

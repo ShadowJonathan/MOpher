@@ -1,4 +1,4 @@
-package main
+package MO
 
 import (
 	"./Protocol"
@@ -24,7 +24,7 @@ func Dig(x, y, z int, ec chan error, cancel chan bool) bool {
 	LS("STARTING DIGGING AT", x, y, z)
 
 	start := time.Now()
-	b := chunkMap.Block(x, y, z)
+	b := ChunkMap.Block(x, y, z)
 	if b.BlockSet().ID == 0 {
 		ec <- DEFBLOCKAIR
 		return true
@@ -37,7 +37,7 @@ func Dig(x, y, z int, ec chan error, cancel chan bool) bool {
 	var iID = II.emptySlot()
 	var found bool
 	if required != anything {
-		pi := Client.playerInventory
+		pi := Client.PlayerInventory
 		for p, i := range pi.Items {
 			if i != nil {
 				if required == wood && Ispick(i.rawID) {
@@ -72,8 +72,8 @@ func Dig(x, y, z int, ec chan error, cancel chan bool) bool {
 
 	II.pickOrSwap(iID, 36)
 
-	if Client.playerInventory.Items[36] != nil {
-		LS("SELECTED", Client.playerInventory.Items[36].Type.Name())
+	if Client.PlayerInventory.Items[36] != nil {
+		LS("SELECTED", Client.PlayerInventory.Items[36].Type.Name())
 	}
 	elapsed := time.Since(start)
 	fmt.Println("SETTING UP COSTED", elapsed)
@@ -114,9 +114,9 @@ func dig(x, y, z, ID int, cancel chan bool, anything bool) error {
 	})
 	Client.Yaw = -NewY * DegToRad
 	Client.Pitch = Refpitch(float32(NewP))
-	pos, _, dir, _ := Client.targetBlock()
+	pos, _, dir, _ := Client.TargetBlock()
 	<-T.C
-	hold := Client.playerInventory.Items[Client.currentHotbarSlot+36]
+	hold := Client.PlayerInventory.Items[Client.CurrentHotbarSlot+36]
 	var t = 0
 	if hold != nil {
 		t = Typeof(hold.rawID)
@@ -188,7 +188,7 @@ DIG:
 	return nil
 }
 
-func Use(x, y, z int) bool {
+func Use(x, y, z int, expectWindow bool) bool {
 	defer func() {
 		err := recover()
 		if err != nil {
@@ -226,7 +226,7 @@ func Use(x, y, z int) bool {
 	Client.Pitch = Refpitch(float32(NewP))
 	<-T.C
 
-	pos, b, face, cur := Client.targetBlock()
+	pos, b, face, cur := Client.TargetBlock()
 	if b.Is(Blocks.Air) {
 		return false
 	}
@@ -238,8 +238,21 @@ func Use(x, y, z int) bool {
 		CursorY:  cur.Y() * 16,
 		CursorZ:  cur.Z() * 16,
 	})
+
+	if expectWindow {
+		select {
+		case OpenWindow = <-windowHandle:
+			CS("RECEIVED WINDOW")
+		case <-time.After(5 * time.Second):
+			CS("DID NOT RECEIVE WINDOW")
+		}
+	}
 	return true
 }
+
+// TODO PLACE BLOCK
+
+// TODO PILLAR
 
 func directionToProtocol(d direction.Type) byte {
 	switch d {

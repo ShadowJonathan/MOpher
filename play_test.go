@@ -1,4 +1,4 @@
-package main
+package MO
 
 /*import (
 	"fmt"

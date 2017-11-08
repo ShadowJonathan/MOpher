@@ -1,7 +1,8 @@
-package main
+package MO
 
 import (
 	"./Protocol"
+	"./Protocol/mojang"
 	"./type/direction"
 	"./type/vmath"
 	"encoding/hex"
@@ -25,7 +26,7 @@ func initClient() {
 			Client.entities.container.RemoveEntity(Client.entity)
 		}
 
-		Client.playerInventory.Close()
+		Client.PlayerInventory.Close()
 	}
 	newClient()
 }
@@ -58,16 +59,15 @@ type ClientState struct {
 
 	Bounds vmath.AABB
 
-	currentHotbarSlot, lastHotbarSlot int
+	CurrentHotbarSlot, lastHotbarSlot int
 	lastHotbarItem                    *ItemStack
 	itemNameTimer                     float64
 
 	network  NetworkManager
 	entities clientEntities
 
-	playerInventory *Inventory
-	activeInventory *Inventory
-	playerCursor    *ItemStack
+	PlayerInventory *Inventory
+	PlayerCursor    *ItemStack
 
 	currentBreakingBlock    Block
 	currentBreakingPos      Position
@@ -111,11 +111,13 @@ func newClient() {
 		},
 	}
 	Client = c
-	c.playerInventory = NewInventory(0, 45)
+	c.PlayerInventory = NewInventory(0, 45)
 	c.network.init()
 	c.currentBreakingBlock = Blocks.Air.Base
 	c.blockBreakers = map[int]BlockEntity{}
 	c.entities.init()
+
+	II = InventoryInterface{0, Client.PlayerInventory}
 
 	c.initEntity(false)
 }
@@ -180,7 +182,15 @@ func (c *ClientState) UpdateHealth(health float64) {
 	c.Health = health
 }
 
-func start() {
+func (c *ClientState) Connect(profile mojang.Profile, server string) {
+	c.network.Connect(profile, server)
+}
+
+func (c *ClientState) Write(p interface{}) {
+	c.network.Write(p)
+}
+
+func Start() {
 	initBlocks()
 
 	initClient()
@@ -191,7 +201,20 @@ func tick() {
 	Client.tick()
 }
 
-func draw() {
+var alreadyCoTicking = false
+
+func CoTicker() {
+	if !alreadyCoTicking {
+		go func() {
+			for {
+				Tick()
+			}
+		}()
+		alreadyCoTicking = true
+	}
+}
+
+func Tick() {
 	//	i := 0
 	//	i2 := 0
 	//	var fs string
@@ -205,7 +228,7 @@ handle:
 			defaultHandler.Handle(packet)
 		case pos := <-completeBuilders:
 			freeBuilders++
-			if c := chunkMap[chunkPosition{pos.X, pos.Z}]; c != nil {
+			if c := ChunkMap[chunkPosition{pos.X, pos.Z}]; c != nil {
 				if s := c.Sections[pos.Y]; s != nil {
 					s.building = false
 				}
@@ -301,7 +324,7 @@ func (c *ClientState) viewVector() mgl32.Vec3 {
 	}
 }
 
-func (c *ClientState) targetBlock() (pos Position, block Block, face direction.Type, cursor mgl32.Vec3) {
+func (c *ClientState) TargetBlock() (pos Position, block Block, face direction.Type, cursor mgl32.Vec3) {
 	s := mgl32.Vec3{float32(Client.X), float32(Client.Y + playerHeight), float32(Client.Z)}
 	d := c.viewVector()
 	face = direction.Invalid
@@ -312,7 +335,7 @@ func (c *ClientState) targetBlock() (pos Position, block Block, face direction.T
 		4,
 		s, d,
 		func(bx, by, bz int) bool {
-			ents := chunkMap.EntitiesIn(bounds.Shift(float32(bx), float32(by), float32(bz)))
+			ents := ChunkMap.EntitiesIn(bounds.Shift(float32(bx), float32(by), float32(bz)))
 			for _, ee := range ents {
 				if ee == c.entity {
 					continue
@@ -323,7 +346,7 @@ func (c *ClientState) targetBlock() (pos Position, block Block, face direction.T
 					return false
 				}
 			}
-			b := chunkMap.Block(bx, by, bz)
+			b := ChunkMap.Block(bx, by, bz)
 			if _, ok := b.(*blockLiquid); !b.Is(Blocks.Air) && !ok {
 				bb := b.CollisionBounds()
 				for _, bound := range bb {

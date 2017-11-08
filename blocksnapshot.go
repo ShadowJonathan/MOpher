@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package MO
 
 import (
 	"math"
@@ -90,7 +90,7 @@ func (bs *blocksSnapshot) init(x, y, z, w, h, d int) {
 	for cx := cx1; cx < cx2; cx++ {
 		for cz := cz1; cz < cz2; cz++ {
 			chunkSync.Lock()
-			chunk := chunkMap[chunkPosition{cx, cz}]
+			chunk := ChunkMap[chunkPosition{cx, cz}]
 			chunkSync.Unlock()
 			if chunk == nil {
 				continue

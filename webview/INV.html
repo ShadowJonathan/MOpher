@@ -22,7 +22,7 @@
 
         sock.onmessage = function (e) {
             let data = JSON.parse(e.data);
-            process(data.Inventory, data.Cursor)
+            process(data.Inventory, data.Cursor, data.Type)
         };
     };
 </script>
@@ -37,7 +37,6 @@
     #view {
         width: 528px;
         height: 498px;
-        background-image: url(img/inventory.png);
 
         position: absolute;
         top: 0;

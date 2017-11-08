@@ -1,5 +1,9 @@
+Array.prototype.clone = function () {
+    return this.slice(0);
+};
+
 // [@POS [X,Y]]
-pos = [
+invPos = [
     [462, 84], // CRAFT END
 
     [294, 54], // CRAFT
@@ -55,6 +59,66 @@ pos = [
 
 cursorPos = [126, 153];
 
+craftingPos = [
+    [371, 105],
+
+    [90, 51],
+    [144, 51],
+    [198, 51],
+
+    [90, 105],
+    [144, 105],
+    [198, 105],
+
+    [90, 159],
+    [144, 159],
+    [198, 159],
+];
+
+
+function generateInv(offset) {
+    let x = offset[0];
+    let y = offset[1];
+    return [
+        [x, y], // INVENTORY, FIRST ROW
+        [x + 54, y],
+        [x + (54 * 2), y],
+        [x + (54 * 3), y],
+        [x + (54 * 4), y],
+        [x + (54 * 5), y],
+        [x + (54 * 6), y],
+        [x + (54 * 7), y],
+        [x + (54 * 8), y],
+        [x, y + 54], // SECOND ROW
+        [x + 54, y + 54],
+        [x + (54 * 2), y + 54],
+        [x + (54 * 3), y + 54],
+        [x + (54 * 4), y + 54],
+        [x + (54 * 5), y + 54],
+        [x + (54 * 6), y + 54],
+        [x + (54 * 7), y + 54],
+        [x + (54 * 8), y + 54],
+        [x, y + 108], // THIRD ROW
+        [x + 54, y + 108],
+        [x + (54 * 2), y + 108],
+        [x + (54 * 3), y + 108],
+        [x + (54 * 4), y + 108],
+        [x + (54 * 5), y + 108],
+        [x + (54 * 6), y + 108],
+        [x + (54 * 7), y + 108],
+        [x + (54 * 8), y + 108],
+        [x, y + 174], // HOTBAR
+        [x + 54, y + 174],
+        [x + (54 * 2), y + 174],
+        [x + (54 * 3), y + 174],
+        [x + (54 * 4), y + 174],
+        [x + (54 * 5), y + 174],
+        [x + (54 * 6), y + 174],
+        [x + (54 * 7), y + 174],
+        [x + (54 * 8), y + 174],
+    ]
+}
+
 // type: X, Y
 typeIndex = {
     chest: [7, 39],
@@ -67,28 +131,77 @@ typeIndex = {
     red_sand: [1, 31],
 };
 
-$(() => {
+/**
+ * @param {number[][]} pos
+ * @param {number[]} cpos
+ */
+function initPos(pos, cpos) {
     let V = $("#view");
+    V.empty();
     for (let i in pos) {
+        if (i == "clone")
+            continue;
         let p = pos[i];
         V.append(`<div class="item" style="top: ${p[1]}px; left: ${p[0]}px;" id="${i}"><div class='tl'>${i}</div><div class='br hidden'></div></div>`)
-        $(`#${i}`).on("click", () => {
+        let I = $(`#${i}`);
+        I.on("click", () => {
             sock.send(i + "")
+        });
+        I.on("contextmenu", e => {
+            e.preventDefault();
+            sock.send("* " + i + "")
         })
     }
-    V.append(`<div class="item" style="top: ${cursorPos[1]}px; left: ${cursorPos[0]}px;" id="-1"><div class='tl'>-1</div><div class='br hidden'></div></div>`)
-    $(`#-1`).on("click", () => {
+    V.append(`<div class="item" style="top: ${cpos[1]}px; left: ${cpos[0]}px;" id="-1"><div class='tl'>-1</div><div class='br hidden'></div></div>`)
+    let I = $(`#-1`);
+    I.on("click", () => {
         sock.send("-1")
+    });
+    I.on("contextmenu", e => {
+        e.preventDefault();
+        sock.send("* -1")
     })
-});
+}
+
+var currentType = null;
+var currentAmount = null;
 
 /**
  *
  * @param {Array.<{Amount: number, Type: string}|null>} entries
  * @param {{Amount: number, Type: string}|null} onCursor
+ * @param {number} type
  */
-function process(entries, onCursor) {
+function process(entries, onCursor, type) {
     let V = $(".item");
+    // noinspection EqualityComparisonWithCoercionJS
+    if (type != currentType || entries.length != currentAmount) {
+        let v = $("#view");
+        v.css("height", "");
+        v.css("width", "");
+        switch (type) {
+            case -1:
+                v.css("background-image", "url(img/inventory.png)");
+                initPos(invPos, cursorPos);
+                break;
+            case 0:
+            case 1:
+                v.css("background-image", `url(img/chest_${(entries.length - 36) / 9}.png`);
+                v.css("height", 342 + (((entries.length - 36) / 9) * 54));
+                v.css("width", 528);
+                initPos(generateChest(entries.length), [0, 0]);
+                break;
+            case 2:
+                v.css("background-image", `url(img/crafting_table.png`);
+                v.css("height", 498);
+                v.css("width", 528);
+                initPos(craftingPos.clone().concat(generateInv([24, 252])), [23, 105]);
+                break;
+        }
+        currentType = type;
+        currentAmount = entries.length;
+    }
+
     V.each((_, e) => {
         e = $(e);
         let i = parseInt(e.attr('id'));
@@ -120,6 +233,40 @@ function process(entries, onCursor) {
         }
     })
 }
+
+/**
+ * @param {number} amount
+ * @returns {number[][]}
+ */
+function generateChest(amount) {
+    var pos = [24, 54];
+    var invStartOffset = 96;
+    var invOffsetToLast = invStartOffset - 54;
+
+    if ((amount - 36) % 9) {
+        window.alert("ERROR " + amount);
+        throw new Error("ERROR " + amount);
+    }
+
+    let rows = (amount - 36) / 9;
+
+    let allPos = [];
+
+    for (let i = 0; i < rows; i++) {
+        let bx = pos[0];
+        for (let i = 0; i < 9; i++) {
+            allPos.push(pos.clone())
+            pos[0] += 54;
+        }
+        pos[0] = bx;
+        pos[1] += 54
+    }
+
+    pos[1] += invOffsetToLast;
+
+    return allPos.concat(generateInv(pos));
+}
+
 
 function doImage(type, e) {
     if (!typeIndex[type]) {
