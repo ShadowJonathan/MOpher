@@ -15,7 +15,7 @@
 package MO
 
 import (
-	"./format"
+	"github.com/ShadowJonathan/mopher/format"
 )
 
 type signComponent struct {

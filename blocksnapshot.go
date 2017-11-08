@@ -18,8 +18,8 @@ import (
 	"math"
 	"sync"
 
-	"./type/nibble"
-	"./world/biome"
+	"github.com/ShadowJonathan/mopher/type/nibble"
+	"github.com/ShadowJonathan/mopher/world/biome"
 )
 
 type blocksSnapshot struct {

@@ -4,7 +4,7 @@ package protocol
 
 import (
 	"../format"
-	"./lib"
+	"github.com/ShadowJonathan/mopher/lib"
 )
 
 // LoginDisconnect is sent by the server if there was any issues

@@ -109,10 +109,10 @@ func main() {
 	buf.WriteString(fmt.Sprintln("package protocol\n"))
 
 	buf.WriteString(fmt.Sprintf(`import (
-	"./lib"
+	"github.com/ShadowJonathan/mopher/lib"
 	"reflect"
 	"fmt"
-	"./versions/%s"
+	"github.com/ShadowJonathan/mopher/versions/%s"
 )
 	`, strings.TrimPrefix(packageName, "_")))
 
