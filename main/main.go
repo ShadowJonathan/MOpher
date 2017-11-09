@@ -33,7 +33,7 @@ func main() {
 	addr = "127.0.0.1:9999"
 
 	m := http.NewServeMux()
-	m.HandleFunc("/", http.FileServer(http.Dir("./webview")).ServeHTTP)
+	m.HandleFunc("/", http.FileServer(http.Dir("../webview")).ServeHTTP)
 
 	m.HandleFunc("/websocket", func(w http.ResponseWriter, r *http.Request) {
 		conn, err := upgrader.Upgrade(w, r, nil)
