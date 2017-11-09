@@ -1,12 +1,12 @@
 package MO
 
 import (
-	"./Protocol"
-	"./Protocol/lib"
-	"./encoding/nbt"
-	"./format"
-	"./type/direction"
-	"./type/vmath"
+	"github.com/ShadowJonathan/mopher/Protocol"
+	"github.com/ShadowJonathan/mopher/Protocol/lib"
+	"github.com/ShadowJonathan/mopher/encoding/nbt"
+	"github.com/ShadowJonathan/mopher/format"
+	"github.com/ShadowJonathan/mopher/type/direction"
+	"github.com/ShadowJonathan/mopher/type/vmath"
 	"bytes"
 	"errors"
 	"fmt"
