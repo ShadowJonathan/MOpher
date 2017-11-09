@@ -1,11 +1,11 @@
 package protocol
 
 import (
-	"./lib"
-	"./versions/315"
-	"./versions/335"
-	"./versions/338"
-	"./versions/340"
+	"github.com/ShadowJonathan/mopher/Protocol/lib"
+	"github.com/ShadowJonathan/mopher/Protocol/versions/315"
+	"github.com/ShadowJonathan/mopher/Protocol/versions/335"
+	"github.com/ShadowJonathan/mopher/Protocol/versions/338"
+	"github.com/ShadowJonathan/mopher/Protocol/versions/340"
 	"fmt"
 )
 

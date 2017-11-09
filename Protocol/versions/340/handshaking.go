@@ -3,7 +3,7 @@
 package _340
 
 import (
-	"../../lib"
+	"github.com/ShadowJonathan/mopher/Protocol/lib"
 )
 
 // Handshake is the first packet sent in the protocol.

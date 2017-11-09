@@ -5,7 +5,7 @@ import (
 	"io"
 	"math"
 
-	"../../encoding/nbt"
+	"github.com/ShadowJonathan/mopher/encoding/nbt"
 )
 
 const VarPart = uint32(0x7F)

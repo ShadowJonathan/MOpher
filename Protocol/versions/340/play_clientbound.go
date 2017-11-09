@@ -3,9 +3,9 @@
 package _340
 
 import (
-	"../../../encoding/nbt"
-	"../../../format"
-	"../../lib"
+	"github.com/ShadowJonathan/mopher/encoding/nbt"
+	"github.com/ShadowJonathan/mopher/format"
+	"github.com/ShadowJonathan/mopher/Protocol/lib"
 )
 
 // SpawnObject is used to spawn an object or vehicle into the world when it

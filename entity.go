@@ -1,8 +1,8 @@
 package MO
 
 import (
-	"./entitysys"
-	"./type/vmath"
+	"github.com/ShadowJonathan/mopher/entitysys"
+	"github.com/ShadowJonathan/mopher/type/vmath"
 )
 
 var entityTypes = map[int]func() Entity{

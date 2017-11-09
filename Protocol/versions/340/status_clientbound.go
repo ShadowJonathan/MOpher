@@ -3,7 +3,7 @@
 package _340
 
 import (
-	"../../lib"
+	"github.com/ShadowJonathan/mopher/Protocol/lib"
 )
 
 // StatusResponse is sent as a reply to a StatusRequest.

@@ -12,10 +12,10 @@ import (
 	"runtime"
 	"os/exec"
 	"encoding/json"
-	"../Protocol"
-	"../Protocol/mojang"
+	"github.com/ShadowJonathan/mopher/Protocol"
+	"github.com/ShadowJonathan/mopher/Protocol/mojang"
 	"github.com/gorilla/websocket"
-	"../../MOpher"
+	"github.com/ShadowJonathan/mopher"
 	crand "crypto/rand"
 	"log"
 )

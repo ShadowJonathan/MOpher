@@ -1,10 +1,10 @@
 package protocol
 
 import (
-	"./lib"
-	"./versions/335"
 	"fmt"
 	"reflect"
+	"github.com/ShadowJonathan/mopher/Protocol/lib"
+	"github.com/ShadowJonathan/mopher/Protocol/versions/335"
 )
 
 func Translate_335(i interface{}) (lib.Packet, error) {

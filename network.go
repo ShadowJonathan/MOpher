@@ -1,11 +1,11 @@
 package MO
 
 import (
-	"./Protocol"
-	"./Protocol/lib"
-	"./Protocol/mojang"
-	"./format"
-	"./type/vmath"
+	"github.com/ShadowJonathan/mopher/Protocol"
+	"github.com/ShadowJonathan/mopher/Protocol/lib"
+	"github.com/ShadowJonathan/mopher/Protocol/mojang"
+	"github.com/ShadowJonathan/mopher/format"
+	"github.com/ShadowJonathan/mopher/type/vmath"
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -655,7 +655,6 @@ func (n *NetworkManager) Connect(profile mojang.Profile, server string) {
 				return
 			}
 			if first {
-				lua_onload()
 				go n.writeHandler()
 				first = false
 			}

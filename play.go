@@ -1,9 +1,9 @@
 package MO
 
 import (
-	"./Protocol"
-	"./Protocol/lib"
-	"./type/direction"
+	"github.com/ShadowJonathan/mopher/Protocol"
+	"github.com/ShadowJonathan/mopher/Protocol/lib"
+	"github.com/ShadowJonathan/mopher/type/direction"
 	"errors"
 	"fmt"
 	"runtime/debug"

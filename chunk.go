@@ -1,12 +1,12 @@
 package MO
 
 import (
-	"./Protocol/lib"
-	"./type/bit"
-	"./type/direction"
-	"./type/nibble"
-	"./type/vmath"
-	"./world/biome"
+	"github.com/ShadowJonathan/mopher/Protocol/lib"
+	"github.com/ShadowJonathan/mopher/type/bit"
+	"github.com/ShadowJonathan/mopher/type/direction"
+	"github.com/ShadowJonathan/mopher/type/nibble"
+	"github.com/ShadowJonathan/mopher/type/vmath"
+	"github.com/ShadowJonathan/mopher/world/biome"
 	"bytes"
 	"encoding/binary"
 	"math"

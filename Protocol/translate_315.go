@@ -1,8 +1,8 @@
 package protocol
 
 import (
-	"./lib"
-	"./versions/315"
+	"github.com/ShadowJonathan/mopher/Protocol/lib"
+	"github.com/ShadowJonathan/mopher/Protocol/versions/315"
 	"fmt"
 	"reflect"
 )

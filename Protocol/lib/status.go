@@ -1,7 +1,7 @@
 package lib
 
 import (
-	"../../format"
+	"github.com/ShadowJonathan/mopher/format"
 )
 
 // StatusReply is the reply retrieved from a server when pinging

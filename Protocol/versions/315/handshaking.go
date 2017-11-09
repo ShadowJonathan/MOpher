@@ -2,7 +2,7 @@
 
 package _315
 
-import "../../lib"
+import "github.com/ShadowJonathan/mopher/Protocol/lib"
 
 // Handshake is the first packet sent in the protocol.
 // Its used for deciding if the request is a client

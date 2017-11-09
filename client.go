@@ -1,10 +1,10 @@
 package MO
 
 import (
-	"./Protocol"
-	"./Protocol/mojang"
-	"./type/direction"
-	"./type/vmath"
+	"github.com/ShadowJonathan/mopher/Protocol"
+	"github.com/ShadowJonathan/mopher/Protocol/mojang"
+	"github.com/ShadowJonathan/mopher/type/direction"
+	"github.com/ShadowJonathan/mopher/type/vmath"
 	"encoding/hex"
 	"fmt"
 	"github.com/go-gl/mathgl/mgl32"

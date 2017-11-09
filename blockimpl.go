@@ -19,8 +19,8 @@ import (
 	"math"
 	"reflect"
 
-	"./type/direction"
-	"./type/vmath"
+	"github.com/ShadowJonathan/mopher/type/vmath"
+	"github.com/ShadowJonathan/mopher/type/direction"
 )
 
 // Stone

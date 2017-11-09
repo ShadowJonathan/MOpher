@@ -1,7 +1,7 @@
 package MO
 
 import (
-	"./Protocol"
+	"github.com/ShadowJonathan/mopher/Protocol"
 	"strconv"
 	"time"
 	"sync"

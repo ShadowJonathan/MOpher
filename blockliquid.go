@@ -51,23 +51,3 @@ func (l *blockLiquid) LightEmitted() int {
 func (l *blockLiquid) toData() int {
 	return l.Level
 }
-
-func (l *blockLiquid) averageLiquidLevel(bs *blocksSnapshot, x, y, z int) int {
-	level := 0
-	for xx := -1; xx <= 0; xx++ {
-		for zz := -1; zz <= 0; zz++ {
-			b := bs.block(x+xx, y+1, z+zz)
-			if o, ok := b.(*blockLiquid); ok && l.Lava == o.Lava {
-				return 8
-			}
-			b = bs.block(x+xx, y, z+zz)
-			if o, ok := b.(*blockLiquid); ok && l.Lava == o.Lava {
-				nl := 7 - (o.Level & 0x7)
-				if nl > level {
-					level = nl
-				}
-			}
-		}
-	}
-	return level
-}

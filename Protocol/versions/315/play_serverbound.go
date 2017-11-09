@@ -2,7 +2,7 @@
 
 package _315
 
-import "../../lib"
+import "github.com/ShadowJonathan/mopher/Protocol/lib"
 
 // TeleConfirm
 //
