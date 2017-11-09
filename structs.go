@@ -260,17 +260,6 @@ func (Inventory) makeReadableSlot(s *ItemStack) string {
 	}
 }
 
-func openInventory(inv *Inventory) {
-	Client.activeInventory = inv
-}
-
-func closeInventory() {
-	if inv := Client.activeInventory; inv != nil {
-		inv.Close()
-		Client.activeInventory = nil
-	}
-}
-
 type inventoryScreen struct {
 	activeSlot int
 	inWindow   bool
@@ -283,18 +272,6 @@ func (i *inventoryScreen) init() {
 }
 func (i *inventoryScreen) tick(delta float64) {}
 
-func (i *inventoryScreen) hold(down bool, c int) {
-	item := Client.activeInventory.Items[c]
-	Client.network.Write(&protocol.ClickWindow{
-		ID:           byte(Client.activeInventory.ID),
-		Slot:         int16(i.activeSlot),
-		Button:       0,
-		Mode:         0,
-		ActionNumber: 42,
-		ClickedItem:  ItemStackToProtocol(item),
-	})
-
-}
 
 // Player
 

@@ -1,1 +1,2 @@
-go build && mopher.exe
+cd main
+go build && main.exe
