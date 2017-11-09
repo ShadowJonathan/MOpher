@@ -144,4 +144,4 @@ if _window == nil then
     end
 end
 
-dofile("scripts/polyfill/init.lua")
+dofile(ASP+"/scripts/polyfill/init.lua")

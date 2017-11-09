@@ -1,8 +1,13 @@
+if ASP == nil then
+    error("ASP NOT SET")
+end
+
+
 bot = require("bot")
 json = require("json")
 inv = require("inv")
 _window = require("_window")
-dofile("scripts/polyfill/polyfill.lua")
+dofile(ASP+"/polyfill/polyfill.lua")
 
 bot.log("LOADED")
 

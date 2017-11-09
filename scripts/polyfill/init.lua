@@ -1,6 +1,6 @@
-dofile("scripts/polyfill/table.lua")
-dofile("scripts/polyfill/world.lua")
-dofile("scripts/polyfill/window.lua")
+dofile(ASP+"/scripts/polyfill/table.lua")
+dofile(ASP+"/scripts/polyfill/world.lua")
+dofile(ASP+"/scripts/polyfill/window.lua")
 
 os.sleep = function(sec)
     local timr = os.time()
