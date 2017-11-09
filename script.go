@@ -12,18 +12,18 @@ import (
 
 var SE *lua.LState
 
-var py_cmds = make(chan string, 100)
+var lua_cmds = make(chan string, 100)
 
-var py_started = false
+var lua_started = false
 
 func lua_onload() {
-	if !py_started {
+	if !lua_started {
 		go func() {
 			err := SE.DoString("main()")
 			if err != nil {
 				LS("CANNOT START LUA:", err)
 			}
-			for cmd := range py_cmds {
+			for cmd := range lua_cmds {
 				err := SE.DoString(cmd)
 				if err != nil {
 					LS("CANNOT DO LUA:", err)
@@ -32,19 +32,19 @@ func lua_onload() {
 				}
 			}
 		}()
-		py_started = true
+		lua_started = true
 	}
 }
 
-func lua_eval(s string) {
+func Lua_eval(s string) {
 	LS("EVAL LUA:", s)
-	py_cmds <- s
+	lua_cmds <- s
 	return
 }
 
 func init() {
 	curr_path := ""
-	_, filename, _, ok := runtime.Caller(1)
+	_, filename, _, ok := runtime.Caller(0)
 	if ok {
 		curr_path = path.Join(path.Dir(filename), "scripts")
 	}
@@ -55,7 +55,7 @@ func init() {
 	SE.SetGlobal("ASP", lua.LString(curr_path))
 	luajson.Preload(SE)
 
-	err := SE.DoFile(curr_path + "/scripts/main.lua")
+	err := SE.DoFile(curr_path + "/main.lua")
 	if err != nil {
 		LS("ERR LOADING FILE:", err)
 	}

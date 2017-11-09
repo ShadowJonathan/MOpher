@@ -361,6 +361,10 @@ func callback(data string) {
 	} else if hp(data, "SLOT") {
 		MO.CS(MO.Client.CurrentHotbarSlot + 36)
 		return
+	} else if hp(data, "LUA") {
+		l := tp(data, "LUA")
+		MO.Lua_eval(l)
+		return
 	} else if hp(data, "DIG") {
 		xyz := tp(data, "DIG")
 		XYZ := strings.Split(xyz, ",")
@@ -499,7 +503,7 @@ func callback(data string) {
 			}
 		}
 		return
-	}  else if data == "EXIT" {
+	} else if data == "EXIT" {
 		exit()
 		return
 	} else if data == "POS" {
