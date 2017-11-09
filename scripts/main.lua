@@ -7,7 +7,7 @@ bot = require("bot")
 json = require("json")
 inv = require("inv")
 _window = require("_window")
-dofile(ASP+"/polyfill/polyfill.lua")
+dofile(ASP .. "/polyfill/polyfill.lua")
 
 bot.log("LOADED")
 

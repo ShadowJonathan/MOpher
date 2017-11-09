@@ -1,4 +1,4 @@
-Block = dofile(ASP + "/scripts/polyfill/block.lua")
+Block = dofile(ASP .. "/polyfill/block.lua")
 
 local Coords = { x = 0, y = 0, z = 0 }
 
