@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"encoding/json"
 	"strings"
+	"runtime"
+	"path"
 )
 
 var SE *lua.LState
@@ -41,13 +43,19 @@ func lua_eval(s string) {
 }
 
 func init() {
+	curr_path := ""
+	_, filename, _, ok := runtime.Caller(1)
+	if ok {
+		curr_path = path.Join(path.Dir(filename), "scripts")
+	}
 	SE = lua.NewState()
 	SE.PreloadModule("bot", lua_bot_loader)
 	SE.PreloadModule("inv", lua_inv_loader)
 	SE.PreloadModule("_window", lua_window_loader)
+	SE.SetGlobal("ASP", lua.LString(curr_path))
 	luajson.Preload(SE)
 
-	err := SE.DoFile("scripts/main.lua")
+	err := SE.DoFile(curr_path + "/scripts/main.lua")
 	if err != nil {
 		LS("ERR LOADING FILE:", err)
 	}

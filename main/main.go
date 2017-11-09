@@ -650,5 +650,4 @@ func callback(data string) {
 	}
 	b := MO.ChunkMap.Block(int(x), int(y), int(z))
 	MO.CS(b.BlockSet().Stringify(b), "@", int(x), int(y), int(z), "%", b.Name(), b.String(), b.SID(), b.BlockSet().ID)
-
 }
